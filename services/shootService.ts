@@ -70,25 +70,35 @@ export const fetchAllShoots = async (): Promise<Shoot[]> => {
 export const createShoot = async (shoot: Shoot): Promise<void> => {
   try {
     // Convert camelCase to snake_case for DB
-    const { error } = await supabase
+    const shootData = {
+      id: shoot.id,
+      title: shoot.title,
+      client: shoot.client,
+      date: shoot.date,
+      location: shoot.location,
+      description: shoot.description,
+      cover_image: shoot.coverImage,
+      style_guide: shoot.styleGuide,
+      timeline: shoot.timeline,
+      team: shoot.team
+    };
+
+    console.log('Creating shoot with data:', shootData);
+
+    const { data, error } = await supabase
       .from('shoots')
-      .insert([{
-        id: shoot.id,
-        title: shoot.title,
-        client: shoot.client,
-        date: shoot.date,
-        location: shoot.location,
-        description: shoot.description,
-        cover_image: shoot.coverImage,
-        style_guide: shoot.styleGuide,
-        timeline: shoot.timeline,
-        team: shoot.team
-      }]);
+      .insert([shootData])
+      .select();
 
     if (error) {
-      console.error('Error creating shoot:', error);
+      console.error('Supabase error details:', JSON.stringify(error, null, 2));
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
+      console.error('Error hint:', error.hint);
       throw new Error(`Failed to create shoot: ${error.message}`);
     }
+
+    console.log('Shoot created successfully:', data);
   } catch (error) {
     console.error('Error creating shoot:', error);
     throw error;
