@@ -45,8 +45,34 @@ export const PinProtection: React.FC<PinProtectionProps> = ({ children }) => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem(PIN_STORAGE_KEY);
+    setIsVerified(false);
+    setPin('');
+  };
+
   if (isVerified) {
-    return <>{children}</>;
+    return (
+      <>
+        <div className="fixed top-4 right-4 z-50 flex gap-2">
+          <a
+            href="/#/gift-card"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-white border-2 border-[#141413] px-4 py-2 text-sm font-medium hover:bg-[#D8D9CF] transition-colors flex items-center gap-2"
+          >
+            🎁 Gift Card Link
+          </a>
+          <button
+            onClick={handleLogout}
+            className="bg-[#141413] text-white px-4 py-2 text-sm font-medium hover:bg-[#2a2a29] transition-colors"
+          >
+            Logout
+          </button>
+        </div>
+        {children}
+      </>
+    );
   }
 
   return (
