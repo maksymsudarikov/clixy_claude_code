@@ -5,17 +5,36 @@ interface PinProtectionProps {
 }
 
 const CORRECT_PIN = '9634'; // Change this to your desired PIN
-const PIN_STORAGE_KEY = 'clixy_pin_verified';
+const SESSION_KEY = 'clixy_session_id';
 
 export const PinProtection: React.FC<PinProtectionProps> = ({ children }) => {
   const [isVerified, setIsVerified] = useState(false);
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
 
+  // Проверяем сессию при монтировании компонента
+  useEffect(() => {
+    const currentSessionId = sessionStorage.getItem(SESSION_KEY);
+
+    // Если сессии нет - это новое посещение, требуем PIN
+    if (!currentSessionId) {
+      setIsVerified(false);
+      return;
+    }
+
+    // Если сессия есть, проверяем что она валидна
+    // (в будущем можно добавить проверку на время)
+    setIsVerified(true);
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (pin === CORRECT_PIN) {
+      // Создаем уникальный ID сессии (валиден только на время открытой вкладки)
+      const sessionId = `session_${Date.now()}_${Math.random()}`;
+      sessionStorage.setItem(SESSION_KEY, sessionId);
+
       setIsVerified(true);
       setError('');
     } else {
@@ -25,6 +44,8 @@ export const PinProtection: React.FC<PinProtectionProps> = ({ children }) => {
   };
 
   const handleLogout = () => {
+    // Удаляем сессию - при следующем посещении потребуется PIN
+    sessionStorage.removeItem(SESSION_KEY);
     setIsVerified(false);
     setPin('');
   };
