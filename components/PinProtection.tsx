@@ -6,37 +6,16 @@ interface PinProtectionProps {
 
 const CORRECT_PIN = '9634'; // Change this to your desired PIN
 const PIN_STORAGE_KEY = 'clixy_pin_verified';
-const PIN_EXPIRY_HOURS = 24; // PIN valid for 24 hours
 
 export const PinProtection: React.FC<PinProtectionProps> = ({ children }) => {
   const [isVerified, setIsVerified] = useState(false);
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    // Check if PIN was previously verified and still valid
-    const stored = localStorage.getItem(PIN_STORAGE_KEY);
-    if (stored) {
-      const { timestamp } = JSON.parse(stored);
-      const hoursElapsed = (Date.now() - timestamp) / (1000 * 60 * 60);
-
-      if (hoursElapsed < PIN_EXPIRY_HOURS) {
-        setIsVerified(true);
-      } else {
-        localStorage.removeItem(PIN_STORAGE_KEY);
-      }
-    }
-  }, []);
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (pin === CORRECT_PIN) {
-      const data = {
-        timestamp: Date.now(),
-        verified: true
-      };
-      localStorage.setItem(PIN_STORAGE_KEY, JSON.stringify(data));
       setIsVerified(true);
       setError('');
     } else {
@@ -46,7 +25,6 @@ export const PinProtection: React.FC<PinProtectionProps> = ({ children }) => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem(PIN_STORAGE_KEY);
     setIsVerified(false);
     setPin('');
   };
