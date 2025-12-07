@@ -155,14 +155,14 @@ export const createGiftCard = async (formData: GiftCardPurchaseForm): Promise<Gi
 
       // Check if it's an RLS policy error
       if (error.message.includes('row-level security') || error.message.includes('policy')) {
-        // FALLBACK: Send via email
+        // FALLBACK: Send via email silently (no user prompt)
         console.warn('Database RLS error detected, using email fallback');
         console.warn('Please apply SQL policy in Supabase to fix this!');
 
-        // Only use email fallback if user confirms (to avoid browser blocking)
-        if (confirm('Database is unavailable. Send request via email instead?')) {
-          await sendGiftCardViaEmail(formData, code, pkg);
-        }
+        // Silently send email in background
+        sendGiftCardViaEmail(formData, code, pkg).catch(err => {
+          console.error('Email fallback failed:', err);
+        });
 
         // Return mock gift card data for success page
         return {
@@ -197,10 +197,10 @@ export const createGiftCard = async (formData: GiftCardPurchaseForm): Promise<Gi
     if (error instanceof Error && (error.message.includes('row-level security') || error.message.includes('policy'))) {
       console.warn('Using email fallback due to persistent error');
 
-      // Only use email fallback if user confirms
-      if (confirm('Database is unavailable. Send request via email instead?')) {
-        await sendGiftCardViaEmail(formData, code, pkg);
-      }
+      // Silently send email in background
+      sendGiftCardViaEmail(formData, code, pkg).catch(err => {
+        console.error('Email fallback failed:', err);
+      });
 
       // Return mock data
       return {
