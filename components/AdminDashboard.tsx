@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Shoot } from '../types';
-import { fetchAllShoots, deleteShoot } from '../services/sheetService';
+import { fetchAllShoots, deleteShoot } from '../services/shootService';
 import { useNotification } from '../contexts/NotificationContext';
 import { IconTrash, IconEdit, IconSearch } from './Icons';
 

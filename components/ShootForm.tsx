@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useParams } from 'react-router-dom';
 import { Shoot } from '../types';
-import { createShoot, updateShoot, fetchShootById } from '../services/sheetService';
+import { createShoot, updateShoot, fetchShootById } from '../services/shootService';
 import { useNotification } from '../contexts/NotificationContext';
 import { validateShootForm, sanitizeUrl } from '../utils/validation';
 import { inputClasses, labelClasses, sectionHeaderClasses, cardClasses } from '../utils/designSystem';

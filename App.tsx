@@ -10,7 +10,7 @@ import { PinProtection } from './components/PinProtection';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { NotificationContainer } from './components/NotificationContainer';
 import { Shoot } from './types';
-import { fetchShootById, fetchAllShoots } from './services/sheetService';
+import { fetchShootById, fetchAllShoots } from './services/shootService';
 
 const ShootRoute = () => {
   const { id } = useParams<{ id: string }>();
