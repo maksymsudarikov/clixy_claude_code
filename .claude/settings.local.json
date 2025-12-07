@@ -21,7 +21,10 @@
       "Bash(ssh:*)",
       "Bash(pbcopy)",
       "Bash(ssh-add:*)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(gh run list:*)",
+      "Bash(git fetch:*)"
     ],
     "deny": [],
     "ask": []
