@@ -4,6 +4,9 @@ import { ShootDetails } from './components/ShootDetails';
 import { Dashboard } from './components/Dashboard';
 import { AdminDashboard } from './components/AdminDashboard';
 import { ShootForm } from './components/ShootForm';
+import { GiftCardPurchase } from './components/giftcard/GiftCardPurchase';
+import { GiftCardSuccess } from './components/giftcard/GiftCardSuccess';
+import { PinProtection } from './components/PinProtection';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { NotificationContainer } from './components/NotificationContainer';
 import { Shoot } from './types';
@@ -95,11 +98,16 @@ const App: React.FC = () => {
       <NotificationProvider>
         <NotificationContainer />
         <Routes>
-          <Route path="/" element={<HomeRoute />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/create" element={<ShootForm />} />
-          <Route path="/admin/edit/:id" element={<ShootForm />} />
-          <Route path="/shoot/:id" element={<ShootRoute />} />
+          {/* Public routes - no PIN required */}
+          <Route path="/gift-card" element={<GiftCardPurchase />} />
+          <Route path="/gift-card/success/:id" element={<GiftCardSuccess />} />
+
+          {/* Protected routes - PIN required */}
+          <Route path="/" element={<PinProtection><HomeRoute /></PinProtection>} />
+          <Route path="/admin" element={<PinProtection><AdminDashboard /></PinProtection>} />
+          <Route path="/admin/create" element={<PinProtection><ShootForm /></PinProtection>} />
+          <Route path="/admin/edit/:id" element={<PinProtection><ShootForm /></PinProtection>} />
+          <Route path="/shoot/:id" element={<PinProtection><ShootRoute /></PinProtection>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </NotificationProvider>

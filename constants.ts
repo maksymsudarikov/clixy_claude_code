@@ -1,4 +1,107 @@
-import { Shoot } from './types';
+import { Shoot, GiftCardPackage } from './types';
+
+// Contact Information
+export const CONTACT_INFO = {
+  whatsapp: '+13475839777',
+  email: 'art@olgaprudka.com',
+  zelle: {
+    name: 'Olha Prudka',
+    phone: '347-933-5770'
+  }
+};
+
+// Gift Card Packages
+export const GIFT_CARD_PACKAGES: GiftCardPackage[] = [
+  {
+    id: 'couple-photoshoot',
+    name: 'COUPLE PHOTOSHOOT',
+    price: 1000,
+    currency: 'USD',
+    duration: '1.5–2 hours',
+    photosCount: '40 edited photos',
+    locations: '1 main location',
+    features: [
+      'Close-up portraits of connection and intimacy',
+      'Detail shots (hands, expressions, small moments)',
+      'Full-body frames',
+      'Dynamic movement and candid interactions',
+      'Multiple backgrounds and moods',
+      'Color + B&W versions',
+      'All original files from the session',
+      'Personalized moodboard',
+      'Posing guidance and support'
+    ],
+    description: 'A cinematic couple session focused on capturing your connection and emotions in a natural and authentic way.',
+    popular: true,
+    notionUrl: 'https://www.notion.so/COUPLE-PHOTOSHOOT-2af387bff96a803b9a85d88b01b15066'
+  },
+  {
+    id: 'street-style-single',
+    name: 'STREET STYLE (1 Outfit)',
+    price: 1000,
+    currency: 'USD',
+    duration: '1.5–2 hours',
+    photosCount: '35 edited photos',
+    locations: '1 NYC neighborhood',
+    features: [
+      '1 outfit',
+      'Close-up portraits',
+      'Detail captures (accessories, textures, expressions)',
+      'Full-body frames',
+      'Dynamic movement shots',
+      'Color + B&W versions',
+      'All original files',
+      'Custom moodboard',
+      'Posing guidance and angles'
+    ],
+    description: 'A dynamic New York street style session focused on you and your personality.',
+    notionUrl: 'https://www.notion.so/STREET-STYLE-PHOTOSHOOT-2af387bff96a80fd943cd55499d4b657'
+  },
+  {
+    id: 'street-style-double',
+    name: 'STREET STYLE (2 Outfits)',
+    price: 1300,
+    currency: 'USD',
+    duration: '2–3 hours',
+    photosCount: '50 edited photos',
+    locations: '1 NYC neighborhood',
+    features: [
+      '2 outfits',
+      'Close-up portraits',
+      'Detail captures (accessories, textures, expressions)',
+      'Full-body frames',
+      'Dynamic movement shots',
+      'Color + B&W versions',
+      'All original files',
+      'Custom moodboard',
+      'Posing guidance and angles'
+    ],
+    description: 'Extended street style session with two outfit changes for more variety.',
+    notionUrl: 'https://www.notion.so/STREET-STYLE-PHOTOSHOOT-2af387bff96a80fd943cd55499d4b657'
+  },
+  {
+    id: 'family-photoshoot',
+    name: 'FAMILY PHOTOSHOOT',
+    price: 1300,
+    currency: 'USD',
+    duration: '2–2.5 hours',
+    photosCount: '40 edited photos',
+    locations: 'Home or outdoor location',
+    features: [
+      'Natural portraits',
+      'Emotional group shots',
+      'Close-ups and macro portraits',
+      'Candid reportage-style frames',
+      'Color + B&W versions',
+      'All original files',
+      'Outfit coordination help',
+      'Relaxed, natural atmosphere',
+      'Optional personalized moodboard'
+    ],
+    description: 'An intimate, documentary-style family session that captures who you really are — the warmth, connection, laughter, and quiet moments.',
+    notionUrl: 'https://www.notion.so/FAMILY-PHOTOSHOOT-2a5387bff96a80289610d556cc0b2bc9'
+  }
+];
 
 export const MOCK_SHOOTS: Shoot[] = [
   {

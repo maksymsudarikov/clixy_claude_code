@@ -32,3 +32,54 @@ export interface Shoot {
   timeline: TimelineEvent[]; // Array of schedule events
   coverImage: string;
 }
+
+// Gift Card Types
+export interface GiftCardPackage {
+  id: string;
+  name: string;
+  price: number;
+  currency: string;
+  duration: string;
+  photosCount: string;
+  locations?: string;
+  features: string[];
+  description: string;
+  popular?: boolean;
+  notionUrl?: string; // Link to full details on Notion
+}
+
+export interface GiftCardPurchaseForm {
+  packageId: string;
+  purchaserName: string;
+  purchaserEmail: string;
+  purchaserPhone: string;
+  recipientName: string;
+  recipientEmail: string;
+  personalMessage?: string;
+  deliveryType: 'immediate' | 'scheduled';
+  deliveryDate?: string;
+}
+
+export interface GiftCard {
+  id: string;
+  code: string;
+  packageId: string;
+  packageName: string;
+  amount: number;
+  currency: string;
+  purchaserName: string;
+  purchaserEmail: string;
+  purchaserPhone: string;
+  recipientName: string;
+  recipientEmail: string;
+  personalMessage?: string;
+  purchaseDate: string;
+  deliveryDate: string;
+  expiryDate: string;
+  sentDate?: string;
+  redeemedDate?: string;
+  status: 'pending' | 'active' | 'sent' | 'redeemed' | 'expired' | 'cancelled';
+  paymentStatus: 'pending' | 'completed' | 'failed' | 'refunded';
+  redeemedBy?: string;
+  adminNotes?: string;
+}
