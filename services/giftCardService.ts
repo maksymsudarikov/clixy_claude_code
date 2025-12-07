@@ -52,14 +52,16 @@ Message: ${formData.personalMessage || 'None'}
 Please process manually and add to database when possible.
   `);
 
-  // Open mailto link (will work on most devices)
+  // Create mailto link
   const mailtoLink = `mailto:maksym.sudarikov@gmail.com?subject=URGENT: Gift Card Request ${code}&body=${emailBody}`;
 
-  // Try to open email client
-  const link = document.createElement('a');
-  link.href = mailtoLink;
-  link.target = '_blank';
-  link.click();
+  // Only open email client after a small delay to ensure user sees the success page first
+  setTimeout(() => {
+    const link = document.createElement('a');
+    link.href = mailtoLink;
+    link.target = '_blank';
+    link.click();
+  }, 500);
 };
 
 // Create a new gift card
