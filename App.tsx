@@ -100,14 +100,14 @@ const App: React.FC = () => {
         <Routes>
           {/* Public routes - no PIN required */}
           <Route path="/gift-card" element={<GiftCardPurchase />} />
-          <Route path="/gift-card/success/:id" element={<GiftCardSuccess />} />
+          <Route path="/gift-card/success" element={<GiftCardSuccess />} />
+          <Route path="/shoot/:id" element={<ShootRoute />} />
 
           {/* Protected routes - PIN required */}
           <Route path="/" element={<PinProtection><HomeRoute /></PinProtection>} />
           <Route path="/admin" element={<PinProtection><AdminDashboard /></PinProtection>} />
           <Route path="/admin/create" element={<PinProtection><ShootForm /></PinProtection>} />
           <Route path="/admin/edit/:id" element={<PinProtection><ShootForm /></PinProtection>} />
-          <Route path="/shoot/:id" element={<PinProtection><ShootRoute /></PinProtection>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </NotificationProvider>

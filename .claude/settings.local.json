@@ -17,7 +17,11 @@
       "Bash(export PATH=\"/usr/local/bin:$PATH\")",
       "Bash(export PATH=\"$HOME/.nvm/versions/node/v22.19.0/bin:$PATH\")",
       "Bash(node --version:*)",
-      "Bash(npm:*)"
+      "Bash(npm:*)",
+      "Bash(ssh:*)",
+      "Bash(pbcopy)",
+      "Bash(ssh-add:*)",
+      "Bash(git log:*)"
     ],
     "deny": [],
     "ask": []

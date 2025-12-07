@@ -59,7 +59,16 @@ export const GiftCardPurchase: React.FC = () => {
     try {
       const giftCard = await createGiftCard(formData as GiftCardPurchaseForm);
       addNotification('success', 'Gift card request submitted successfully!');
-      navigate(`/gift-card/success/${giftCard.id}`);
+
+      // Передаем безопасные данные через URL (не из базы)
+      const successParams = new URLSearchParams({
+        code: giftCard.code,
+        packageName: selectedPackage.name,
+        amount: selectedPackage.price.toString(),
+        recipientName: formData.recipientName!
+      });
+
+      navigate(`/gift-card/success?${successParams.toString()}`);
     } catch (error) {
       console.error('Error creating gift card:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to create gift card';

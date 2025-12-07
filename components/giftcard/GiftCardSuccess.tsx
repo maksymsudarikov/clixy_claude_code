@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { fetchGiftCardById } from '../../services/giftCardService';
-import { GiftCard } from '../../types';
+import React, { useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { CONTACT_INFO } from '../../constants';
 
 const IconCheck = () => (
@@ -17,55 +15,34 @@ const IconCopy = () => (
 );
 
 export const GiftCardSuccess: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const [giftCard, setGiftCard] = useState<GiftCard | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [searchParams] = useSearchParams();
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    const loadGiftCard = async () => {
-      if (!id) return;
-      try {
-        const data = await fetchGiftCardById(id);
-        setGiftCard(data);
-      } catch (error) {
-        console.error('Failed to load gift card:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadGiftCard();
-  }, [id]);
+  // Получаем данные из URL параметров (безопасно, не из базы)
+  const code = searchParams.get('code');
+  const packageName = searchParams.get('packageName');
+  const amount = searchParams.get('amount');
+  const recipientName = searchParams.get('recipientName');
 
   const handleCopyCode = () => {
-    if (giftCard?.code) {
-      navigator.clipboard.writeText(giftCard.code);
+    if (code) {
+      navigator.clipboard.writeText(code);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
   };
 
-  const whatsappUrl = `https://wa.me/${CONTACT_INFO.whatsapp.replace(/[^0-9]/g, '')}?text=Hi! I just purchased a gift card (Code: ${giftCard?.code}). I'd like to complete the payment.`;
+  const whatsappUrl = `https://wa.me/${CONTACT_INFO.whatsapp.replace(/[^0-9]/g, '')}?text=Hi! I just purchased a gift card (Code: ${code}). I'd like to complete the payment.`;
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#D8D9CF]">
-        <div className="animate-pulse flex flex-col items-center">
-          <div className="h-4 w-4 bg-[#141413] rounded-full mb-2 animate-bounce"></div>
-          <span className="text-xs font-medium tracking-widest text-[#9E9E98] uppercase">Loading</span>
-        </div>
-      </div>
-    );
-  }
-
-  if (!giftCard) {
+  // Если нет параметров - показываем ошибку
+  if (!code || !packageName || !amount || !recipientName) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#D8D9CF]">
         <div className="text-center">
-          <h1 className="text-xl font-bold mb-2">Gift Card Not Found</h1>
-          <p className="text-sm text-[#9E9E98] mb-6">Please check your URL and try again.</p>
-          <Link to="/" className="text-xs border-b border-[#141413] pb-0.5 uppercase tracking-widest">
-            Return Home
+          <h1 className="text-xl font-bold mb-2">Invalid Gift Card Link</h1>
+          <p className="text-sm text-[#9E9E98] mb-6">Please complete the purchase form to create a gift card.</p>
+          <Link to="/gift-card" className="text-xs border-b border-[#141413] pb-0.5 uppercase tracking-widest">
+            Go to Gift Card Purchase
           </Link>
         </div>
       </div>
@@ -104,21 +81,21 @@ export const GiftCardSuccess: React.FC = () => {
           <div className="space-y-3">
             <div className="flex justify-between items-center py-2 border-b border-[#9E9E98]">
               <span className="text-sm font-medium">Package:</span>
-              <span className="text-sm font-bold uppercase">{giftCard.packageName}</span>
+              <span className="text-sm font-bold uppercase">{packageName}</span>
             </div>
             <div className="flex justify-between items-center py-2 border-b border-[#9E9E98]">
               <span className="text-sm font-medium">Amount:</span>
-              <span className="text-xl font-bold">${giftCard.amount} {giftCard.currency}</span>
+              <span className="text-xl font-bold">${amount} USD</span>
             </div>
             <div className="flex justify-between items-center py-2 border-b border-[#9E9E98]">
               <span className="text-sm font-medium">Recipient:</span>
-              <span className="text-sm font-bold">{giftCard.recipientName}</span>
+              <span className="text-sm font-bold">{recipientName}</span>
             </div>
             <div className="flex justify-between items-center py-2">
               <span className="text-sm font-medium">Your Gift Card Code:</span>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-mono font-bold bg-[#D8D9CF] px-3 py-1 border border-[#141413]">
-                  {giftCard.code}
+                  {code}
                 </span>
                 <button
                   onClick={handleCopyCode}
@@ -150,10 +127,7 @@ export const GiftCardSuccess: React.FC = () => {
               <div>
                 <p className="font-bold mb-1">Gift Card Delivery</p>
                 <p className="text-sm text-gray-300">
-                  {giftCard.deliveryType === 'immediate'
-                    ? 'Your recipient will receive the gift card within 24 hours after payment confirmation.'
-                    : `Your recipient will receive the gift card on ${new Date(giftCard.deliveryDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}.`
-                  }
+                  Your recipient will receive the gift card within 24 hours after payment confirmation.
                 </p>
               </div>
             </li>
@@ -188,11 +162,11 @@ export const GiftCardSuccess: React.FC = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[#9E9E98]">Amount:</span>
-                  <span className="font-bold text-lg">${giftCard.amount}</span>
+                  <span className="font-bold text-lg">${amount}</span>
                 </div>
                 <div className="mt-4 pt-4 border-t border-[#141413]">
                   <span className="text-[#9E9E98] text-xs uppercase tracking-wider">Reference:</span>
-                  <p className="font-mono font-bold mt-1">{giftCard.code}</p>
+                  <p className="font-mono font-bold mt-1">{code}</p>
                 </div>
               </div>
             </div>
@@ -223,7 +197,7 @@ export const GiftCardSuccess: React.FC = () => {
               Contact via WhatsApp
             </a>
             <a
-              href={`mailto:${CONTACT_INFO.email}?subject=Gift Card Payment - ${giftCard.code}&body=Hi, I'd like to complete payment for my gift card purchase.%0D%0A%0D%0ACode: ${giftCard.code}%0D%0AAmount: $${giftCard.amount}%0D%0APackage: ${giftCard.packageName}`}
+              href={`mailto:${CONTACT_INFO.email}?subject=Gift Card Payment - ${code}&body=Hi, I'd like to complete payment for my gift card purchase.%0D%0A%0D%0ACode: ${code}%0D%0AAmount: $${amount}%0D%0APackage: ${packageName}`}
               className="px-6 py-3 bg-white text-[#141413] text-xs font-bold uppercase tracking-widest hover:bg-[#141413] hover:text-white border border-[#141413] transition-colors"
             >
               Send Email
