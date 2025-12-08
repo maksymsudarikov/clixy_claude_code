@@ -107,6 +107,12 @@ export const TimelineBuilder: React.FC<TimelineBuilderProps> = ({ timeline, onCh
         </div>
       )}
 
+      {editingIndex !== null && (
+        <div className="mb-4 p-3 bg-[#141413] text-white text-xs uppercase tracking-wider font-bold">
+          Editing: {timeline[editingIndex].activity} - Click Update to save changes or X to cancel
+        </div>
+      )}
+
       <div className="grid grid-cols-12 gap-4 items-end">
         <div className="col-span-4 md:col-span-3 flex items-center space-x-2">
           <div className="flex-1">
@@ -120,7 +126,9 @@ export const TimelineBuilder: React.FC<TimelineBuilderProps> = ({ timeline, onCh
                 const val = e.target.value.replace(/\D/g, '');
                 setTimeInput({ ...timeInput, hour: val });
               }}
-              className="w-full bg-transparent border-b border-[#9E9E98] py-2 text-sm font-mono text-[#141413] focus:border-[#141413] outline-none text-center"
+              className={`w-full bg-transparent border-b py-2 text-sm font-mono text-[#141413] focus:border-[#141413] outline-none text-center ${
+                editingIndex !== null ? 'border-[#141413] bg-yellow-50' : 'border-[#9E9E98]'
+              }`}
               aria-label="Hour"
             />
           </div>
@@ -136,7 +144,9 @@ export const TimelineBuilder: React.FC<TimelineBuilderProps> = ({ timeline, onCh
                 const val = e.target.value.replace(/\D/g, '');
                 setTimeInput({ ...timeInput, minute: val });
               }}
-              className="w-full bg-transparent border-b border-[#9E9E98] py-2 text-sm font-mono text-[#141413] focus:border-[#141413] outline-none text-center"
+              className={`w-full bg-transparent border-b py-2 text-sm font-mono text-[#141413] focus:border-[#141413] outline-none text-center ${
+                editingIndex !== null ? 'border-[#141413] bg-yellow-50' : 'border-[#9E9E98]'
+              }`}
               aria-label="Minute"
             />
           </div>
@@ -144,7 +154,9 @@ export const TimelineBuilder: React.FC<TimelineBuilderProps> = ({ timeline, onCh
             <label className="text-[10px] uppercase text-[#9E9E98] font-bold mb-1 block opacity-0">
               M
             </label>
-            <div className="w-full bg-transparent border-b border-[#9E9E98] py-2 text-sm font-mono text-[#141413] group-hover:border-[#141413] outline-none text-center select-none">
+            <div className={`w-full bg-transparent border-b py-2 text-sm font-mono text-[#141413] group-hover:border-[#141413] outline-none text-center select-none ${
+              editingIndex !== null ? 'border-[#141413] bg-yellow-50' : 'border-[#9E9E98]'
+            }`}>
               {timeInput.ampm}
             </div>
           </div>
@@ -156,17 +168,33 @@ export const TimelineBuilder: React.FC<TimelineBuilderProps> = ({ timeline, onCh
             placeholder="e.g. LUNCH BREAK"
             value={timelineActivity}
             onChange={e => setTimelineActivity(e.target.value)}
-            className="w-full bg-transparent border-b border-[#9E9E98] py-2 text-sm uppercase placeholder-[#9E9E98] text-[#141413] focus:border-[#141413] outline-none"
+            className={`w-full bg-transparent border-b py-2 text-sm uppercase placeholder-[#9E9E98] text-[#141413] focus:border-[#141413] outline-none ${
+              editingIndex !== null ? 'border-[#141413] bg-yellow-50' : 'border-[#9E9E98]'
+            }`}
             aria-label="Timeline activity"
           />
         </div>
 
-        <div className="col-span-12 md:col-span-3 mt-4 md:mt-0">
+        <div className="col-span-12 md:col-span-3 mt-4 md:mt-0 flex gap-2">
+          {editingIndex !== null && (
+            <button
+              type="button"
+              onClick={() => {
+                setEditingIndex(null);
+                setTimelineActivity('');
+                setTimeInput({ hour: '09', minute: '00', ampm: 'AM' });
+              }}
+              className="flex-1 text-xs px-2 py-3 font-bold uppercase tracking-wider bg-white text-[#141413] hover:bg-red-600 hover:text-white border border-[#141413] transition-colors"
+              title="Cancel editing"
+            >
+              Cancel
+            </button>
+          )}
           <button
             type="button"
             onClick={saveTimelineEvent}
             disabled={!timelineActivity.trim() || !isValidTime(timeInput.hour, timeInput.minute)}
-            className={`w-full text-xs px-2 py-3 font-bold uppercase tracking-wider disabled:opacity-50 border border-[#141413] transition-colors ${
+            className={`${editingIndex !== null ? 'flex-1' : 'w-full'} text-xs px-2 py-3 font-bold uppercase tracking-wider disabled:opacity-50 border border-[#141413] transition-colors ${
               editingIndex !== null
                 ? 'bg-[#141413] text-white hover:bg-white hover:text-[#141413]'
                 : 'bg-white text-[#141413] hover:bg-[#141413] hover:text-white'
