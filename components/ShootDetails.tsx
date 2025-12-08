@@ -32,7 +32,7 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
              <div className="flex items-center space-x-3 text-xs md:text-sm uppercase font-bold tracking-[0.2em] text-white mb-4 bg-[#141413] inline-block px-3 py-1">
                 <span>{shoot.client}</span>
                 <span>//</span>
-                <span>{new Date(shoot.date).toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}</span>
+                <span>{new Date(shoot.date + 'T00:00:00').toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}</span>
              </div>
              <h1 className="text-4xl md:text-7xl font-extrabold uppercase tracking-tight text-white leading-none">
                 {shoot.title}

@@ -218,7 +218,12 @@ export const ShootForm: React.FC = () => {
                     value={formData.startTime}
                     onChange={handleChange}
                     className={inputClasses}
+                    step="60"
+                    pattern="[0-9]{2}:[0-9]{2}"
                   />
+                  <p className="text-[10px] text-[#9E9E98] mt-1 uppercase tracking-wider">
+                    Format: HH:MM (e.g., 09:30)
+                  </p>
                 </div>
                 <div>
                   <label className={labelClasses}>End Time</label>
@@ -229,7 +234,12 @@ export const ShootForm: React.FC = () => {
                     value={formData.endTime}
                     onChange={handleChange}
                     className={inputClasses}
+                    step="60"
+                    pattern="[0-9]{2}:[0-9]{2}"
                   />
+                  <p className="text-[10px] text-[#9E9E98] mt-1 uppercase tracking-wider">
+                    Format: HH:MM (e.g., 18:00)
+                  </p>
                 </div>
               </div>
 

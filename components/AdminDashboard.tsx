@@ -20,7 +20,7 @@ export const AdminDashboard: React.FC = () => {
     try {
       setLoading(true);
       const data = await fetchAllShoots();
-      const sorted = [...data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      const sorted = [...data].sort((a, b) => new Date(a.date + 'T00:00:00').getTime() - new Date(b.date + 'T00:00:00').getTime());
       setShoots(sorted);
     } catch (err) {
       addNotification('error', 'Failed to load shoots');
@@ -72,11 +72,11 @@ export const AdminDashboard: React.FC = () => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const upcomingShoots = filteredShoots.filter(s => new Date(s.date) >= today);
-  const pastShoots = filteredShoots.filter(s => new Date(s.date) < today).reverse();
+  const upcomingShoots = filteredShoots.filter(s => new Date(s.date + 'T00:00:00') >= today);
+  const pastShoots = filteredShoots.filter(s => new Date(s.date + 'T00:00:00') < today).reverse();
 
   const ShootRow = ({ shoot }: { shoot: Shoot }) => {
-    const isToday = new Date(shoot.date).toDateString() === new Date().toDateString();
+    const isToday = new Date(shoot.date + 'T00:00:00').toDateString() === new Date().toDateString();
 
     return (
       <div className="grid grid-cols-12 gap-4 p-6 border-b border-[#141413] items-center hover:bg-[#F0F0EB] transition-colors bg-white group last:border-b-0">
@@ -98,7 +98,7 @@ export const AdminDashboard: React.FC = () => {
           </Link>
         </div>
         <div className="col-span-3 text-sm font-mono text-[#141413]">
-          {new Date(shoot.date).toLocaleDateString(undefined, {
+          {new Date(shoot.date + 'T00:00:00').toLocaleDateString(undefined, {
             month: 'short',
             day: 'numeric',
             year: 'numeric'
