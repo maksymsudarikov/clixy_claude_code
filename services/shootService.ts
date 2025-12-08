@@ -16,17 +16,28 @@ export const fetchShootById = async (id: string): Promise<Shoot | undefined> => 
     }
 
     // Convert snake_case from DB to camelCase
+    // Handle missing fields with defaults
     return data ? {
       id: data.id,
       title: data.title,
       client: data.client,
       date: data.date,
-      location: data.location,
-      description: data.description,
-      coverImage: data.cover_image,
-      styleGuide: data.style_guide,
-      timeline: data.timeline,
-      team: data.team
+      startTime: data.start_time || '09:00',
+      endTime: data.end_time || '18:00',
+      locationName: data.location_name || data.location || '',
+      locationAddress: data.location_address || '',
+      locationMapUrl: data.location_map_url || '',
+      description: data.description || '',
+      moodboardUrl: data.moodboard_url || '',
+      moodboardImages: data.moodboard_images || [],
+      callSheetUrl: data.call_sheet_url || '',
+      finalPhotosUrl: data.final_photos_url || '',
+      stylingUrl: data.styling_url || '',
+      stylingNotes: data.styling_notes || '',
+      hairMakeupNotes: data.hair_makeup_notes || '',
+      coverImage: data.cover_image || 'https://images.unsplash.com/photo-1492633423870-43d1cd2775eb?auto=format&fit=crop&q=80&w=1200',
+      timeline: data.timeline || [],
+      team: data.team || []
     } : undefined;
   } catch (error) {
     console.error('Error fetching shoot:', error);
@@ -47,18 +58,28 @@ export const fetchAllShoots = async (): Promise<Shoot[]> => {
       return [];
     }
 
-    // Convert snake_case from DB to camelCase
+    // Convert snake_case from DB to camelCase with defaults
     return (data || []).map(shoot => ({
       id: shoot.id,
       title: shoot.title,
       client: shoot.client,
       date: shoot.date,
-      location: shoot.location,
-      description: shoot.description,
-      coverImage: shoot.cover_image,
-      styleGuide: shoot.style_guide,
-      timeline: shoot.timeline,
-      team: shoot.team
+      startTime: shoot.start_time || '09:00',
+      endTime: shoot.end_time || '18:00',
+      locationName: shoot.location_name || shoot.location || '',
+      locationAddress: shoot.location_address || '',
+      locationMapUrl: shoot.location_map_url || '',
+      description: shoot.description || '',
+      moodboardUrl: shoot.moodboard_url || '',
+      moodboardImages: shoot.moodboard_images || [],
+      callSheetUrl: shoot.call_sheet_url || '',
+      finalPhotosUrl: shoot.final_photos_url || '',
+      stylingUrl: shoot.styling_url || '',
+      stylingNotes: shoot.styling_notes || '',
+      hairMakeupNotes: shoot.hair_makeup_notes || '',
+      coverImage: shoot.cover_image || 'https://images.unsplash.com/photo-1492633423870-43d1cd2775eb?auto=format&fit=crop&q=80&w=1200',
+      timeline: shoot.timeline || [],
+      team: shoot.team || []
     }));
   } catch (error) {
     console.error('Error fetching shoots:', error);
@@ -75,10 +96,20 @@ export const createShoot = async (shoot: Shoot): Promise<void> => {
       title: shoot.title,
       client: shoot.client,
       date: shoot.date,
-      location: shoot.location,
+      start_time: shoot.startTime,
+      end_time: shoot.endTime,
+      location_name: shoot.locationName,
+      location_address: shoot.locationAddress,
+      location_map_url: shoot.locationMapUrl,
       description: shoot.description,
+      moodboard_url: shoot.moodboardUrl,
+      moodboard_images: shoot.moodboardImages,
+      call_sheet_url: shoot.callSheetUrl,
+      final_photos_url: shoot.finalPhotosUrl,
+      styling_url: shoot.stylingUrl,
+      styling_notes: shoot.stylingNotes,
+      hair_makeup_notes: shoot.hairMakeupNotes,
       cover_image: shoot.coverImage,
-      style_guide: shoot.styleGuide,
       timeline: shoot.timeline,
       team: shoot.team
     };
@@ -115,10 +146,20 @@ export const updateShoot = async (shoot: Shoot): Promise<void> => {
         title: shoot.title,
         client: shoot.client,
         date: shoot.date,
-        location: shoot.location,
+        start_time: shoot.startTime,
+        end_time: shoot.endTime,
+        location_name: shoot.locationName,
+        location_address: shoot.locationAddress,
+        location_map_url: shoot.locationMapUrl,
         description: shoot.description,
+        moodboard_url: shoot.moodboardUrl,
+        moodboard_images: shoot.moodboardImages,
+        call_sheet_url: shoot.callSheetUrl,
+        final_photos_url: shoot.finalPhotosUrl,
+        styling_url: shoot.stylingUrl,
+        styling_notes: shoot.stylingNotes,
+        hair_makeup_notes: shoot.hairMakeupNotes,
         cover_image: shoot.coverImage,
-        style_guide: shoot.styleGuide,
         timeline: shoot.timeline,
         team: shoot.team,
         updated_at: new Date().toISOString()
