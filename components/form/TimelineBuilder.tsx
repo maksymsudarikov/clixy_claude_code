@@ -134,7 +134,7 @@ export const TimelineBuilder: React.FC<TimelineBuilderProps> = ({ timeline, onCh
               value={timeInput.minute}
               onChange={e => {
                 const val = e.target.value.replace(/\D/g, '');
-                setTimeInput({ ...timeInput, minute: val.padStart(2, '0') });
+                setTimeInput({ ...timeInput, minute: val });
               }}
               className="w-full bg-transparent border-b border-[#9E9E98] py-2 text-sm font-mono text-[#141413] focus:border-[#141413] outline-none text-center"
               aria-label="Minute"

@@ -32,6 +32,7 @@ export const ShootForm: React.FC = () => {
     callSheetUrl: '',
     finalPhotosUrl: '',
     stylingUrl: '',
+    stylingNotes: '',
     hairMakeupNotes: '',
     coverImage: 'https://images.unsplash.com/photo-1492633423870-43d1cd2775eb?auto=format&fit=crop&q=80&w=1200',
     team: [],
@@ -342,15 +343,32 @@ export const ShootForm: React.FC = () => {
           <section>
             <h3 className={sectionHeaderClasses}>04. Creative Notes</h3>
             <div className={cardClasses}>
-              <label className={labelClasses}>Hair & Makeup Notes</label>
-              <textarea
-                name="hairMakeupNotes"
-                value={formData.hairMakeupNotes}
-                onChange={handleChange}
-                rows={3}
-                className={`${inputClasses} resize-none`}
-                placeholder="Look and feel..."
-              />
+              <div className="mb-8">
+                <label className={labelClasses}>Styling Notes</label>
+                <textarea
+                  name="stylingNotes"
+                  value={formData.stylingNotes}
+                  onChange={handleChange}
+                  rows={3}
+                  className={`${inputClasses} resize-none`}
+                  placeholder="Wardrobe, props, styling direction..."
+                />
+                <p className="text-[10px] text-[#9E9E98] mt-2 uppercase tracking-wider">
+                  Optional text notes (or use Styling Guide URL above)
+                </p>
+              </div>
+
+              <div>
+                <label className={labelClasses}>Hair & Makeup Notes</label>
+                <textarea
+                  name="hairMakeupNotes"
+                  value={formData.hairMakeupNotes}
+                  onChange={handleChange}
+                  rows={3}
+                  className={`${inputClasses} resize-none`}
+                  placeholder="Look and feel..."
+                />
+              </div>
             </div>
           </section>
 
