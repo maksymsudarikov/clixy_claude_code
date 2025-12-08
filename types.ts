@@ -24,7 +24,9 @@ export interface Shoot {
   moodboardUrl?: string;
   moodboardImages: string[]; // Array of image URLs for preview
   callSheetUrl?: string;
-  finalPhotosUrl?: string;
+  photoSelectionUrl?: string; // URL for client to select photos (Adobe/GDrive/WeTransfer)
+  finalPhotosUrl?: string; // URL for final edited photos (same folder, updated)
+  photoStatus?: 'selection_ready' | 'editing_in_progress' | 'completed'; // Photo workflow status
   stylingUrl?: string; // Changed from notes to URL
   stylingNotes?: string; // Kept optional for backward compatibility
   hairMakeupNotes: string;

@@ -30,7 +30,9 @@ export const ShootForm: React.FC = () => {
     moodboardUrl: '',
     moodboardImages: [],
     callSheetUrl: '',
+    photoSelectionUrl: '',
     finalPhotosUrl: '',
+    photoStatus: 'selection_ready',
     stylingUrl: '',
     stylingNotes: '',
     hairMakeupNotes: '',
@@ -325,15 +327,54 @@ export const ShootForm: React.FC = () => {
                     placeholder="LINK TO DECK"
                   />
                 </div>
-                <div>
-                  <label className={labelClasses}>Final Photos URL</label>
-                  <input
-                    name="finalPhotosUrl"
-                    value={formData.finalPhotosUrl}
-                    onChange={handleChange}
-                    className={inputClasses}
-                    placeholder="DOWNLOAD LINK"
-                  />
+              </div>
+
+              {/* PHOTO WORKFLOW SECTION */}
+              <div className="mt-12 pt-8 border-t border-[#141413]">
+                <h4 className="text-xs font-bold uppercase tracking-widest text-[#141413] mb-6">Photo Delivery Workflow</h4>
+                <div className="grid grid-cols-1 gap-8">
+                  <div>
+                    <label className={labelClasses}>Photo Selection URL</label>
+                    <input
+                      name="photoSelectionUrl"
+                      value={formData.photoSelectionUrl}
+                      onChange={handleChange}
+                      className={inputClasses}
+                      placeholder="ADOBE / GOOGLE DRIVE / WETRANSFER"
+                    />
+                    <p className="text-[10px] text-[#9E9E98] mt-2 uppercase tracking-wider">
+                      Link for client to select photos
+                    </p>
+                  </div>
+                  <div>
+                    <label className={labelClasses}>Final Photos URL</label>
+                    <input
+                      name="finalPhotosUrl"
+                      value={formData.finalPhotosUrl}
+                      onChange={handleChange}
+                      className={inputClasses}
+                      placeholder="DOWNLOAD LINK (SAME FOLDER, UPDATED)"
+                    />
+                    <p className="text-[10px] text-[#9E9E98] mt-2 uppercase tracking-wider">
+                      Link to final edited photos (continuously updated)
+                    </p>
+                  </div>
+                  <div>
+                    <label className={labelClasses}>Photo Status</label>
+                    <select
+                      name="photoStatus"
+                      value={formData.photoStatus}
+                      onChange={handleChange}
+                      className="w-full bg-[#D8D9CF] text-[#141413] border-b border-[#9E9E98] py-3 focus:border-[#141413] outline-none transition-colors font-medium uppercase text-sm"
+                    >
+                      <option value="selection_ready">Selection Ready - Client can select photos</option>
+                      <option value="editing_in_progress">Editing in Progress - Photos being edited</option>
+                      <option value="completed">Completed - Final photos ready</option>
+                    </select>
+                    <p className="text-[10px] text-[#9E9E98] mt-2 uppercase tracking-wider">
+                      Controls what client sees on shoot page
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

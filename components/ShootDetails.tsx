@@ -137,11 +137,26 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
                         <IconExternal />
                       </a>
                     )}
-                    {shoot.finalPhotosUrl && (
-                       <a href={shoot.finalPhotosUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between w-full p-4 bg-[#D8D9CF] text-[#141413] border border-[#D8D9CF] hover:bg-white transition-colors">
-                       <span className="text-sm font-bold uppercase tracking-wider">Download Assets</span>
-                       <IconDownload />
-                     </a>
+
+                    {/* PHOTO WORKFLOW STATUS */}
+                    {shoot.photoStatus === 'selection_ready' && shoot.photoSelectionUrl && (
+                      <a href={shoot.photoSelectionUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between w-full p-4 bg-[#D8D9CF] text-[#141413] border border-[#D8D9CF] hover:bg-white transition-colors">
+                        <span className="text-sm font-bold uppercase tracking-wider">Select Your Photos</span>
+                        <IconExternal />
+                      </a>
+                    )}
+
+                    {shoot.photoStatus === 'editing_in_progress' && (
+                      <div className="w-full p-4 bg-transparent border border-[#9E9E98] opacity-60 cursor-not-allowed">
+                        <span className="text-sm font-bold uppercase tracking-wider italic">Editing in Progress...</span>
+                      </div>
+                    )}
+
+                    {shoot.photoStatus === 'completed' && shoot.finalPhotosUrl && (
+                      <a href={shoot.finalPhotosUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between w-full p-4 bg-[#D8D9CF] text-[#141413] border border-[#D8D9CF] hover:bg-white transition-colors">
+                        <span className="text-sm font-bold uppercase tracking-wider">Download Final Photos</span>
+                        <IconDownload />
+                      </a>
                     )}
                  </div>
               </div>
