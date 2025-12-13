@@ -151,16 +151,16 @@ export const PinProtection: React.FC<PinProtectionProps> = ({ children }) => {
   }
 
   return (
-    <div className="min-h-screen bg-[#D8D9CF] flex items-center justify-center p-4">
-      <div className="bg-white border-2 border-[#141413] p-8 max-w-md w-full shadow-[8px_8px_0px_0px_rgba(20,20,19,1)]">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-[#141413] mb-2">CLIXY</h1>
-          <p className="text-[#9E9E98]">Private Portfolio Access</p>
+    <div className="min-h-screen bg-[#D8D9CF] flex items-center justify-center p-4 sm:p-6">
+      <div className="bg-white border-2 border-[#141413] p-6 sm:p-8 max-w-md w-full shadow-[8px_8px_0px_0px_rgba(20,20,19,1)]">
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold text-[#141413] mb-2">CLIXY</h1>
+          <p className="text-sm sm:text-base text-[#9E9E98]">Private Portfolio Access</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="pin" className="block text-sm font-medium text-[#141413] mb-2">
+            <label htmlFor="pin" className="block text-sm font-medium text-[#141413] mb-2 uppercase tracking-wider">
               Enter PIN Code
             </label>
             <input
@@ -174,14 +174,14 @@ export const PinProtection: React.FC<PinProtectionProps> = ({ children }) => {
                 setPin(e.target.value.replace(/\D/g, ''));
                 setError('');
               }}
-              className="w-full px-4 py-3 border-2 border-[#141413] focus:outline-none focus:ring-2 focus:ring-[#141413] text-center text-2xl tracking-widest"
+              className="w-full px-4 py-4 sm:py-3 border-2 border-[#141413] focus:outline-none focus:ring-2 focus:ring-[#141413] text-center text-2xl sm:text-3xl tracking-widest touch-manipulation"
               placeholder="••••"
               autoFocus
             />
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-2 text-sm">
+            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 text-sm">
               {error}
             </div>
           )}
@@ -189,10 +189,10 @@ export const PinProtection: React.FC<PinProtectionProps> = ({ children }) => {
           <button
             type="submit"
             disabled={isLocked}
-            className={`w-full py-3 transition-colors font-medium ${
+            className={`w-full py-4 sm:py-3 transition-colors font-bold text-sm uppercase tracking-wider touch-manipulation ${
               isLocked
                 ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
-                : 'bg-[#141413] text-white hover:bg-[#2a2a29]'
+                : 'bg-[#141413] text-white hover:bg-[#2a2a29] active:bg-[#000000]'
             }`}
           >
             {isLocked ? `LOCKED (${lockoutTime}s)` : 'UNLOCK'}
@@ -200,16 +200,16 @@ export const PinProtection: React.FC<PinProtectionProps> = ({ children }) => {
         </form>
 
         {!isLocked && error && (
-          <div className="mt-4 text-xs text-[#9E9E98] text-center">
+          <div className="mt-4 text-xs text-[#9E9E98] text-center px-2">
             💡 Tip: After 5 failed attempts, you'll be locked out for 15 minutes
           </div>
         )}
 
-        <div className="mt-8 text-center text-sm text-[#9E9E98]">
-          <p>Looking for gift cards?</p>
+        <div className="mt-6 sm:mt-8 text-center text-sm text-[#9E9E98]">
+          <p className="mb-1">Looking for gift cards?</p>
           <a
             href="/#/gift-card"
-            className="text-[#141413] hover:underline font-medium mt-1 inline-block"
+            className="text-[#141413] hover:underline font-medium inline-block py-2 touch-manipulation"
           >
             Purchase a Gift Card →
           </a>

@@ -79,61 +79,122 @@ export const AdminDashboard: React.FC = () => {
     const isToday = new Date(shoot.date + 'T00:00:00').toDateString() === new Date().toDateString();
 
     return (
-      <div className="grid grid-cols-12 gap-4 p-6 border-b border-[#141413] items-center hover:bg-[#F0F0EB] transition-colors bg-white group last:border-b-0">
-        <div className="col-span-5">
-          <Link to={`/shoot/${shoot.id}`} className="block">
-            <div className="flex items-center gap-3">
-              <h3 className="font-bold text-lg text-[#141413] uppercase tracking-tight">
-                {shoot.title}
-              </h3>
+      <>
+        {/* Desktop/Tablet View */}
+        <div className="hidden md:grid grid-cols-12 gap-4 p-6 border-b border-[#141413] items-center hover:bg-[#F0F0EB] transition-colors bg-white group last:border-b-0">
+          <div className="col-span-5">
+            <Link to={`/shoot/${shoot.id}`} className="block">
+              <div className="flex items-center gap-3">
+                <h3 className="font-bold text-lg text-[#141413] uppercase tracking-tight">
+                  {shoot.title}
+                </h3>
+                {isToday && (
+                  <span className="px-2 py-0.5 bg-[#141413] text-white text-[10px] font-bold uppercase tracking-wider">
+                    Today
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-[#9E9E98] uppercase tracking-widest mt-1 group-hover:text-[#141413]">
+                {shoot.client}
+              </p>
+            </Link>
+          </div>
+          <div className="col-span-3 text-sm font-mono text-[#141413]">
+            {new Date(shoot.date + 'T00:00:00').toLocaleDateString(undefined, {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric'
+            })}
+          </div>
+          <div className="col-span-4 flex justify-end items-center space-x-3">
+            <Link
+              to={`/admin/edit/${shoot.id}`}
+              className="text-[#9E9E98] hover:text-[#141413] transition-colors p-2"
+              title="Edit Shoot"
+              aria-label={`Edit ${shoot.title}`}
+            >
+              <IconEdit className="w-4 h-4" />
+            </Link>
+            <button
+              onClick={e => handleShare(e, shoot.id)}
+              className={`text-[10px] font-bold uppercase tracking-widest px-4 py-2 border transition-all ${
+                copiedId === shoot.id
+                  ? 'bg-[#141413] text-white border-[#141413]'
+                  : 'border-[#141413] hover:bg-[#141413] hover:text-white text-[#141413] bg-transparent'
+              }`}
+              aria-label="Copy share link"
+            >
+              {copiedId === shoot.id ? 'Copied' : 'Copy Link'}
+            </button>
+            <button
+              onClick={e => handleDelete(e, shoot.id, shoot.title)}
+              className="text-[#9E9E98] hover:text-red-600 transition-colors p-2"
+              title="Delete Shoot"
+              aria-label={`Delete ${shoot.title}`}
+            >
+              <IconTrash className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden border-b border-[#141413] p-4 bg-white last:border-b-0">
+          <Link to={`/shoot/${shoot.id}`} className="block mb-3">
+            <div className="flex items-start justify-between mb-2">
+              <div className="flex-1">
+                <h3 className="font-bold text-base text-[#141413] uppercase tracking-tight leading-tight">
+                  {shoot.title}
+                </h3>
+                <p className="text-xs text-[#9E9E98] uppercase tracking-wider mt-1">
+                  {shoot.client}
+                </p>
+              </div>
               {isToday && (
-                <span className="px-2 py-0.5 bg-[#141413] text-white text-[10px] font-bold uppercase tracking-wider">
+                <span className="ml-2 px-2 py-0.5 bg-[#141413] text-white text-[9px] font-bold uppercase tracking-wider whitespace-nowrap">
                   Today
                 </span>
               )}
             </div>
-            <p className="text-xs text-[#9E9E98] uppercase tracking-widest mt-1 group-hover:text-[#141413]">
-              {shoot.client}
+            <p className="text-xs font-mono text-[#141413]">
+              {new Date(shoot.date + 'T00:00:00').toLocaleDateString(undefined, {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+              })}
             </p>
           </Link>
+
+          {/* Mobile Actions */}
+          <div className="flex items-center gap-2 pt-3 border-t border-[#F0F0EB]">
+            <Link
+              to={`/admin/edit/${shoot.id}`}
+              className="flex-1 text-center text-[#9E9E98] hover:text-[#141413] transition-colors py-2 px-3 border border-[#9E9E98] hover:border-[#141413] text-xs font-bold uppercase tracking-wider"
+              aria-label={`Edit ${shoot.title}`}
+            >
+              Edit
+            </Link>
+            <button
+              onClick={e => handleShare(e, shoot.id)}
+              className={`flex-1 text-[9px] font-bold uppercase tracking-wider py-2 px-3 border transition-all ${
+                copiedId === shoot.id
+                  ? 'bg-[#141413] text-white border-[#141413]'
+                  : 'border-[#141413] hover:bg-[#141413] hover:text-white text-[#141413] bg-transparent'
+              }`}
+              aria-label="Copy share link"
+            >
+              {copiedId === shoot.id ? '✓ Copied' : 'Share'}
+            </button>
+            <button
+              onClick={e => handleDelete(e, shoot.id, shoot.title)}
+              className="text-[#9E9E98] hover:text-red-600 transition-colors p-2 border border-[#9E9E98] hover:border-red-600"
+              title="Delete Shoot"
+              aria-label={`Delete ${shoot.title}`}
+            >
+              <IconTrash className="w-4 h-4" />
+            </button>
+          </div>
         </div>
-        <div className="col-span-3 text-sm font-mono text-[#141413]">
-          {new Date(shoot.date + 'T00:00:00').toLocaleDateString(undefined, {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric'
-          })}
-        </div>
-        <div className="col-span-4 flex justify-end items-center space-x-3">
-          <Link
-            to={`/admin/edit/${shoot.id}`}
-            className="text-[#9E9E98] hover:text-[#141413] transition-colors p-2"
-            title="Edit Shoot"
-            aria-label={`Edit ${shoot.title}`}
-          >
-            <IconEdit className="w-4 h-4" />
-          </Link>
-          <button
-            onClick={e => handleShare(e, shoot.id)}
-            className={`text-[10px] font-bold uppercase tracking-widest px-4 py-2 border transition-all ${
-              copiedId === shoot.id
-                ? 'bg-[#141413] text-white border-[#141413]'
-                : 'border-[#141413] hover:bg-[#141413] hover:text-white text-[#141413] bg-transparent'
-            }`}
-            aria-label="Copy share link"
-          >
-            {copiedId === shoot.id ? 'Copied' : 'Copy Link'}
-          </button>
-          <button
-            onClick={e => handleDelete(e, shoot.id, shoot.title)}
-            className="text-[#9E9E98] hover:text-red-600 transition-colors p-2"
-            title="Delete Shoot"
-            aria-label={`Delete ${shoot.title}`}
-          >
-            <IconTrash className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
+      </>
     );
   };
 
@@ -218,9 +279,9 @@ export const AdminDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#D8D9CF] text-[#141413]">
       <div className="max-w-5xl mx-auto px-6 py-16">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-16 border-b border-[#141413] pb-8">
-          <div>
-            <h1 className="text-4xl font-medium uppercase tracking-tight text-[#141413] mb-2">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 md:mb-16 border-b border-[#141413] pb-6 md:pb-8">
+          <div className="mb-4 md:mb-0">
+            <h1 className="text-3xl md:text-4xl font-medium uppercase tracking-tight text-[#141413] mb-2">
               Producer Admin
             </h1>
             <p className="text-[#141413] text-xs uppercase tracking-[0.2em] font-bold">
@@ -229,7 +290,7 @@ export const AdminDashboard: React.FC = () => {
           </div>
           <Link
             to="/admin/create"
-            className="mt-6 md:mt-0 bg-[#141413] text-white px-8 py-3 text-xs font-bold uppercase tracking-widest hover:bg-white hover:text-[#141413] border border-[#141413] transition-colors"
+            className="w-full md:w-auto text-center bg-[#141413] text-white px-6 md:px-8 py-3 md:py-3 text-xs font-bold uppercase tracking-widest hover:bg-white hover:text-[#141413] border border-[#141413] transition-colors touch-manipulation active:bg-[#000000]"
           >
             + New Project
           </Link>
