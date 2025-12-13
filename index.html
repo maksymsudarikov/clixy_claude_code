@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+    <meta name="theme-color" content="#D8D9CF" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>Clixy | Studio Olga Prudka</title>
 
     <!-- GitHub Pages SPA redirect handler -->
@@ -83,6 +86,28 @@
       .animate-fade-in {
         animation: fade-in 0.3s ease-in;
       }
+
+      /* Mobile touch optimization */
+
+      .touch-manipulation {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba(20, 20, 19, 0.1);
+      }
+
+      /* Improve button touch targets on mobile */
+
+      @media (max-width: 768px) {
+        button, a[role="button"], input[type="submit"] {
+          min-height: 44px;
+          min-width: 44px;
+        }
+      }
+
+      /* Smooth scrolling */
+
+      html {
+        scroll-behavior: smooth;
+      }
     </style>
 
 <link rel="stylesheet" href="/index.css">
@@ -97,7 +122,7 @@
   }
 }
 </script>
-  <script type="module" crossorigin src="./assets/index-C05iEb-A.js"></script>
+  <script type="module" crossorigin src="./assets/index-h1MknlM6.js"></script>
 </head>
   <body>
     <div id="root"></div>
