@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(git init:*)",
+      "Bash(cat:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)",
+      "Bash(git remote remove origin)",
+      "Bash(npm install:*)",
+      "Bash(npm run dev:*)",
+      "Bash(/opt/homebrew/bin/node:*)",
+      "Bash(/usr/local/bin/node:*)",
+      "Bash(/usr/local/bin/npm run dev)",
+      "Bash(export PATH=\"/usr/local/bin:$PATH\")",
+      "Bash(export PATH=\"$HOME/.nvm/versions/node/v22.19.0/bin:$PATH\")",
+      "Bash(node --version:*)",
+      "Bash(npm:*)",
+      "Bash(ssh:*)",
+      "Bash(pbcopy)",
+      "Bash(ssh-add:*)",
+      "Bash(git log:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(gh run list:*)",
+      "Bash(git fetch:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
