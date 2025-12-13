@@ -129,23 +129,25 @@ export const PinProtection: React.FC<PinProtectionProps> = ({ children }) => {
   if (isVerified) {
     return (
       <>
-        <div className="fixed top-4 right-4 z-50 flex gap-2">
+        <div className="fixed top-2 md:top-4 right-2 md:right-4 z-50 flex gap-2">
           <a
             href="/#/gift-card"
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-white border-2 border-[#141413] px-4 py-2 text-sm font-medium hover:bg-[#D8D9CF] transition-colors flex items-center gap-2"
+            className="bg-white border-2 border-[#141413] px-3 md:px-4 py-2 text-xs md:text-sm font-medium hover:bg-[#D8D9CF] transition-colors flex items-center gap-2 touch-manipulation"
           >
-            🎁 Gift Card Link
+            🎁 <span className="hidden sm:inline">Gift Card Link</span><span className="sm:hidden">Gift Card</span>
           </a>
           <button
             onClick={handleLogout}
-            className="bg-[#141413] text-white px-4 py-2 text-sm font-medium hover:bg-[#2a2a29] transition-colors"
+            className="bg-[#141413] text-white px-3 md:px-4 py-2 text-xs md:text-sm font-medium hover:bg-[#2a2a29] transition-colors touch-manipulation"
           >
             Logout
           </button>
         </div>
-        {children}
+        <div className="pt-16 md:pt-0">
+          {children}
+        </div>
       </>
     );
   }

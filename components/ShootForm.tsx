@@ -528,17 +528,17 @@ export const ShootForm: React.FC = () => {
             </div>
           </section>
 
-          <div className="pt-8 border-t border-[#141413] flex justify-end space-x-4">
+          <div className="pt-8 border-t border-[#141413] flex flex-col md:flex-row justify-end gap-4">
             <Link
               to="/admin"
-              className="px-12 py-4 bg-white text-[#141413] text-sm font-bold uppercase tracking-[0.2em] hover:bg-[#141413] hover:text-white border border-[#141413] transition-colors"
+              className="w-full md:w-auto text-center px-8 md:px-12 py-4 bg-white text-[#141413] text-sm font-bold uppercase tracking-[0.2em] hover:bg-[#141413] hover:text-white border border-[#141413] transition-colors touch-manipulation"
             >
               Cancel
             </Link>
             <button
               type="submit"
               disabled={loading}
-              className="px-12 py-4 bg-[#141413] text-white text-sm font-bold uppercase tracking-[0.2em] hover:bg-white hover:text-[#141413] border border-[#141413] transition-colors disabled:opacity-50 shadow-[4px_4px_0px_0px_#9E9E98]"
+              className="w-full md:w-auto px-8 md:px-12 py-4 bg-[#141413] text-white text-sm font-bold uppercase tracking-[0.2em] hover:bg-white hover:text-[#141413] border border-[#141413] transition-colors disabled:opacity-50 shadow-[4px_4px_0px_0px_#9E9E98] touch-manipulation"
             >
               {loading ? 'Processing...' : id ? 'Update Shoot' : 'Publish Shoot'}
             </button>
