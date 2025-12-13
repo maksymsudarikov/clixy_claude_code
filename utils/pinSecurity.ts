@@ -78,6 +78,7 @@ function md5(str: string): string {
 
     let lBytePosition = 0;
     let lByteCount = 0;
+    let lWordPosition = 0;
     while (lByteCount < str.length) {
       lWordPosition = (lByteCount >> 2);
       lBytePosition = (lByteCount % 4) * 8;
@@ -85,7 +86,7 @@ function md5(str: string): string {
       lByteCount++;
     }
 
-    let lWordPosition = (lByteCount >> 2);
+    lWordPosition = (lByteCount >> 2);
     lBytePosition = (lByteCount % 4) * 8;
     lWordArray[lWordPosition] = lWordArray[lWordPosition] | (0x80 << lBytePosition);
     lWordArray[lMessageLength - 2] = str.length << 3;

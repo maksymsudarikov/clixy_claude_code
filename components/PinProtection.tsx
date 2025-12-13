@@ -66,6 +66,11 @@ export const PinProtection: React.FC<PinProtectionProps> = ({ children }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!pin || pin.length < 4) {
+      setError('Please enter a 4-digit PIN');
+      return;
+    }
+
     const rateLimitId = getRateLimitId();
 
     // Check rate limit
