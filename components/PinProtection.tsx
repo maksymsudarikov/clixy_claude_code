@@ -1,16 +1,36 @@
 import React, { useState, useEffect } from 'react';
+import { verifyPin, rateLimiter } from '../utils/pinSecurity';
 
 interface PinProtectionProps {
   children: React.ReactNode;
 }
 
-const CORRECT_PIN = '9634'; // Change this to your desired PIN
 const SESSION_KEY = 'clixy_session_id';
+const RATE_LIMIT_KEY = 'clixy_rate_limit_id';
+
+// Get PIN hash from environment variable
+const ADMIN_PIN_HASH = import.meta.env.VITE_ADMIN_PIN_HASH;
+
+// Fallback hash for development (PIN: 9634)
+// IMPORTANT: Set VITE_ADMIN_PIN_HASH in your .env file for production!
+const DEFAULT_PIN_HASH = 'f8c3bf62a9aa3e6fc1619c250e48abe7';
 
 export const PinProtection: React.FC<PinProtectionProps> = ({ children }) => {
   const [isVerified, setIsVerified] = useState(false);
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
+  const [isLocked, setIsLocked] = useState(false);
+  const [lockoutTime, setLockoutTime] = useState(0);
+
+  // Get or create rate limit identifier
+  const getRateLimitId = () => {
+    let id = localStorage.getItem(RATE_LIMIT_KEY);
+    if (!id) {
+      id = `rl_${Date.now()}_${Math.random()}`;
+      localStorage.setItem(RATE_LIMIT_KEY, id);
+    }
+    return id;
+  };
 
   // Проверяем сессию при монтировании компонента
   useEffect(() => {
@@ -23,23 +43,74 @@ export const PinProtection: React.FC<PinProtectionProps> = ({ children }) => {
     }
 
     // Если сессия есть, проверяем что она валидна
-    // (в будущем можно добавить проверку на время)
     setIsVerified(true);
   }, []);
+
+  // Update lockout timer
+  useEffect(() => {
+    if (!isLocked || lockoutTime <= 0) return;
+
+    const timer = setInterval(() => {
+      setLockoutTime(prev => {
+        if (prev <= 1) {
+          setIsLocked(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [isLocked, lockoutTime]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (pin === CORRECT_PIN) {
+    const rateLimitId = getRateLimitId();
+
+    // Check rate limit
+    const { allowed, waitTime } = rateLimiter.checkAttempt(rateLimitId);
+
+    if (!allowed && waitTime) {
+      setIsLocked(true);
+      setLockoutTime(waitTime);
+      setError(`Too many failed attempts. Please wait ${waitTime} seconds.`);
+      return;
+    }
+
+    // Use environment PIN hash or fallback
+    const pinHash = ADMIN_PIN_HASH || DEFAULT_PIN_HASH;
+
+    if (!pinHash) {
+      setError('Security configuration error. Please contact administrator.');
+      return;
+    }
+
+    if (verifyPin(pin, pinHash)) {
       // Создаем уникальный ID сессии (валиден только на время открытой вкладки)
       const sessionId = `session_${Date.now()}_${Math.random()}`;
       sessionStorage.setItem(SESSION_KEY, sessionId);
 
+      // Reset rate limit on successful login
+      rateLimiter.resetAttempts(rateLimitId);
+
       setIsVerified(true);
       setError('');
+      setIsLocked(false);
     } else {
+      // Record failed attempt
+      rateLimiter.recordFailedAttempt(rateLimitId);
+
       setError('Incorrect PIN. Please try again.');
       setPin('');
+
+      // Check if we should lock after this attempt
+      const { allowed: stillAllowed, waitTime: newWaitTime } = rateLimiter.checkAttempt(rateLimitId);
+      if (!stillAllowed && newWaitTime) {
+        setIsLocked(true);
+        setLockoutTime(newWaitTime);
+        setError(`Too many failed attempts. Please wait ${newWaitTime} seconds.`);
+      }
     }
   };
 
@@ -112,11 +183,22 @@ export const PinProtection: React.FC<PinProtectionProps> = ({ children }) => {
 
           <button
             type="submit"
-            className="w-full bg-[#141413] text-white py-3 hover:bg-[#2a2a29] transition-colors font-medium"
+            disabled={isLocked}
+            className={`w-full py-3 transition-colors font-medium ${
+              isLocked
+                ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                : 'bg-[#141413] text-white hover:bg-[#2a2a29]'
+            }`}
           >
-            UNLOCK
+            {isLocked ? `LOCKED (${lockoutTime}s)` : 'UNLOCK'}
           </button>
         </form>
+
+        {!isLocked && error && (
+          <div className="mt-4 text-xs text-[#9E9E98] text-center">
+            💡 Tip: After 5 failed attempts, you'll be locked out for 15 minutes
+          </div>
+        )}
 
         <div className="mt-8 text-center text-sm text-[#9E9E98]">
           <p>Looking for gift cards?</p>

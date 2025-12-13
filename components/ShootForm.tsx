@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link, useParams } from 'react-router-dom';
 import { Shoot } from '../types';
 import { createShoot, updateShoot, fetchShootById } from '../services/shootService';
@@ -8,6 +8,7 @@ import { inputClasses, labelClasses, sectionHeaderClasses, cardClasses } from '.
 import { TimelineBuilder } from './form/TimelineBuilder';
 import { TeamBuilder } from './form/TeamBuilder';
 import { MoodboardBuilder } from './form/MoodboardBuilder';
+import { saveDraft, loadDraft, clearDraft, hasDraft, getDraftMetadata, getTimeSinceSave } from '../utils/autosave';
 
 export const ShootForm: React.FC = () => {
   const navigate = useNavigate();
@@ -15,6 +16,11 @@ export const ShootForm: React.FC = () => {
   const { addNotification } = useNotification();
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(!!id);
+  const [lastSaved, setLastSaved] = useState<string | null>(null);
+  const [showDraftPrompt, setShowDraftPrompt] = useState(false);
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const draftKey = id || 'new-shoot';
 
   const [formData, setFormData] = useState<Shoot>({
     id: '',
@@ -41,11 +47,48 @@ export const ShootForm: React.FC = () => {
     timeline: []
   });
 
+  // Check for draft on mount
   useEffect(() => {
-    if (id) {
+    if (!id && hasDraft(draftKey)) {
+      setShowDraftPrompt(true);
+    } else if (id) {
       loadShoot(id);
     }
   }, [id]);
+
+  // Auto-save effect
+  useEffect(() => {
+    // Only auto-save for new shoots or if title is filled
+    if (!formData.title.trim()) {
+      return;
+    }
+
+    // Clear existing timer
+    if (autoSaveTimerRef.current) {
+      clearTimeout(autoSaveTimerRef.current);
+    }
+
+    // Set new timer for auto-save (30 seconds after last change)
+    autoSaveTimerRef.current = setTimeout(() => {
+      saveDraft(draftKey, formData);
+      setLastSaved(new Date().toISOString());
+    }, 30000);
+
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, [formData, draftKey]);
+
+  // Clean up auto-save timer on unmount
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, []);
 
   const loadShoot = async (shootId: string) => {
     try {
@@ -68,6 +111,24 @@ export const ShootForm: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleRestoreDraft = () => {
+    const draft = loadDraft<Shoot>(draftKey);
+    if (draft) {
+      setFormData(draft);
+      const metadata = getDraftMetadata(draftKey);
+      if (metadata) {
+        addNotification('success', `Draft restored from ${getTimeSinceSave(metadata.savedAt)}`);
+      }
+    }
+    setShowDraftPrompt(false);
+  };
+
+  const handleDiscardDraft = () => {
+    clearDraft(draftKey);
+    setShowDraftPrompt(false);
+    addNotification('info', 'Draft discarded');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -103,6 +164,9 @@ export const ShootForm: React.FC = () => {
         addNotification('success', 'Shoot created successfully!');
       }
 
+      // Clear draft on successful save
+      clearDraft(draftKey);
+
       navigate('/admin');
     } catch (err) {
       addNotification('error', `Failed to ${id ? 'update' : 'create'} shoot. Please try again.`);
@@ -125,10 +189,50 @@ export const ShootForm: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#D8D9CF] text-[#141413] pb-24">
       <div className="max-w-4xl mx-auto px-6 py-12">
+        {/* Draft restoration prompt */}
+        {showDraftPrompt && (
+          <div className="mb-8 bg-white border-2 border-[#141413] p-6 shadow-[8px_8px_0px_0px_rgba(20,20,19,1)]">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <h3 className="text-sm font-bold uppercase tracking-widest text-[#141413] mb-2">
+                  Unsaved Draft Found
+                </h3>
+                <p className="text-xs text-[#9E9E98] uppercase tracking-wider">
+                  {(() => {
+                    const metadata = getDraftMetadata(draftKey);
+                    return metadata ? `Last saved ${getTimeSinceSave(metadata.savedAt)}` : 'A previous draft was found';
+                  })()}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleRestoreDraft}
+                  className="px-4 py-2 bg-[#141413] text-white text-xs font-bold uppercase tracking-wider hover:bg-white hover:text-[#141413] border border-[#141413] transition-colors"
+                >
+                  Restore
+                </button>
+                <button
+                  onClick={handleDiscardDraft}
+                  className="px-4 py-2 bg-white text-[#9E9E98] text-xs font-bold uppercase tracking-wider hover:text-red-600 border border-[#9E9E98] hover:border-red-600 transition-colors"
+                >
+                  Discard
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center justify-between mb-12">
-          <h1 className="text-3xl font-extrabold uppercase tracking-tight text-[#141413]">
-            {id ? 'Edit Shoot' : 'Create New Shoot'}
-          </h1>
+          <div>
+            <h1 className="text-3xl font-extrabold uppercase tracking-tight text-[#141413]">
+              {id ? 'Edit Shoot' : 'Create New Shoot'}
+            </h1>
+            {lastSaved && !id && (
+              <p className="text-[10px] text-[#9E9E98] uppercase tracking-wider mt-1">
+                Draft auto-saved {getTimeSinceSave(lastSaved)}
+              </p>
+            )}
+          </div>
           <Link
             to="/admin"
             className="text-xs font-bold uppercase tracking-widest text-[#9E9E98] hover:text-[#141413] transition-colors"

@@ -4,6 +4,7 @@ import { GIFT_CARD_PACKAGES, CONTACT_INFO } from '../../constants';
 import { GiftCardPackage, GiftCardPurchaseForm } from '../../types';
 import { createGiftCard } from '../../services/giftCardService';
 import { useNotification } from '../../contexts/NotificationContext';
+import { isValidEmail, isValidPhone } from '../../utils/validation';
 
 const IconExternal = () => (
   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -46,6 +47,23 @@ export const GiftCardPurchase: React.FC = () => {
     if (!formData.purchaserName || !formData.purchaserEmail || !formData.purchaserPhone ||
         !formData.recipientName || !formData.recipientEmail) {
       addNotification('error', 'Please fill in all required fields');
+      return;
+    }
+
+    // Email validation
+    if (formData.purchaserEmail && !isValidEmail(formData.purchaserEmail)) {
+      addNotification('error', 'Please enter a valid purchaser email address');
+      return;
+    }
+
+    if (formData.recipientEmail && !isValidEmail(formData.recipientEmail)) {
+      addNotification('error', 'Please enter a valid recipient email address');
+      return;
+    }
+
+    // Phone validation
+    if (formData.purchaserPhone && !isValidPhone(formData.purchaserPhone)) {
+      addNotification('error', 'Please enter a valid phone number (at least 7 digits)');
       return;
     }
 

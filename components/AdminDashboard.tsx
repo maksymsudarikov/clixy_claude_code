@@ -137,14 +137,79 @@ export const AdminDashboard: React.FC = () => {
     );
   };
 
+  // Loading skeleton screen
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#D8D9CF]">
-        <div className="animate-pulse flex flex-col items-center">
-          <div className="h-4 w-4 bg-black rounded-full mb-2 animate-bounce"></div>
-          <span className="text-xs font-medium tracking-widest text-gray-400 uppercase">
-            Loading
-          </span>
+      <div className="min-h-screen bg-[#D8D9CF] text-[#141413]">
+        <div className="max-w-5xl mx-auto px-6 py-16">
+          {/* Header skeleton */}
+          <div className="flex flex-col md:flex-row justify-between items-end mb-16 border-b border-[#141413] pb-8">
+            <div className="animate-pulse">
+              <div className="h-10 w-64 bg-[#F0F0EB] mb-3"></div>
+              <div className="h-4 w-48 bg-[#F0F0EB]"></div>
+            </div>
+            <div className="mt-6 md:mt-0 h-12 w-40 bg-[#F0F0EB] animate-pulse"></div>
+          </div>
+
+          {/* Search skeleton */}
+          <div className="mb-8">
+            <div className="h-12 w-full bg-white border border-[#141413] animate-pulse"></div>
+          </div>
+
+          {/* Upcoming shoots skeleton */}
+          <div className="mb-16">
+            <div className="h-4 w-48 bg-[#F0F0EB] mb-6 animate-pulse"></div>
+            <div className="bg-white border border-[#141413] shadow-[4px_4px_0px_0px_rgba(20,20,19,1)]">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="grid grid-cols-12 gap-4 p-6 border-b border-[#141413] items-center last:border-b-0 animate-pulse">
+                  <div className="col-span-5">
+                    <div className="h-6 w-3/4 bg-[#F0F0EB] mb-2"></div>
+                    <div className="h-4 w-1/2 bg-[#F0F0EB]"></div>
+                  </div>
+                  <div className="col-span-3">
+                    <div className="h-5 w-32 bg-[#F0F0EB]"></div>
+                  </div>
+                  <div className="col-span-4 flex justify-end items-center space-x-3">
+                    <div className="h-8 w-8 bg-[#F0F0EB]"></div>
+                    <div className="h-8 w-24 bg-[#F0F0EB]"></div>
+                    <div className="h-8 w-8 bg-[#F0F0EB]"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Archive skeleton */}
+          <div>
+            <div className="h-4 w-32 bg-[#F0F0EB] mb-6 animate-pulse"></div>
+            <div className="bg-[#EAEBE6] border border-[#9E9E98]">
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="grid grid-cols-12 gap-4 p-6 border-b border-[#9E9E98] items-center last:border-b-0 animate-pulse">
+                  <div className="col-span-5">
+                    <div className="h-6 w-3/4 bg-[#D8D9CF] mb-2"></div>
+                    <div className="h-4 w-1/2 bg-[#D8D9CF]"></div>
+                  </div>
+                  <div className="col-span-3">
+                    <div className="h-5 w-32 bg-[#D8D9CF]"></div>
+                  </div>
+                  <div className="col-span-4 flex justify-end items-center space-x-3">
+                    <div className="h-8 w-8 bg-[#D8D9CF]"></div>
+                    <div className="h-8 w-24 bg-[#D8D9CF]"></div>
+                    <div className="h-8 w-8 bg-[#D8D9CF]"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Footer loading indicator */}
+          <div className="mt-12 flex items-center justify-center">
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 bg-[#141413] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+              <div className="h-2 w-2 bg-[#141413] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+              <div className="h-2 w-2 bg-[#141413] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+            </div>
+          </div>
         </div>
       </div>
     );
