@@ -13,7 +13,7 @@ const ADMIN_PIN_HASH = import.meta.env.VITE_ADMIN_PIN_HASH;
 
 // Fallback hash for development (PIN: 9634)
 // IMPORTANT: Set VITE_ADMIN_PIN_HASH in your .env file for production!
-const DEFAULT_PIN_HASH = 'f8c3bf62a9aa3e6fc1619c250e48abe7';
+const DEFAULT_PIN_HASH = 'ebe922af8d4560c73368a88eeac07d16';
 
 export const PinProtection: React.FC<PinProtectionProps> = ({ children }) => {
   const [isVerified, setIsVerified] = useState(false);
