@@ -5,6 +5,11 @@ on:
     # Runs every 5 days at 3am UTC
     - cron: '0 3 */5 * *'
   workflow_dispatch: # Allows manual trigger
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/keep-supabase-alive.yml'
 
 jobs:
   ping:
