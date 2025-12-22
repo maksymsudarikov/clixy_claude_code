@@ -21,7 +21,7 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
       {/* Header Image - Full Width, Geometric */}
       <div className="relative h-[50vh] w-full overflow-hidden">
         <ShootAvatar title={shoot.title} client={shoot.client} />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#141413]/40" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#141413]/60 pointer-events-none" />
         
         {/* Large Title Overlay */}
         <div className="absolute bottom-0 left-0 p-6 md:p-12 w-full">

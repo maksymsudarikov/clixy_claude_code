@@ -9,16 +9,14 @@ interface ShootAvatarProps {
 // Generate a consistent color from string
 const getColorFromString = (str: string): string => {
   const colors = [
-    '#141413', // Black
-    '#2C5F2D', // Dark Green
-    '#1E3A5F', // Navy Blue
-    '#5C4033', // Brown
-    '#3D405B', // Slate
-    '#6B4226', // Coffee
-    '#1B4332', // Forest
-    '#283618', // Olive
-    '#264653', // Teal
-    '#2F4858', // Steel
+    '#141413', // Primary Black
+    '#9E9E98', // Medium Gray
+    '#6B6B68', // Dark Gray
+    '#4A4A47', // Charcoal
+    '#858580', // Stone Gray
+    '#3E3E3B', // Deep Charcoal
+    '#7A7A75', // Warm Gray
+    '#525250', // Graphite
   ];
 
   let hash = 0;
@@ -48,26 +46,33 @@ export const ShootAvatar: React.FC<ShootAvatarProps> = ({ title, client, classNa
       className={`relative w-full h-full flex items-center justify-center overflow-hidden ${className}`}
       style={{ backgroundColor: bgColor }}
     >
-      {/* Background pattern - subtle grid */}
-      <div className="absolute inset-0 opacity-5" style={{
-        backgroundImage: `repeating-linear-gradient(0deg, transparent, transparent 35px, rgba(255,255,255,0.3) 35px, rgba(255,255,255,0.3) 36px),
-                          repeating-linear-gradient(90deg, transparent, transparent 35px, rgba(255,255,255,0.3) 35px, rgba(255,255,255,0.3) 36px)`
+      {/* Diagonal lines pattern */}
+      <div className="absolute inset-0 opacity-[0.03]" style={{
+        backgroundImage: `repeating-linear-gradient(
+          45deg,
+          transparent,
+          transparent 40px,
+          rgba(255,255,255,0.5) 40px,
+          rgba(255,255,255,0.5) 42px
+        )`
       }}></div>
 
-      {/* Initials */}
-      <div className="relative z-10 text-white font-extrabold tracking-tighter uppercase select-none"
-           style={{
-             fontSize: 'clamp(4rem, 12vw, 8rem)',
-             lineHeight: 0.8,
-             fontFamily: 'system-ui, -apple-system, sans-serif',
-             fontStretch: 'expanded',
-             letterSpacing: '-0.05em'
-           }}>
+      {/* Initials - matching CLIXY brand style */}
+      <div
+        className="relative z-10 text-white font-extrabold uppercase select-none"
+        style={{
+          fontSize: 'clamp(3.5rem, 10vw, 7rem)',
+          lineHeight: 1,
+          fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+          fontWeight: 900,
+          letterSpacing: '-0.03em',
+          textShadow: '0 2px 8px rgba(0,0,0,0.15)'
+        }}>
         {initials}
       </div>
 
-      {/* Bottom border accent */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-white opacity-20"></div>
+      {/* Subtle border accent */}
+      <div className="absolute inset-0 border-4 border-white opacity-[0.08]"></div>
     </div>
   );
 };
