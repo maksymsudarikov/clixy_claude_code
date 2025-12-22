@@ -42,7 +42,7 @@ export const ShootForm: React.FC = () => {
     stylingUrl: '',
     stylingNotes: '',
     hairMakeupNotes: '',
-    coverImage: 'https://images.unsplash.com/photo-1492633423870-43d1cd2775eb?auto=format&fit=crop&q=80&w=1200',
+    coverImage: '',
     team: [],
     timeline: []
   });
@@ -145,7 +145,7 @@ export const ShootForm: React.FC = () => {
     try {
       const sanitizedData = {
         ...formData,
-        coverImage: sanitizeUrl(formData.coverImage),
+        coverImage: '',
         moodboardUrl: sanitizeUrl(formData.moodboardUrl || ''),
         callSheetUrl: sanitizeUrl(formData.callSheetUrl || ''),
         finalPhotosUrl: sanitizeUrl(formData.finalPhotosUrl || ''),
@@ -169,7 +169,9 @@ export const ShootForm: React.FC = () => {
 
       navigate('/admin');
     } catch (err) {
-      addNotification('error', `Failed to ${id ? 'update' : 'create'} shoot. Please try again.`);
+      console.error('Error in handleSubmit:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      addNotification('error', `Failed to ${id ? 'update' : 'create'} shoot: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -284,19 +286,6 @@ export const ShootForm: React.FC = () => {
                 />
               </div>
 
-              <div>
-                <label className={labelClasses}>Cover Image URL</label>
-                <input
-                  name="coverImage"
-                  value={formData.coverImage}
-                  onChange={handleChange}
-                  className={inputClasses}
-                  placeholder="https://..."
-                />
-                <p className="text-[10px] text-[#9E9E98] mt-2 uppercase tracking-wider">
-                  Paste an image URL
-                </p>
-              </div>
             </div>
           </section>
 

@@ -37,7 +37,7 @@ export const fetchShootById = async (id: string): Promise<Shoot | undefined> => 
       stylingUrl: data.styling_url || '',
       stylingNotes: data.styling_notes || '',
       hairMakeupNotes: data.hair_makeup_notes || '',
-      coverImage: data.cover_image || 'https://images.unsplash.com/photo-1492633423870-43d1cd2775eb?auto=format&fit=crop&q=80&w=1200',
+      coverImage: data.cover_image || '',
       timeline: data.timeline || [],
       team: data.team || []
     } : undefined;
@@ -81,7 +81,7 @@ export const fetchAllShoots = async (): Promise<Shoot[]> => {
       stylingUrl: shoot.styling_url || '',
       stylingNotes: shoot.styling_notes || '',
       hairMakeupNotes: shoot.hair_makeup_notes || '',
-      coverImage: shoot.cover_image || 'https://images.unsplash.com/photo-1492633423870-43d1cd2775eb?auto=format&fit=crop&q=80&w=1200',
+      coverImage: shoot.cover_image || '',
       timeline: shoot.timeline || [],
       team: shoot.team || []
     }));

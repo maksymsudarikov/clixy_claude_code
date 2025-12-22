@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Shoot } from '../types';
 import { TeamList } from './TeamList';
+import { ShootAvatar } from './ShootAvatar';
 
 interface ShootDetailsProps {
   shoot: Shoot;
@@ -18,13 +19,9 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
   return (
     <div className="min-h-screen bg-[#D8D9CF] text-[#141413] pb-24 md:pb-0 font-light selection:bg-[#141413] selection:text-white">
       {/* Header Image - Full Width, Geometric */}
-      <div className="relative h-[50vh] w-full overflow-hidden bg-[#9E9E98]">
-        <img 
-          src={shoot.coverImage} 
-          alt={shoot.title} 
-          className="w-full h-full object-cover opacity-90 grayscale contrast-125"
-        />
-        <div className="absolute inset-0 bg-[#141413]/20" />
+      <div className="relative h-[50vh] w-full overflow-hidden">
+        <ShootAvatar title={shoot.title} client={shoot.client} />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#141413]/40" />
         
         {/* Large Title Overlay */}
         <div className="absolute bottom-0 left-0 p-6 md:p-12 w-full">

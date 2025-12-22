@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Shoot } from '../types';
+import { ShootAvatar } from './ShootAvatar';
 
 interface DashboardProps {
   shoots: Shoot[];
@@ -34,14 +35,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ shoots }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16">
           {shoots.map((shoot) => (
             <Link to={`/shoot/${shoot.id}`} key={shoot.id} className="group block">
-              <div className="relative aspect-[4/3] overflow-hidden bg-gray-200 mb-4">
-                <img 
-                  src={shoot.coverImage} 
-                  alt={shoot.title} 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 filter grayscale contrast-125 group-hover:grayscale-0" 
-                />
-                {/* Hover overlay effect */}
-                <div className="absolute inset-0 bg-[#141413] opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+              <div className="relative aspect-[4/3] overflow-hidden border-2 border-[#141413] mb-4 transition-all duration-300 group-hover:shadow-[8px_8px_0px_0px_rgba(20,20,19,1)]">
+                <ShootAvatar title={shoot.title} client={shoot.client} />
               </div>
               
               <div className="flex flex-col space-y-1 border-t border-[#141413] pt-3">
