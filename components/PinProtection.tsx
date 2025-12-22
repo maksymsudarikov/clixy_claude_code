@@ -129,25 +129,26 @@ export const PinProtection: React.FC<PinProtectionProps> = ({ children }) => {
   if (isVerified) {
     return (
       <>
-        <div className="fixed top-2 md:top-4 right-2 md:right-4 z-50 flex gap-2">
-          <a
-            href="/#/gift-card"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-white border-2 border-[#141413] px-3 md:px-4 py-2 text-xs md:text-sm font-medium hover:bg-[#D8D9CF] transition-colors flex items-center gap-2 touch-manipulation"
-          >
-            🎁 <span className="hidden sm:inline">Gift Card Link</span><span className="sm:hidden">Gift Card</span>
-          </a>
-          <button
-            onClick={handleLogout}
-            className="bg-[#141413] text-white px-3 md:px-4 py-2 text-xs md:text-sm font-medium hover:bg-[#2a2a29] transition-colors touch-manipulation"
-          >
-            Logout
-          </button>
+        {/* Sticky header with backdrop */}
+        <div className="sticky top-0 z-50 backdrop-blur-sm bg-[#D8D9CF]/95 border-b border-[#141413]/10">
+          <div className="max-w-7xl mx-auto px-4 py-3 flex justify-end gap-2">
+            <a
+              href="/#/gift-card"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white border-2 border-[#141413] px-3 md:px-4 py-2 text-xs md:text-sm font-medium hover:bg-[#141413] hover:text-white transition-colors flex items-center gap-2 touch-manipulation"
+            >
+              🎁 <span className="hidden sm:inline">Gift Card Link</span><span className="sm:hidden">Gift Card</span>
+            </a>
+            <button
+              onClick={handleLogout}
+              className="bg-[#141413] text-white px-3 md:px-4 py-2 text-xs md:text-sm font-medium hover:bg-white hover:text-[#141413] border-2 border-[#141413] transition-colors touch-manipulation"
+            >
+              Logout
+            </button>
+          </div>
         </div>
-        <div className="pt-16 md:pt-0">
-          {children}
-        </div>
+        {children}
       </>
     );
   }

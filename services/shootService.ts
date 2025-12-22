@@ -19,6 +19,7 @@ export const fetchShootById = async (id: string): Promise<Shoot | undefined> => 
     // Handle missing fields with defaults
     return data ? {
       id: data.id,
+      projectType: data.project_type || 'photo_shoot',
       title: data.title,
       client: data.client,
       date: data.date,
@@ -34,6 +35,9 @@ export const fetchShootById = async (id: string): Promise<Shoot | undefined> => 
       photoSelectionUrl: data.photo_selection_url || '',
       finalPhotosUrl: data.final_photos_url || '',
       photoStatus: data.photo_status || 'selection_ready',
+      videoUrl: data.video_url || '',
+      videoStatus: data.video_status || 'draft',
+      revisionNotes: data.revision_notes || '',
       stylingUrl: data.styling_url || '',
       stylingNotes: data.styling_notes || '',
       hairMakeupNotes: data.hair_makeup_notes || '',
@@ -63,6 +67,7 @@ export const fetchAllShoots = async (): Promise<Shoot[]> => {
     // Convert snake_case from DB to camelCase with defaults
     return (data || []).map(shoot => ({
       id: shoot.id,
+      projectType: shoot.project_type || 'photo_shoot',
       title: shoot.title,
       client: shoot.client,
       date: shoot.date,
@@ -78,6 +83,9 @@ export const fetchAllShoots = async (): Promise<Shoot[]> => {
       photoSelectionUrl: shoot.photo_selection_url || '',
       finalPhotosUrl: shoot.final_photos_url || '',
       photoStatus: shoot.photo_status || 'selection_ready',
+      videoUrl: shoot.video_url || '',
+      videoStatus: shoot.video_status || 'draft',
+      revisionNotes: shoot.revision_notes || '',
       stylingUrl: shoot.styling_url || '',
       stylingNotes: shoot.styling_notes || '',
       hairMakeupNotes: shoot.hair_makeup_notes || '',
@@ -97,6 +105,7 @@ export const createShoot = async (shoot: Shoot): Promise<void> => {
     // Convert camelCase to snake_case for DB
     const shootData = {
       id: shoot.id,
+      project_type: shoot.projectType || 'photo_shoot',
       title: shoot.title,
       client: shoot.client,
       date: shoot.date,
@@ -112,6 +121,9 @@ export const createShoot = async (shoot: Shoot): Promise<void> => {
       photo_selection_url: shoot.photoSelectionUrl,
       final_photos_url: shoot.finalPhotosUrl,
       photo_status: shoot.photoStatus,
+      video_url: shoot.videoUrl,
+      video_status: shoot.videoStatus,
+      revision_notes: shoot.revisionNotes,
       styling_url: shoot.stylingUrl,
       styling_notes: shoot.stylingNotes,
       hair_makeup_notes: shoot.hairMakeupNotes,
@@ -149,6 +161,7 @@ export const updateShoot = async (shoot: Shoot): Promise<void> => {
     const { error } = await supabase
       .from('shoots')
       .update({
+        project_type: shoot.projectType || 'photo_shoot',
         title: shoot.title,
         client: shoot.client,
         date: shoot.date,
@@ -164,6 +177,9 @@ export const updateShoot = async (shoot: Shoot): Promise<void> => {
         photo_selection_url: shoot.photoSelectionUrl,
         final_photos_url: shoot.finalPhotosUrl,
         photo_status: shoot.photoStatus,
+        video_url: shoot.videoUrl,
+        video_status: shoot.videoStatus,
+        revision_notes: shoot.revisionNotes,
         styling_url: shoot.stylingUrl,
         styling_notes: shoot.stylingNotes,
         hair_makeup_notes: shoot.hairMakeupNotes,

@@ -16,12 +16,18 @@ const IconExternal = () => <svg className="w-4 h-4" fill="none" stroke="currentC
 export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
   const [activeTab, setActiveTab] = useState<'details' | 'style' | 'team'>('details');
 
+  // Determine which fields to show based on project type
+  const isPhotoShoot = shoot.projectType === 'photo_shoot' || shoot.projectType === 'hybrid' || !shoot.projectType;
+  const isVideoProject = shoot.projectType === 'video_project' || shoot.projectType === 'hybrid';
+  const showLocationFields = isPhotoShoot;
+  const showTeamFields = isPhotoShoot;
+
   return (
     <div className="min-h-screen bg-[#D8D9CF] text-[#141413] pb-24 md:pb-0 font-light selection:bg-[#141413] selection:text-white">
       {/* Header Image - Full Width, Geometric */}
       <div className="relative h-[50vh] w-full overflow-hidden">
-        <ShootAvatar title={shoot.title} client={shoot.client} />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#141413]/60 pointer-events-none" />
+        <ShootAvatar title={shoot.title} client={shoot.client} variant="hero" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#141413]/70 pointer-events-none" />
         
         {/* Large Title Overlay */}
         <div className="absolute bottom-0 left-0 p-6 md:p-12 w-full">
@@ -41,13 +47,13 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
       {/* Tab Navigation - Minimalist Border */}
       <div className="sticky top-0 z-30 bg-[#D8D9CF]/95 backdrop-blur-sm border-b border-[#141413]">
         <div className="max-w-5xl mx-auto flex">
-          {['details', 'style', 'team'].map((tab) => (
+          {['details', 'style', ...(showTeamFields ? ['team'] : [])].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab as any)}
               className={`flex-1 py-5 text-xs font-bold uppercase tracking-[0.2em] transition-all
-                ${activeTab === tab 
-                    ? 'text-[#141413] bg-white border-r border-l border-[#141413] -mx-[1px]' 
+                ${activeTab === tab
+                    ? 'text-[#141413] bg-white border-r border-l border-[#141413] -mx-[1px]'
                     : 'text-[#9E9E98] hover:text-[#141413]'}`}
             >
               {tab}
@@ -91,32 +97,34 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
 
             {/* Right Column: Logistics Cards (White Boxes) */}
             <div className="lg:col-span-5 space-y-6">
-              
-              {/* Logistics Card */}
-              <div className="bg-white p-8 border border-[#141413] sharp-shadow">
-                <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[#9E9E98] mb-6">Logistics</h3>
-                <div className="space-y-6">
-                  <div className="flex items-start">
-                    <IconClock />
-                    <div>
-                      <p className="font-bold uppercase text-sm">{shoot.startTime} — {shoot.endTime}</p>
-                      <p className="text-xs text-[#9E9E98] mt-1 uppercase tracking-wide">Production Hours</p>
+
+              {/* Logistics Card - Only for photo shoots and hybrid */}
+              {showLocationFields && (
+                <div className="bg-white p-8 border border-[#141413] sharp-shadow">
+                  <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[#9E9E98] mb-6">Logistics</h3>
+                  <div className="space-y-6">
+                    <div className="flex items-start">
+                      <IconClock />
+                      <div>
+                        <p className="font-bold uppercase text-sm">{shoot.startTime} — {shoot.endTime}</p>
+                        <p className="text-xs text-[#9E9E98] mt-1 uppercase tracking-wide">Production Hours</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-start">
-                    <IconMap />
-                    <div>
-                      <p className="font-bold uppercase text-sm">{shoot.locationName}</p>
-                      <p className="text-sm text-gray-600 mt-1 font-serif italic">{shoot.locationAddress}</p>
-                      {shoot.locationMapUrl && (
-                        <a href={shoot.locationMapUrl} target="_blank" rel="noreferrer" className="mt-3 inline-block text-[10px] font-bold uppercase tracking-widest border-b border-[#141413] pb-0.5 hover:text-[#9E9E98] hover:border-[#9E9E98]">
-                          View Map
-                        </a>
-                      )}
+                    <div className="flex items-start">
+                      <IconMap />
+                      <div>
+                        <p className="font-bold uppercase text-sm">{shoot.locationName}</p>
+                        <p className="text-sm text-gray-600 mt-1 font-serif italic">{shoot.locationAddress}</p>
+                        {shoot.locationMapUrl && (
+                          <a href={shoot.locationMapUrl} target="_blank" rel="noreferrer" className="mt-3 inline-block text-[10px] font-bold uppercase tracking-widest border-b border-[#141413] pb-0.5 hover:text-[#9E9E98] hover:border-[#9E9E98]">
+                            View Map
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
               
               {/* Documents Card */}
               <div className="bg-[#141413] text-white p-8 border border-[#141413]">
@@ -135,25 +143,66 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
                       </a>
                     )}
 
-                    {/* PHOTO WORKFLOW STATUS */}
-                    {shoot.photoStatus === 'selection_ready' && shoot.photoSelectionUrl && (
+                    {/* PHOTO WORKFLOW STATUS - Only for photo shoots and hybrid */}
+                    {isPhotoShoot && shoot.photoStatus === 'selection_ready' && shoot.photoSelectionUrl && (
                       <a href={shoot.photoSelectionUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between w-full p-4 bg-[#D8D9CF] text-[#141413] border border-[#D8D9CF] hover:bg-white transition-colors">
                         <span className="text-sm font-bold uppercase tracking-wider">Select Your Photos</span>
                         <IconExternal />
                       </a>
                     )}
 
-                    {shoot.photoStatus === 'editing_in_progress' && (
+                    {isPhotoShoot && shoot.photoStatus === 'editing_in_progress' && (
                       <div className="w-full p-4 bg-transparent border border-[#9E9E98] opacity-60 cursor-not-allowed">
                         <span className="text-sm font-bold uppercase tracking-wider italic">Editing in Progress...</span>
                       </div>
                     )}
 
-                    {shoot.photoStatus === 'completed' && shoot.finalPhotosUrl && (
+                    {isPhotoShoot && shoot.photoStatus === 'completed' && shoot.finalPhotosUrl && (
                       <a href={shoot.finalPhotosUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between w-full p-4 bg-[#D8D9CF] text-[#141413] border border-[#D8D9CF] hover:bg-white transition-colors">
                         <span className="text-sm font-bold uppercase tracking-wider">Download Final Photos</span>
                         <IconDownload />
                       </a>
+                    )}
+
+                    {/* VIDEO WORKFLOW STATUS - Only for video projects and hybrid */}
+                    {isVideoProject && shoot.videoStatus === 'draft' && shoot.videoUrl && (
+                      <div className="w-full p-4 bg-transparent border border-[#9E9E98]">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-bold uppercase tracking-wider">Video Draft</span>
+                          <span className="text-xs text-[#9E9E98] uppercase">In Progress</span>
+                        </div>
+                        <a href={shoot.videoUrl} target="_blank" rel="noreferrer" className="text-xs underline hover:text-[#D8D9CF]">
+                          View Draft
+                        </a>
+                      </div>
+                    )}
+
+                    {isVideoProject && shoot.videoStatus === 'editing' && (
+                      <div className="w-full p-4 bg-transparent border border-[#9E9E98] opacity-60 cursor-not-allowed">
+                        <span className="text-sm font-bold uppercase tracking-wider italic">Video Editing...</span>
+                      </div>
+                    )}
+
+                    {isVideoProject && shoot.videoStatus === 'review' && shoot.videoUrl && (
+                      <a href={shoot.videoUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between w-full p-4 bg-[#D8D9CF] text-[#141413] border border-[#D8D9CF] hover:bg-white transition-colors">
+                        <span className="text-sm font-bold uppercase tracking-wider">Review Video</span>
+                        <IconExternal />
+                      </a>
+                    )}
+
+                    {isVideoProject && shoot.videoStatus === 'final' && shoot.videoUrl && (
+                      <a href={shoot.videoUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between w-full p-4 bg-[#D8D9CF] text-[#141413] border border-[#D8D9CF] hover:bg-white transition-colors">
+                        <span className="text-sm font-bold uppercase tracking-wider">Download Final Video</span>
+                        <IconDownload />
+                      </a>
+                    )}
+
+                    {/* Revision Notes - Show for video projects in review status */}
+                    {isVideoProject && shoot.videoStatus === 'review' && shoot.revisionNotes && (
+                      <div className="w-full p-4 bg-transparent border border-[#9E9E98]">
+                        <p className="text-xs font-bold uppercase tracking-widest text-[#9E9E98] mb-2">Revision Notes</p>
+                        <p className="text-sm font-serif italic whitespace-pre-wrap">{shoot.revisionNotes}</p>
+                      </div>
                     )}
                  </div>
               </div>
@@ -202,8 +251,8 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
           </div>
         )}
 
-        {/* TEAM TAB */}
-        {activeTab === 'team' && (
+        {/* TEAM TAB - Only for photo shoots and hybrid */}
+        {activeTab === 'team' && showTeamFields && (
           <TeamList team={shoot.team} />
         )}
 

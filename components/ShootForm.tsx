@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link, useParams } from 'react-router-dom';
-import { Shoot } from '../types';
+import { Shoot, ProjectType } from '../types';
 import { createShoot, updateShoot, fetchShootById } from '../services/shootService';
 import { useNotification } from '../contexts/NotificationContext';
 import { validateShootForm, sanitizeUrl } from '../utils/validation';
@@ -24,6 +24,7 @@ export const ShootForm: React.FC = () => {
 
   const [formData, setFormData] = useState<Shoot>({
     id: '',
+    projectType: 'photo_shoot',
     title: '',
     client: '',
     date: '',
@@ -39,6 +40,9 @@ export const ShootForm: React.FC = () => {
     photoSelectionUrl: '',
     finalPhotosUrl: '',
     photoStatus: 'selection_ready',
+    videoUrl: '',
+    videoStatus: 'draft',
+    revisionNotes: '',
     stylingUrl: '',
     stylingNotes: '',
     hairMakeupNotes: '',
@@ -108,10 +112,17 @@ export const ShootForm: React.FC = () => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
+
+  // Determine if we should show photo-specific, video-specific, or location fields
+  const showPhotoFields = formData.projectType === 'photo_shoot' || formData.projectType === 'hybrid';
+  const showVideoFields = formData.projectType === 'video_project' || formData.projectType === 'hybrid';
+  const showLocationFields = formData.projectType === 'photo_shoot' || formData.projectType === 'hybrid';
+  const showTimelineFields = formData.projectType === 'photo_shoot' || formData.projectType === 'hybrid';
+  const showTeamFields = formData.projectType === 'photo_shoot' || formData.projectType === 'hybrid';
 
   const handleRestoreDraft = () => {
     const draft = loadDraft<Shoot>(draftKey);
@@ -149,6 +160,8 @@ export const ShootForm: React.FC = () => {
         moodboardUrl: sanitizeUrl(formData.moodboardUrl || ''),
         callSheetUrl: sanitizeUrl(formData.callSheetUrl || ''),
         finalPhotosUrl: sanitizeUrl(formData.finalPhotosUrl || ''),
+        photoSelectionUrl: sanitizeUrl(formData.photoSelectionUrl || ''),
+        videoUrl: sanitizeUrl(formData.videoUrl || ''),
         stylingUrl: sanitizeUrl(formData.stylingUrl || ''),
         locationMapUrl: sanitizeUrl(formData.locationMapUrl || ''),
         moodboardImages: formData.moodboardImages.map(sanitizeUrl).filter(Boolean)
@@ -248,9 +261,30 @@ export const ShootForm: React.FC = () => {
           <section>
             <h3 className={sectionHeaderClasses}>01. The Basics</h3>
             <div className={cardClasses}>
+              <div className="mb-8">
+                <label className={labelClasses}>Project Type</label>
+                <select
+                  name="projectType"
+                  value={formData.projectType}
+                  onChange={handleChange}
+                  className="w-full bg-[#D8D9CF] text-[#141413] border-b-2 border-[#141413] py-3 focus:border-[#141413] outline-none transition-colors font-bold uppercase text-sm tracking-wider"
+                >
+                  <option value="photo_shoot">📸 Photo Shoot</option>
+                  <option value="video_project">🎬 Video / Reels Project</option>
+                  <option value="hybrid">🎯 Hybrid (Photo + Video)</option>
+                </select>
+                <p className="text-[10px] text-[#9E9E98] mt-2 uppercase tracking-wider">
+                  {formData.projectType === 'video_project'
+                    ? 'Video projects hide location, timeline, and team sections'
+                    : formData.projectType === 'hybrid'
+                    ? 'Hybrid projects show all fields for both photo and video'
+                    : 'Photo shoots show full workflow with location and team'}
+                </p>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                 <div>
-                  <label className={labelClasses}>Shoot Title</label>
+                  <label className={labelClasses}>Project Title</label>
                   <input
                     required
                     name="title"
@@ -282,103 +316,107 @@ export const ShootForm: React.FC = () => {
                   onChange={handleChange}
                   rows={3}
                   className={`${inputClasses} resize-none`}
-                  placeholder="Brief description of the shoot concept..."
+                  placeholder="Brief description of the project concept..."
                 />
               </div>
 
             </div>
           </section>
 
-          {/* SECTION 2: LOGISTICS & TIMELINE */}
-          <section>
-            <h3 className={sectionHeaderClasses}>02. Logistics & Schedule</h3>
-            <div className={cardClasses}>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-                <div>
-                  <label className={labelClasses}>Date</label>
+          {/* SECTION 2: LOGISTICS & TIMELINE - Only for photo shoots and hybrid projects */}
+          {showLocationFields && (
+            <section>
+              <h3 className={sectionHeaderClasses}>02. Logistics & Schedule</h3>
+              <div className={cardClasses}>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                  <div>
+                    <label className={labelClasses}>Date</label>
+                    <input
+                      type="date"
+                      required
+                      name="date"
+                      value={formData.date}
+                      onChange={handleChange}
+                      className={inputClasses}
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClasses}>Start Time</label>
+                    <input
+                      type="time"
+                      required
+                      name="startTime"
+                      value={formData.startTime}
+                      onChange={handleChange}
+                      className={inputClasses}
+                      step="60"
+                      pattern="[0-9]{2}:[0-9]{2}"
+                    />
+                    <p className="text-[10px] text-[#9E9E98] mt-1 uppercase tracking-wider">
+                      Format: HH:MM (e.g., 09:30)
+                    </p>
+                  </div>
+                  <div>
+                    <label className={labelClasses}>End Time</label>
+                    <input
+                      type="time"
+                      required
+                      name="endTime"
+                      value={formData.endTime}
+                      onChange={handleChange}
+                      className={inputClasses}
+                      step="60"
+                      pattern="[0-9]{2}:[0-9]{2}"
+                    />
+                    <p className="text-[10px] text-[#9E9E98] mt-1 uppercase tracking-wider">
+                      Format: HH:MM (e.g., 18:00)
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mb-8">
+                  <label className={labelClasses}>Location Name</label>
                   <input
-                    type="date"
-                    required
-                    name="date"
-                    value={formData.date}
+                    name="locationName"
+                    value={formData.locationName}
                     onChange={handleChange}
                     className={inputClasses}
+                    placeholder="e.g. Studio Loft"
                   />
                 </div>
-                <div>
-                  <label className={labelClasses}>Start Time</label>
+
+                <div className="mb-8">
+                  <label className={labelClasses}>Full Address</label>
                   <input
-                    type="time"
-                    required
-                    name="startTime"
-                    value={formData.startTime}
+                    required={showLocationFields}
+                    name="locationAddress"
+                    value={formData.locationAddress}
                     onChange={handleChange}
                     className={inputClasses}
-                    step="60"
-                    pattern="[0-9]{2}:[0-9]{2}"
+                    placeholder="Street, City, Zip"
                   />
-                  <p className="text-[10px] text-[#9E9E98] mt-1 uppercase tracking-wider">
-                    Format: HH:MM (e.g., 09:30)
-                  </p>
                 </div>
-                <div>
-                  <label className={labelClasses}>End Time</label>
+
+                <div className="mb-8">
+                  <label className={labelClasses}>Map URL (Optional)</label>
                   <input
-                    type="time"
-                    required
-                    name="endTime"
-                    value={formData.endTime}
+                    name="locationMapUrl"
+                    value={formData.locationMapUrl}
                     onChange={handleChange}
                     className={inputClasses}
-                    step="60"
-                    pattern="[0-9]{2}:[0-9]{2}"
+                    placeholder="https://maps.google.com/..."
                   />
-                  <p className="text-[10px] text-[#9E9E98] mt-1 uppercase tracking-wider">
-                    Format: HH:MM (e.g., 18:00)
-                  </p>
                 </div>
-              </div>
 
-              <div className="mb-8">
-                <label className={labelClasses}>Location Name</label>
-                <input
-                  name="locationName"
-                  value={formData.locationName}
-                  onChange={handleChange}
-                  className={inputClasses}
-                  placeholder="e.g. Studio Loft"
-                />
+                {showTimelineFields && (
+                  <TimelineBuilder
+                    timeline={formData.timeline}
+                    onChange={timeline => setFormData(prev => ({ ...prev, timeline }))}
+                  />
+                )}
               </div>
-
-              <div className="mb-8">
-                <label className={labelClasses}>Full Address</label>
-                <input
-                  required
-                  name="locationAddress"
-                  value={formData.locationAddress}
-                  onChange={handleChange}
-                  className={inputClasses}
-                  placeholder="Street, City, Zip"
-                />
-              </div>
-
-              <div className="mb-8">
-                <label className={labelClasses}>Map URL (Optional)</label>
-                <input
-                  name="locationMapUrl"
-                  value={formData.locationMapUrl}
-                  onChange={handleChange}
-                  className={inputClasses}
-                  placeholder="https://maps.google.com/..."
-                />
-              </div>
-
-              <TimelineBuilder
-                timeline={formData.timeline}
-                onChange={timeline => setFormData(prev => ({ ...prev, timeline }))}
-              />
-            </div>
-          </section>
+            </section>
+          )}
 
           {/* SECTION 3: VISUALS & LINKS */}
           <section>
@@ -410,112 +448,174 @@ export const ShootForm: React.FC = () => {
                     placeholder="NOTION / GOOGLE DRIVE"
                   />
                 </div>
-                <div>
-                  <label className={labelClasses}>Styling Guide URL</label>
-                  <input
-                    name="stylingUrl"
-                    value={formData.stylingUrl}
+                {/* Styling Guide URL - Only for photo shoots and hybrid */}
+                {showPhotoFields && (
+                  <div>
+                    <label className={labelClasses}>Styling Guide URL</label>
+                    <input
+                      name="stylingUrl"
+                      value={formData.stylingUrl}
+                      onChange={handleChange}
+                      className={inputClasses}
+                      placeholder="LINK TO DECK"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* PHOTO WORKFLOW SECTION - Only for photo shoots and hybrid */}
+              {showPhotoFields && (
+                <div className="mt-12 pt-8 border-t border-[#141413]">
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-[#141413] mb-6">Photo Delivery Workflow</h4>
+                  <div className="grid grid-cols-1 gap-8">
+                    <div>
+                      <label className={labelClasses}>Photo Selection URL</label>
+                      <input
+                        name="photoSelectionUrl"
+                        value={formData.photoSelectionUrl}
+                        onChange={handleChange}
+                        className={inputClasses}
+                        placeholder="ADOBE / GOOGLE DRIVE / WETRANSFER"
+                      />
+                      <p className="text-[10px] text-[#9E9E98] mt-2 uppercase tracking-wider">
+                        Link for client to select photos
+                      </p>
+                    </div>
+                    <div>
+                      <label className={labelClasses}>Final Photos URL</label>
+                      <input
+                        name="finalPhotosUrl"
+                        value={formData.finalPhotosUrl}
+                        onChange={handleChange}
+                        className={inputClasses}
+                        placeholder="DOWNLOAD LINK (SAME FOLDER, UPDATED)"
+                      />
+                      <p className="text-[10px] text-[#9E9E98] mt-2 uppercase tracking-wider">
+                        Link to final edited photos (continuously updated)
+                      </p>
+                    </div>
+                    <div>
+                      <label className={labelClasses}>Photo Status</label>
+                      <select
+                        name="photoStatus"
+                        value={formData.photoStatus}
+                        onChange={handleChange}
+                        className="w-full bg-[#D8D9CF] text-[#141413] border-b border-[#9E9E98] py-3 focus:border-[#141413] outline-none transition-colors font-medium uppercase text-sm"
+                      >
+                        <option value="selection_ready">Selection Ready - Client can select photos</option>
+                        <option value="editing_in_progress">Editing in Progress - Photos being edited</option>
+                        <option value="completed">Completed - Final photos ready</option>
+                      </select>
+                      <p className="text-[10px] text-[#9E9E98] mt-2 uppercase tracking-wider">
+                        Controls what client sees on shoot page
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* VIDEO WORKFLOW SECTION - Only for video projects and hybrid */}
+              {showVideoFields && (
+                <div className="mt-12 pt-8 border-t border-[#141413]">
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-[#141413] mb-6">Video Delivery Workflow</h4>
+                  <div className="grid grid-cols-1 gap-8">
+                    <div>
+                      <label className={labelClasses}>Video URL</label>
+                      <input
+                        name="videoUrl"
+                        value={formData.videoUrl}
+                        onChange={handleChange}
+                        className={inputClasses}
+                        placeholder="GOOGLE DRIVE / WETRANSFER / VIMEO"
+                      />
+                      <p className="text-[10px] text-[#9E9E98] mt-2 uppercase tracking-wider">
+                        Link to video deliverables (drafts, final edits)
+                      </p>
+                    </div>
+                    <div>
+                      <label className={labelClasses}>Video Status</label>
+                      <select
+                        name="videoStatus"
+                        value={formData.videoStatus}
+                        onChange={handleChange}
+                        className="w-full bg-[#D8D9CF] text-[#141413] border-b border-[#9E9E98] py-3 focus:border-[#141413] outline-none transition-colors font-medium uppercase text-sm"
+                      >
+                        <option value="draft">Draft - Initial rough cut</option>
+                        <option value="editing">Editing - Work in progress</option>
+                        <option value="review">Review - Ready for client feedback</option>
+                        <option value="final">Final - Completed and approved</option>
+                      </select>
+                      <p className="text-[10px] text-[#9E9E98] mt-2 uppercase tracking-wider">
+                        Current stage of video production
+                      </p>
+                    </div>
+                    <div>
+                      <label className={labelClasses}>Revision Notes</label>
+                      <textarea
+                        name="revisionNotes"
+                        value={formData.revisionNotes}
+                        onChange={handleChange}
+                        rows={3}
+                        className={`${inputClasses} resize-none`}
+                        placeholder="Client feedback, revision requests, notes..."
+                      />
+                      <p className="text-[10px] text-[#9E9E98] mt-2 uppercase tracking-wider">
+                        Track client feedback and revisions
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* SECTION 4: CREATIVE NOTES - Only for photo shoots and hybrid */}
+          {showPhotoFields && (
+            <section>
+              <h3 className={sectionHeaderClasses}>04. Creative Notes</h3>
+              <div className={cardClasses}>
+                <div className="mb-8">
+                  <label className={labelClasses}>Styling Notes</label>
+                  <textarea
+                    name="stylingNotes"
+                    value={formData.stylingNotes}
                     onChange={handleChange}
-                    className={inputClasses}
-                    placeholder="LINK TO DECK"
+                    rows={3}
+                    className={`${inputClasses} resize-none`}
+                    placeholder="Wardrobe, props, styling direction..."
+                  />
+                  <p className="text-[10px] text-[#9E9E98] mt-2 uppercase tracking-wider">
+                    Optional text notes (or use Styling Guide URL above)
+                  </p>
+                </div>
+
+                <div>
+                  <label className={labelClasses}>Hair & Makeup Notes</label>
+                  <textarea
+                    name="hairMakeupNotes"
+                    value={formData.hairMakeupNotes}
+                    onChange={handleChange}
+                    rows={3}
+                    className={`${inputClasses} resize-none`}
+                    placeholder="Look and feel..."
                   />
                 </div>
               </div>
+            </section>
+          )}
 
-              {/* PHOTO WORKFLOW SECTION */}
-              <div className="mt-12 pt-8 border-t border-[#141413]">
-                <h4 className="text-xs font-bold uppercase tracking-widest text-[#141413] mb-6">Photo Delivery Workflow</h4>
-                <div className="grid grid-cols-1 gap-8">
-                  <div>
-                    <label className={labelClasses}>Photo Selection URL</label>
-                    <input
-                      name="photoSelectionUrl"
-                      value={formData.photoSelectionUrl}
-                      onChange={handleChange}
-                      className={inputClasses}
-                      placeholder="ADOBE / GOOGLE DRIVE / WETRANSFER"
-                    />
-                    <p className="text-[10px] text-[#9E9E98] mt-2 uppercase tracking-wider">
-                      Link for client to select photos
-                    </p>
-                  </div>
-                  <div>
-                    <label className={labelClasses}>Final Photos URL</label>
-                    <input
-                      name="finalPhotosUrl"
-                      value={formData.finalPhotosUrl}
-                      onChange={handleChange}
-                      className={inputClasses}
-                      placeholder="DOWNLOAD LINK (SAME FOLDER, UPDATED)"
-                    />
-                    <p className="text-[10px] text-[#9E9E98] mt-2 uppercase tracking-wider">
-                      Link to final edited photos (continuously updated)
-                    </p>
-                  </div>
-                  <div>
-                    <label className={labelClasses}>Photo Status</label>
-                    <select
-                      name="photoStatus"
-                      value={formData.photoStatus}
-                      onChange={handleChange}
-                      className="w-full bg-[#D8D9CF] text-[#141413] border-b border-[#9E9E98] py-3 focus:border-[#141413] outline-none transition-colors font-medium uppercase text-sm"
-                    >
-                      <option value="selection_ready">Selection Ready - Client can select photos</option>
-                      <option value="editing_in_progress">Editing in Progress - Photos being edited</option>
-                      <option value="completed">Completed - Final photos ready</option>
-                    </select>
-                    <p className="text-[10px] text-[#9E9E98] mt-2 uppercase tracking-wider">
-                      Controls what client sees on shoot page
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* SECTION 4: NOTES */}
-          <section>
-            <h3 className={sectionHeaderClasses}>04. Creative Notes</h3>
-            <div className={cardClasses}>
-              <div className="mb-8">
-                <label className={labelClasses}>Styling Notes</label>
-                <textarea
-                  name="stylingNotes"
-                  value={formData.stylingNotes}
-                  onChange={handleChange}
-                  rows={3}
-                  className={`${inputClasses} resize-none`}
-                  placeholder="Wardrobe, props, styling direction..."
-                />
-                <p className="text-[10px] text-[#9E9E98] mt-2 uppercase tracking-wider">
-                  Optional text notes (or use Styling Guide URL above)
-                </p>
-              </div>
-
-              <div>
-                <label className={labelClasses}>Hair & Makeup Notes</label>
-                <textarea
-                  name="hairMakeupNotes"
-                  value={formData.hairMakeupNotes}
-                  onChange={handleChange}
-                  rows={3}
-                  className={`${inputClasses} resize-none`}
-                  placeholder="Look and feel..."
+          {/* SECTION 5: TEAM - Only for photo shoots and hybrid projects */}
+          {showTeamFields && (
+            <section>
+              <h3 className={sectionHeaderClasses}>05. The Team</h3>
+              <div className={cardClasses}>
+                <TeamBuilder
+                  team={formData.team}
+                  onChange={team => setFormData(prev => ({ ...prev, team }))}
                 />
               </div>
-            </div>
-          </section>
-
-          {/* SECTION 5: TEAM */}
-          <section>
-            <h3 className={sectionHeaderClasses}>05. The Team</h3>
-            <div className={cardClasses}>
-              <TeamBuilder
-                team={formData.team}
-                onChange={team => setFormData(prev => ({ ...prev, team }))}
-              />
-            </div>
-          </section>
+            </section>
+          )}
 
           <div className="pt-8 border-t border-[#141413] flex flex-col md:flex-row justify-end gap-4">
             <Link

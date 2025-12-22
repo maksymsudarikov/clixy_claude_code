@@ -51,6 +51,7 @@ export const validateShootForm = (data: {
   description: string;
   locationAddress: string;
   coverImage: string;
+  projectType?: string;
   moodboardUrl?: string;
   callSheetUrl?: string;
   finalPhotosUrl?: string;
@@ -63,7 +64,12 @@ export const validateShootForm = (data: {
   if (!data.client?.trim()) errors.push('Client is required');
   if (!data.date) errors.push('Date is required');
   if (!data.description?.trim()) errors.push('Description is required');
-  if (!data.locationAddress?.trim()) errors.push('Location address is required');
+
+  // Only require location for photo shoots and hybrid projects
+  const requiresLocation = data.projectType !== 'video_project';
+  if (requiresLocation && !data.locationAddress?.trim()) {
+    errors.push('Location address is required');
+  }
 
   if (data.coverImage && !isValidUrl(data.coverImage)) {
     errors.push('Cover image URL is invalid');

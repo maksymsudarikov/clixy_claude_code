@@ -4,28 +4,12 @@ interface ShootAvatarProps {
   title: string;
   client?: string;
   className?: string;
+  variant?: 'card' | 'hero'; // card for grid, hero for detail page
 }
 
-// Generate a consistent color from string
+// Always use brand black color
 const getColorFromString = (str: string): string => {
-  const colors = [
-    '#141413', // Primary Black
-    '#9E9E98', // Medium Gray
-    '#6B6B68', // Dark Gray
-    '#4A4A47', // Charcoal
-    '#858580', // Stone Gray
-    '#3E3E3B', // Deep Charcoal
-    '#7A7A75', // Warm Gray
-    '#525250', // Graphite
-  ];
-
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  }
-
-  const index = Math.abs(hash) % colors.length;
-  return colors[index];
+  return '#141413'; // Primary Black - consistent for all shoots
 };
 
 // Get initials from title (first letters of first two words)
@@ -37,42 +21,52 @@ const getInitials = (title: string): string => {
   return words[0][0] + (words[1]?.[0] || '');
 };
 
-export const ShootAvatar: React.FC<ShootAvatarProps> = ({ title, client, className = '' }) => {
+export const ShootAvatar: React.FC<ShootAvatarProps> = ({ title, client, className = '', variant = 'card' }) => {
   const initials = getInitials(title);
   const bgColor = getColorFromString(title + (client || ''));
+
+  // Different sizes for card vs hero
+  const isHero = variant === 'hero';
+  const fontSize = isHero ? 'clamp(1.5rem, 4vw, 3rem)' : 'clamp(3rem, 8vw, 6rem)';
+  const opacity = isHero ? 0.12 : 1;
 
   return (
     <div
       className={`relative w-full h-full flex items-center justify-center overflow-hidden ${className}`}
       style={{ backgroundColor: bgColor }}
     >
-      {/* Diagonal lines pattern */}
-      <div className="absolute inset-0 opacity-[0.03]" style={{
+      {/* Minimal grid pattern */}
+      <div className="absolute inset-0 opacity-[0.02]" style={{
         backgroundImage: `repeating-linear-gradient(
-          45deg,
+          0deg,
           transparent,
-          transparent 40px,
-          rgba(255,255,255,0.5) 40px,
-          rgba(255,255,255,0.5) 42px
+          transparent 50px,
+          rgba(255,255,255,0.3) 50px,
+          rgba(255,255,255,0.3) 51px
+        ),
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 50px,
+          rgba(255,255,255,0.3) 50px,
+          rgba(255,255,255,0.3) 51px
         )`
       }}></div>
 
-      {/* Initials - matching CLIXY brand style */}
-      <div
-        className="relative z-10 text-white font-extrabold uppercase select-none"
-        style={{
-          fontSize: 'clamp(3.5rem, 10vw, 7rem)',
-          lineHeight: 1,
-          fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-          fontWeight: 900,
-          letterSpacing: '-0.03em',
-          textShadow: '0 2px 8px rgba(0,0,0,0.15)'
-        }}>
-        {initials}
-      </div>
-
-      {/* Subtle border accent */}
-      <div className="absolute inset-0 border-4 border-white opacity-[0.08]"></div>
+      {/* Initials - only show on card variant, hide on hero */}
+      {!isHero && (
+        <div
+          className="relative z-10 text-white font-extrabold uppercase select-none"
+          style={{
+            fontSize,
+            lineHeight: 1,
+            fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+            fontWeight: 900,
+            letterSpacing: '-0.02em'
+          }}>
+          {initials}
+        </div>
+      )}
     </div>
   );
 };
