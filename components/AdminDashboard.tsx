@@ -342,7 +342,7 @@ export const AdminDashboard: React.FC = () => {
 
         <div className="mt-24 text-center">
           <Link
-            to="/"
+            to="/dashboard"
             className="text-xs font-bold uppercase tracking-widest text-[#9E9E98] hover:text-[#141413] border-b border-transparent hover:border-[#141413] pb-0.5 transition-all"
           >
             Return to Client Dashboard

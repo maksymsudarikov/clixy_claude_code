@@ -6,6 +6,7 @@ import { AdminDashboard } from './components/AdminDashboard';
 import { ShootForm } from './components/ShootForm';
 import { GiftCardPurchase } from './components/giftcard/GiftCardPurchase';
 import { GiftCardSuccess } from './components/giftcard/GiftCardSuccess';
+import { Landing } from './components/Landing';
 import { PinProtection } from './components/PinProtection';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { NotificationContainer } from './components/NotificationContainer';
@@ -99,12 +100,13 @@ const App: React.FC = () => {
         <NotificationContainer />
         <Routes>
           {/* Public routes - no PIN required */}
+          <Route path="/" element={<Landing />} />
           <Route path="/gift-card" element={<GiftCardPurchase />} />
           <Route path="/gift-card/success" element={<GiftCardSuccess />} />
           <Route path="/shoot/:id" element={<ShootRoute />} />
 
           {/* Protected routes - PIN required */}
-          <Route path="/" element={<PinProtection><HomeRoute /></PinProtection>} />
+          <Route path="/dashboard" element={<PinProtection><HomeRoute /></PinProtection>} />
           <Route path="/admin" element={<PinProtection><AdminDashboard /></PinProtection>} />
           <Route path="/admin/create" element={<PinProtection><ShootForm /></PinProtection>} />
           <Route path="/admin/edit/:id" element={<PinProtection><ShootForm /></PinProtection>} />
