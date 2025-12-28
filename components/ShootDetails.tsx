@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Shoot } from '../types';
 import { TeamList } from './TeamList';
 import { ShootAvatar } from './ShootAvatar';
+import { NavigationBar } from './NavigationBar';
 
 interface ShootDetailsProps {
   shoot: Shoot;
@@ -24,6 +25,14 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
 
   return (
     <div className="min-h-screen bg-[#D8D9CF] text-[#141413] pb-24 md:pb-0 font-light selection:bg-[#141413] selection:text-white">
+      {/* Navigation Bar */}
+      <NavigationBar
+        backTo="/dashboard"
+        backLabel="Dashboard"
+        variant="transparent"
+        position="fixed"
+      />
+
       {/* Header Image - Full Width, Geometric */}
       <div className="relative h-[50vh] w-full overflow-hidden">
         <ShootAvatar title={shoot.title} client={shoot.client} variant="hero" />

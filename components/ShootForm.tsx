@@ -8,6 +8,7 @@ import { inputClasses, labelClasses, sectionHeaderClasses, cardClasses } from '.
 import { TimelineBuilder } from './form/TimelineBuilder';
 import { TeamBuilder } from './form/TeamBuilder';
 import { MoodboardBuilder } from './form/MoodboardBuilder';
+import { NavigationBar } from './NavigationBar';
 import { saveDraft, loadDraft, clearDraft, hasDraft, getDraftMetadata, getTimeSinceSave } from '../utils/autosave';
 
 export const ShootForm: React.FC = () => {
@@ -237,7 +238,15 @@ export const ShootForm: React.FC = () => {
           </div>
         )}
 
-        <div className="flex items-center justify-between mb-12">
+        {/* Header with Navigation */}
+        <div className="mb-12">
+          <NavigationBar
+            backTo="/admin"
+            backLabel="Cancel"
+            variant="light"
+            position="relative"
+            className="mb-6"
+          />
           <div>
             <h1 className="text-3xl font-extrabold uppercase tracking-tight text-[#141413]">
               {id ? 'Edit Shoot' : 'Create New Shoot'}
@@ -248,12 +257,6 @@ export const ShootForm: React.FC = () => {
               </p>
             )}
           </div>
-          <Link
-            to="/admin"
-            className="text-xs font-bold uppercase tracking-widest text-[#9E9E98] hover:text-[#141413] transition-colors"
-          >
-            Cancel
-          </Link>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-16">
