@@ -94,10 +94,10 @@ export const ContactHub: React.FC = () => {
             Or reach out directly
           </p>
           <a
-            href="mailto:hello@olgaprudka.com"
+            href="mailto:art@olgaprudka.com"
             className="text-sm font-bold uppercase tracking-wider text-[#141413] hover:opacity-60 transition-opacity"
           >
-            hello@olgaprudka.com
+            art@olgaprudka.com
           </a>
         </div>
       </div>
