@@ -1,18 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { verifyPin, rateLimiter } from '../utils/pinSecurity';
+import {
+  verifyPinWithMigration,
+  checkLockout,
+  recordFailedAttempt,
+  resetAttempts,
+  setAuthenticated,
+  isAuthenticated,
+  clearAuthentication
+} from '../utils/pinSecurity';
 
 interface PinProtectionProps {
   children: React.ReactNode;
 }
-
-const SESSION_KEY = 'clixy_session_id';
-const RATE_LIMIT_KEY = 'clixy_rate_limit_id';
 
 // Get PIN hash from environment variable
 const ADMIN_PIN_HASH = import.meta.env.VITE_ADMIN_PIN_HASH;
 
 // Fallback hash for development (PIN: 9634)
 // IMPORTANT: Set VITE_ADMIN_PIN_HASH in your .env file for production!
+// Legacy MD5 hash - will be deprecated
 const DEFAULT_PIN_HASH = 'ebe922af8d4560c73368a88eeac07d16';
 
 export const PinProtection: React.FC<PinProtectionProps> = ({ children }) => {
@@ -22,28 +28,22 @@ export const PinProtection: React.FC<PinProtectionProps> = ({ children }) => {
   const [isLocked, setIsLocked] = useState(false);
   const [lockoutTime, setLockoutTime] = useState(0);
 
-  // Get or create rate limit identifier
-  const getRateLimitId = () => {
-    let id = localStorage.getItem(RATE_LIMIT_KEY);
-    if (!id) {
-      id = `rl_${Date.now()}_${Math.random()}`;
-      localStorage.setItem(RATE_LIMIT_KEY, id);
-    }
-    return id;
-  };
-
   // Проверяем сессию при монтировании компонента
   useEffect(() => {
-    const currentSessionId = sessionStorage.getItem(SESSION_KEY);
-
-    // Если сессии нет - это новое посещение, требуем PIN
-    if (!currentSessionId) {
+    // Используем новую функцию isAuthenticated из pinSecurity
+    if (isAuthenticated()) {
+      setIsVerified(true);
+    } else {
       setIsVerified(false);
-      return;
     }
 
-    // Если сессия есть, проверяем что она валидна
-    setIsVerified(true);
+    // Проверяем блокировку
+    const lockStatus = checkLockout();
+    if (lockStatus.isLocked && lockStatus.remainingSeconds) {
+      setIsLocked(true);
+      setLockoutTime(lockStatus.remainingSeconds);
+      setError(`Too many failed attempts. Please wait ${lockStatus.remainingSeconds} seconds.`);
+    }
   }, []);
 
   // Update lockout timer
@@ -63,7 +63,7 @@ export const PinProtection: React.FC<PinProtectionProps> = ({ children }) => {
     return () => clearInterval(timer);
   }, [isLocked, lockoutTime]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!pin || pin.length < 4) {
@@ -71,15 +71,12 @@ export const PinProtection: React.FC<PinProtectionProps> = ({ children }) => {
       return;
     }
 
-    const rateLimitId = getRateLimitId();
-
-    // Check rate limit
-    const { allowed, waitTime } = rateLimiter.checkAttempt(rateLimitId);
-
-    if (!allowed && waitTime) {
+    // Check if locked out
+    const lockStatus = checkLockout();
+    if (lockStatus.isLocked && lockStatus.remainingSeconds) {
       setIsLocked(true);
-      setLockoutTime(waitTime);
-      setError(`Too many failed attempts. Please wait ${waitTime} seconds.`);
+      setLockoutTime(lockStatus.remainingSeconds);
+      setError(`Too many failed attempts. Please wait ${lockStatus.remainingSeconds} seconds.`);
       return;
     }
 
@@ -91,37 +88,43 @@ export const PinProtection: React.FC<PinProtectionProps> = ({ children }) => {
       return;
     }
 
-    if (verifyPin(pin, pinHash)) {
-      // Создаем уникальный ID сессии (валиден только на время открытой вкладки)
-      const sessionId = `session_${Date.now()}_${Math.random()}`;
-      sessionStorage.setItem(SESSION_KEY, sessionId);
+    try {
+      // Verify PIN (supports both MD5 legacy and bcrypt)
+      const isValid = await verifyPinWithMigration(pin, pinHash);
 
-      // Reset rate limit on successful login
-      rateLimiter.resetAttempts(rateLimitId);
+      if (isValid) {
+        // Mark as authenticated in session
+        setAuthenticated();
 
-      setIsVerified(true);
-      setError('');
-      setIsLocked(false);
-    } else {
-      // Record failed attempt
-      rateLimiter.recordFailedAttempt(rateLimitId);
+        // Reset failed attempts
+        resetAttempts();
 
-      setError('Incorrect PIN. Please try again.');
-      setPin('');
+        setIsVerified(true);
+        setError('');
+        setIsLocked(false);
+      } else {
+        // Record failed attempt
+        const result = recordFailedAttempt();
 
-      // Check if we should lock after this attempt
-      const { allowed: stillAllowed, waitTime: newWaitTime } = rateLimiter.checkAttempt(rateLimitId);
-      if (!stillAllowed && newWaitTime) {
-        setIsLocked(true);
-        setLockoutTime(newWaitTime);
-        setError(`Too many failed attempts. Please wait ${newWaitTime} seconds.`);
+        setError('Incorrect PIN. Please try again.');
+        setPin('');
+
+        // Check if locked after this attempt
+        if (result.locked && result.lockoutSeconds) {
+          setIsLocked(true);
+          setLockoutTime(result.lockoutSeconds);
+          setError(`Too many failed attempts. Please wait ${result.lockoutSeconds} seconds.`);
+        }
       }
+    } catch (err) {
+      console.error('Error verifying PIN:', err);
+      setError('An error occurred. Please try again.');
     }
   };
 
   const handleLogout = () => {
     // Удаляем сессию - при следующем посещении потребуется PIN
-    sessionStorage.removeItem(SESSION_KEY);
+    clearAuthentication();
     setIsVerified(false);
     setPin('');
   };
