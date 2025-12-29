@@ -10,6 +10,7 @@ import { TeamBuilder } from './form/TeamBuilder';
 import { MoodboardBuilder } from './form/MoodboardBuilder';
 import { NavigationBar } from './NavigationBar';
 import { saveDraft, loadDraft, clearDraft, hasDraft, getDraftMetadata, getTimeSinceSave } from '../utils/autosave';
+import { generateSecureToken } from '../utils/tokenUtils';
 
 export const ShootForm: React.FC = () => {
   const navigate = useNavigate();
@@ -25,6 +26,7 @@ export const ShootForm: React.FC = () => {
 
   const [formData, setFormData] = useState<Shoot>({
     id: '',
+    accessToken: generateSecureToken(), // Generate token for new shoots
     projectType: 'photo_shoot',
     title: '',
     client: '',
@@ -169,12 +171,18 @@ export const ShootForm: React.FC = () => {
       };
 
       if (id) {
+        // Keep existing accessToken when updating
         await updateShoot(sanitizedData);
         addNotification('success', 'Shoot updated successfully!');
       } else {
         const newId =
           formData.title.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Date.now().toString().slice(-4);
-        await createShoot({ ...sanitizedData, id: newId });
+        // Ensure accessToken is included for new shoots
+        await createShoot({
+          ...sanitizedData,
+          id: newId,
+          accessToken: sanitizedData.accessToken || generateSecureToken()
+        });
         addNotification('success', 'Shoot created successfully!');
       }
 

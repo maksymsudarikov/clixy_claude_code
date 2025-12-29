@@ -14,6 +14,7 @@ export type ProjectType = 'photo_shoot' | 'video_project' | 'hybrid';
 
 export interface Shoot {
   id: string;
+  accessToken: string; // Security token for client access to shoot details
   projectType?: ProjectType; // Type of project (optional for backward compatibility)
   title: string;
   client: string;

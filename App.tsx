@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HashRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, useParams, useSearchParams } from 'react-router-dom';
 import { ShootDetails } from './components/ShootDetails';
 import { Dashboard } from './components/Dashboard';
 import { AdminDashboard } from './components/AdminDashboard';
@@ -12,12 +12,15 @@ import { NotificationProvider } from './contexts/NotificationContext';
 import { NotificationContainer } from './components/NotificationContainer';
 import { Shoot } from './types';
 import { fetchShootById, fetchAllShoots } from './services/shootService';
+import { isValidTokenFormat } from './utils/tokenUtils';
 
 const ShootRoute = () => {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const [shoot, setShoot] = useState<Shoot | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [accessDenied, setAccessDenied] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -26,6 +29,15 @@ const ShootRoute = () => {
       try {
         const data = await fetchShootById(id);
         if (data) {
+          // Validate access token from URL
+          const urlToken = searchParams.get('token');
+
+          if (!urlToken || urlToken !== data.accessToken) {
+            setAccessDenied(true);
+            setLoading(false);
+            return;
+          }
+
           setShoot(data);
         } else {
           setError('Shoot not found');
@@ -37,7 +49,7 @@ const ShootRoute = () => {
       }
     };
     loadData();
-  }, [id]);
+  }, [id, searchParams]);
 
   if (loading) {
     return (
@@ -47,6 +59,26 @@ const ShootRoute = () => {
           <span className="text-xs font-medium tracking-widest text-gray-400 uppercase">
             Loading Clixy
           </span>
+        </div>
+      </div>
+    );
+  }
+
+  if (accessDenied) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#D8D9CF] px-6">
+        <div className="bg-white border-2 border-[#141413] p-8 max-w-md w-full text-center shadow-[8px_8px_0px_0px_rgba(20,20,19,1)]">
+          <div className="text-6xl mb-6">🔒</div>
+          <h1 className="text-2xl font-bold mb-3 uppercase tracking-tight">Access Denied</h1>
+          <p className="text-sm text-[#9E9E98] mb-6 leading-relaxed">
+            This shoot requires a valid access token. Please check your link or contact the studio for access.
+          </p>
+          <a
+            href="/#/"
+            className="inline-block bg-[#141413] text-white px-6 py-3 text-xs font-bold uppercase tracking-wider hover:bg-white hover:text-[#141413] border-2 border-[#141413] transition-colors"
+          >
+            Return Home
+          </a>
         </div>
       </div>
     );

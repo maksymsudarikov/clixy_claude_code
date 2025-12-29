@@ -23,6 +23,7 @@ A modern, secure photography project management system for Studio Olga Prudka. M
 
 ### 🔐 Security Features
 - **PIN Protection**: Hashed PIN authentication for admin access
+- **Token-Based Shoot Access**: Each shoot has a unique access token for client sharing
 - **Rate Limiting**: Brute-force protection with exponential backoff
 - **XSS Protection**: URL sanitization and validation
 - **Session Management**: Secure session storage
@@ -118,12 +119,44 @@ A modern, secure photography project management system for Studio Olga Prudka. M
 
 3. Restart the development server
 
+### Sharing Shoots with Clients
+
+Each shoot is protected by a unique access token. When you share a shoot with clients:
+
+1. **In Admin Dashboard**, click the "Copy Link" button next to any shoot
+2. The link includes a secure token: `https://yoursite.com/#/shoot/shoot-id?token=abc123...`
+3. Share this link with your client via WhatsApp, Email, etc.
+4. **Without the token**, the shoot page shows "Access Denied"
+
+**Security Benefits:**
+- ✅ Each shoot has its own unique 32-character token
+- ✅ Tokens are generated automatically when creating shoots
+- ✅ Prevents unauthorized access to client information
+- ✅ No need for clients to create accounts or remember passwords
+- ✅ Tokens can be regenerated if compromised
+
 ### Rate Limiting
 
 The app includes built-in protection against brute-force attacks:
 - **5 failed attempts** → Account lockout
 - **15 minute** lockout duration
 - **Exponential backoff** between attempts
+
+---
+
+## 📚 Documentation
+
+**Полная документация проекта:**
+
+- 📖 **[PROJECT_STATUS.md](PROJECT_STATUS.md)** - Текущее состояние проекта (читай первым!)
+- 📝 **[CHANGELOG.md](CHANGELOG.md)** - История всех изменений
+- 🔐 **[SECURITY_TESTING.md](SECURITY_TESTING.md)** - Гайд по тестированию безопасности
+- 🤖 **[.claude/PROJECT_CONTEXT.md](.claude/PROJECT_CONTEXT.md)** - Guidelines для AI агентов
+
+**Quick Links:**
+- [Quick Start](#-quick-start)
+- [Security Configuration](#-security-configuration)
+- [Troubleshooting](#-troubleshooting)
 
 ---
 
@@ -146,6 +179,7 @@ clixy/
 ├── utils/               # Utilities
 │   ├── validation.ts    # Input validation
 │   ├── pinSecurity.ts   # PIN hashing & rate limiting
+│   ├── tokenUtils.ts    # Access token generation
 │   └── autosave.ts      # Draft auto-save
 ├── types/               # TypeScript types
 ├── contexts/            # React contexts

@@ -24,7 +24,14 @@
       "Bash(git log:*)",
       "Bash(git remote set-url:*)",
       "Bash(gh run list:*)",
-      "Bash(git fetch:*)"
+      "Bash(git fetch:*)",
+      "Bash(pkill:*)",
+      "Bash(node scripts/generate-icons.js:*)",
+      "Bash(ls:*)",
+      "Bash(git remote get-url:*)",
+      "WebFetch(domain:tally.so)",
+      "Bash(find:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []

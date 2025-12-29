@@ -44,18 +44,19 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleShare = (e: React.MouseEvent, id: string) => {
+  const handleShare = (e: React.MouseEvent, shoot: Shoot) => {
     e.preventDefault();
     e.stopPropagation();
 
     const baseUrl = window.location.href.split('#')[0];
-    const shareUrl = `${baseUrl}#/shoot/${id}`;
+    // Include access token in the URL for secure access
+    const shareUrl = `${baseUrl}#/shoot/${shoot.id}?token=${shoot.accessToken}`;
 
     navigator.clipboard
       .writeText(shareUrl)
       .then(() => {
-        setCopiedId(id);
-        addNotification('success', 'Link copied to clipboard!', 2000);
+        setCopiedId(shoot.id);
+        addNotification('success', 'Private link copied to clipboard!', 2000);
         setTimeout(() => setCopiedId(null), 2000);
       })
       .catch(() => {
@@ -116,13 +117,13 @@ export const AdminDashboard: React.FC = () => {
               <IconEdit className="w-4 h-4" />
             </Link>
             <button
-              onClick={e => handleShare(e, shoot.id)}
+              onClick={e => handleShare(e, shoot)}
               className={`text-[10px] font-bold uppercase tracking-widest px-4 py-2 border transition-all ${
                 copiedId === shoot.id
                   ? 'bg-[#141413] text-white border-[#141413]'
                   : 'border-[#141413] hover:bg-[#141413] hover:text-white text-[#141413] bg-transparent'
               }`}
-              aria-label="Copy share link"
+              aria-label="Copy private share link"
             >
               {copiedId === shoot.id ? 'Copied' : 'Copy Link'}
             </button>
@@ -174,13 +175,13 @@ export const AdminDashboard: React.FC = () => {
               Edit
             </Link>
             <button
-              onClick={e => handleShare(e, shoot.id)}
+              onClick={e => handleShare(e, shoot)}
               className={`flex-1 text-[9px] font-bold uppercase tracking-wider py-2 px-3 border transition-all ${
                 copiedId === shoot.id
                   ? 'bg-[#141413] text-white border-[#141413]'
                   : 'border-[#141413] hover:bg-[#141413] hover:text-white text-[#141413] bg-transparent'
               }`}
-              aria-label="Copy share link"
+              aria-label="Copy private share link"
             >
               {copiedId === shoot.id ? '✓ Copied' : 'Share'}
             </button>
