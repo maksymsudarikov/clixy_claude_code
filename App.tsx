@@ -29,16 +29,26 @@ const ShootRoute = () => {
       try {
         const data = await fetchShootById(id);
         if (data) {
-          // Validate access token from URL
           const urlToken = searchParams.get('token');
+          const storageKey = `shoot_token_${id}`;
+          const savedToken = localStorage.getItem(storageKey);
 
-          if (!urlToken || urlToken !== data.accessToken) {
-            setAccessDenied(true);
-            setLoading(false);
-            return;
+          // Check if URL has valid token
+          if (urlToken && urlToken === data.accessToken) {
+            // Save token to localStorage for future access
+            localStorage.setItem(storageKey, urlToken);
+            setShoot(data);
+            setAccessDenied(false);
           }
-
-          setShoot(data);
+          // Check if saved token is valid
+          else if (savedToken && savedToken === data.accessToken) {
+            setShoot(data);
+            setAccessDenied(false);
+          }
+          // No valid token found
+          else {
+            setAccessDenied(true);
+          }
         } else {
           setError('Shoot not found');
         }
