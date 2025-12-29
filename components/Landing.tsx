@@ -10,9 +10,13 @@ export const Landing: React.FC = () => {
         <div className="max-w-4xl w-full text-center">
 
           {/* Hero */}
-          <h1 className="text-6xl md:text-[8rem] font-extrabold tracking-tighter leading-[0.8] mb-6 uppercase font-stretch-wide">
+          <h1 className="text-6xl md:text-[8rem] font-extrabold tracking-tighter leading-[0.8] mb-3 uppercase font-stretch-wide">
             CLIXY
           </h1>
+
+          <p className="text-sm md:text-base font-light tracking-wide mb-2 text-[#9E9E98]">
+            by
+          </p>
 
           <p className="text-base md:text-xl font-bold uppercase tracking-[0.2em] mb-8">
             Studio Olga Prudka®
@@ -42,7 +46,7 @@ export const Landing: React.FC = () => {
       </div>
 
       {/* Photography Sessions - Minimal Links */}
-      <section className="py-20 md:py-32 px-6 border-t-2 border-[#141413]">
+      <section className="py-20 md:py-32 px-6 border-t-2 border-b-2 border-[#141413]">
         <div className="max-w-3xl mx-auto text-center">
           {/* Title */}
           <h2 className="text-3xl md:text-5xl font-extrabold uppercase tracking-tight mb-12">
@@ -50,7 +54,7 @@ export const Landing: React.FC = () => {
           </h2>
 
           {/* Simple Links List */}
-          <div className="space-y-4 max-w-md mx-auto">
+          <div className="space-y-4 max-w-md mx-auto mb-12">
             <a
               href="https://www.notion.so/COUPLE-PHOTOSHOOT-2af387bff96a803b9a85d88b01b15066"
               target="_blank"
@@ -82,6 +86,19 @@ export const Landing: React.FC = () => {
               <span className="text-sm md:text-base font-bold uppercase tracking-wide">
                 Family Photoshoot →
               </span>
+            </a>
+          </div>
+
+          {/* Contact Info */}
+          <div className="text-center">
+            <p className="text-sm text-[#9E9E98] mb-3">
+              Have questions about our sessions?
+            </p>
+            <a
+              href="mailto:art@olgaprudka.com"
+              className="text-sm font-bold text-[#141413] hover:opacity-60 transition-opacity"
+            >
+              art@olgaprudka.com
             </a>
           </div>
         </div>
