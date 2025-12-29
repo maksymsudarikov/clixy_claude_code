@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { Shoot } from '../types';
+import { generateSecureToken } from '../utils/tokenUtils';
 
 // Fetch shoot by ID
 export const fetchShootById = async (id: string): Promise<Shoot | undefined> => {
@@ -105,9 +106,10 @@ export const fetchAllShoots = async (): Promise<Shoot[]> => {
 export const createShoot = async (shoot: Shoot): Promise<void> => {
   try {
     // Convert camelCase to snake_case for DB
+    // Ensure access_token is always present
     const shootData = {
       id: shoot.id,
-      access_token: shoot.accessToken,
+      access_token: shoot.accessToken || generateSecureToken(),
       project_type: shoot.projectType || 'photo_shoot',
       title: shoot.title,
       client: shoot.client,
@@ -164,7 +166,7 @@ export const updateShoot = async (shoot: Shoot): Promise<void> => {
     const { error } = await supabase
       .from('shoots')
       .update({
-        access_token: shoot.accessToken,
+        access_token: shoot.accessToken || generateSecureToken(),
         project_type: shoot.projectType || 'photo_shoot',
         title: shoot.title,
         client: shoot.client,
