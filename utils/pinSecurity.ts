@@ -227,20 +227,14 @@ export async function verifyPinWithMigration(pin: string, hash: string): Promise
 }
 
 /**
- * LEGACY: Simple MD5 implementation for migration support only
+ * LEGACY: MD5 implementation for migration support only
+ * Uses crypto-js for backward compatibility with existing hashes
  * @deprecated Use bcrypt instead
  */
 async function legacyMd5Hash(str: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(str);
-
-  // Use SubtleCrypto for MD5 (if available), otherwise return placeholder
-  try {
-    // Note: SubtleCrypto doesn't support MD5, so we'll use SHA-256 as placeholder
-    // In production, you should migrate all hashes to bcrypt
-    console.warn('MD5 not available via SubtleCrypto. Migrate to bcrypt immediately.');
-    return hash; // Return as-is for comparison
-  } catch {
-    return hash;
-  }
+  // Import crypto-js MD5 dynamically
+  const CryptoJS = await import('crypto-js');
+  const hash = CryptoJS.MD5(str).toString();
+  console.warn('⚠️ Using legacy MD5 verification. Please migrate to bcrypt immediately!');
+  return hash;
 }
