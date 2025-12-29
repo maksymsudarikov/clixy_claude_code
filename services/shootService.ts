@@ -19,6 +19,7 @@ export const fetchShootById = async (id: string): Promise<Shoot | undefined> => 
     // Handle missing fields with defaults
     return data ? {
       id: data.id,
+      accessToken: data.access_token,
       projectType: data.project_type || 'photo_shoot',
       title: data.title,
       client: data.client,
@@ -67,6 +68,7 @@ export const fetchAllShoots = async (): Promise<Shoot[]> => {
     // Convert snake_case from DB to camelCase with defaults
     return (data || []).map(shoot => ({
       id: shoot.id,
+      accessToken: shoot.access_token,
       projectType: shoot.project_type || 'photo_shoot',
       title: shoot.title,
       client: shoot.client,
@@ -105,6 +107,7 @@ export const createShoot = async (shoot: Shoot): Promise<void> => {
     // Convert camelCase to snake_case for DB
     const shootData = {
       id: shoot.id,
+      access_token: shoot.accessToken,
       project_type: shoot.projectType || 'photo_shoot',
       title: shoot.title,
       client: shoot.client,
@@ -161,6 +164,7 @@ export const updateShoot = async (shoot: Shoot): Promise<void> => {
     const { error } = await supabase
       .from('shoots')
       .update({
+        access_token: shoot.accessToken,
         project_type: shoot.projectType || 'photo_shoot',
         title: shoot.title,
         client: shoot.client,

@@ -7,6 +7,8 @@
 -- Stores photoshoot information
 CREATE TABLE IF NOT EXISTS shoots (
   id TEXT PRIMARY KEY,
+  access_token TEXT UNIQUE NOT NULL,
+  project_type TEXT,
   title TEXT NOT NULL,
   client TEXT NOT NULL,
   date TEXT NOT NULL,
