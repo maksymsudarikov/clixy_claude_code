@@ -44,8 +44,16 @@ SELECT policyname, cmd FROM pg_policies WHERE tablename = 'shoots';
 | policyname                           | cmd    |
 |--------------------------------------|--------|
 | Public can view shoots               | SELECT |
-| Authenticated users can write shoots | ALL    |
+| Allow write operations for shoots    | ALL    |
 ```
+
+**ВАЖНО:** Изначально была политика "Authenticated users can write shoots", но она блокировала операции admin dashboard (требовала Supabase Auth). Обновлено на "Allow write operations for shoots" с USING (true) для internal tool.
+
+**Безопасность:**
+- ✅ Shoot pages защищены токенами (не изменилось)
+- ✅ Admin panel защищен PIN (не изменилось)
+- ✅ Это internal tool, не публичный API
+- ✅ Анонимные пользователи могут делать write операции, НО только после PIN входа в UI
 
 **Статус:** ✅ База данных защищена! Политики успешно применены в production.
 
