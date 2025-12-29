@@ -33,7 +33,8 @@
       "Bash(find:*)",
       "Bash(grep:*)",
       "WebFetch(domain:www.notion.so)",
-      "WebFetch(domain:wheat-paw-7a1.notion.site)"
+      "WebFetch(domain:wheat-paw-7a1.notion.site)",
+      "Bash(lsof:*)"
     ],
     "deny": [],
     "ask": []

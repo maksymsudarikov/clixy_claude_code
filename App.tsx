@@ -7,7 +7,6 @@ import { ShootForm } from './components/ShootForm';
 import { GiftCardPurchase } from './components/giftcard/GiftCardPurchase';
 import { GiftCardSuccess } from './components/giftcard/GiftCardSuccess';
 import { Landing } from './components/Landing';
-import { PackagesPage } from './components/PackagesPage';
 import { PinProtection } from './components/PinProtection';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { NotificationContainer } from './components/NotificationContainer';
@@ -134,7 +133,6 @@ const App: React.FC = () => {
         <Routes>
           {/* Public routes - no PIN required */}
           <Route path="/" element={<Landing />} />
-          <Route path="/packages" element={<PackagesPage />} />
           <Route path="/gift-card" element={<GiftCardPurchase />} />
           <Route path="/gift-card/success" element={<GiftCardSuccess />} />
           <Route path="/shoot/:id" element={<ShootRoute />} />
