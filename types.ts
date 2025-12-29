@@ -12,10 +12,13 @@ export interface TimelineEvent {
 
 export type ProjectType = 'photo_shoot' | 'video_project' | 'hybrid';
 
+export type ShootStatus = 'pending' | 'in_progress' | 'completed' | 'delivered';
+
 export interface Shoot {
   id: string;
   accessToken: string; // Security token for client access to shoot details
   projectType?: ProjectType; // Type of project (optional for backward compatibility)
+  status?: ShootStatus; // Overall project status
   title: string;
   client: string;
   date: string;

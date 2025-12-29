@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Shoot } from '../types';
-import { fetchAllShoots, deleteShoot } from '../services/shootService';
+import { Shoot, ShootStatus } from '../types';
+import { fetchAllShoots, deleteShoot, createShoot, updateShoot } from '../services/shootService';
 import { useNotification } from '../contexts/NotificationContext';
-import { IconTrash, IconEdit, IconSearch } from './Icons';
+import { generateSecureToken } from '../utils/tokenUtils';
+import { IconTrash, IconEdit, IconSearch, IconDuplicate } from './Icons';
+import { DeleteConfirmationModal } from './DeleteConfirmationModal';
 
 export const AdminDashboard: React.FC = () => {
   const [shoots, setShoots] = useState<Shoot[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; shoot: Shoot | null }>({ isOpen: false, shoot: null });
   const { addNotification } = useNotification();
 
   useEffect(() => {
@@ -29,18 +32,34 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleDelete = async (e: React.MouseEvent, id: string, title: string) => {
+  const handleDelete = (e: React.MouseEvent, shoot: Shoot) => {
     e.preventDefault();
     e.stopPropagation();
+    setDeleteModal({ isOpen: true, shoot });
+  };
 
-    if (window.confirm(`Are you sure you want to delete "${title}"? This cannot be undone.`)) {
-      try {
-        await deleteShoot(id);
-        addNotification('success', 'Shoot deleted successfully');
-        loadShoots();
-      } catch (err) {
-        addNotification('error', 'Failed to delete shoot');
-      }
+  const confirmDelete = async () => {
+    if (!deleteModal.shoot) return;
+
+    try {
+      await deleteShoot(deleteModal.shoot.id);
+      addNotification('success', 'Shoot deleted successfully');
+      setDeleteModal({ isOpen: false, shoot: null });
+      loadShoots();
+    } catch (err) {
+      addNotification('error', 'Failed to delete shoot');
+    }
+  };
+
+  const handleStatusChange = async (shoot: Shoot, newStatus: ShootStatus) => {
+    try {
+      const updatedShoot = { ...shoot, status: newStatus };
+      await updateShoot(updatedShoot);
+      addNotification('success', `Status updated to ${newStatus}`);
+      loadShoots();
+    } catch (err) {
+      console.error('Failed to update status:', err);
+      addNotification('error', 'Failed to update status');
     }
   };
 
@@ -62,6 +81,39 @@ export const AdminDashboard: React.FC = () => {
       .catch(() => {
         addNotification('error', 'Failed to copy link');
       });
+  };
+
+  const handleDuplicate = async (e: React.MouseEvent, shoot: Shoot) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    try {
+      // Generate unique ID and token
+      const timestamp = Date.now();
+      const newId = `${shoot.id}-copy-${timestamp}`;
+      const newToken = generateSecureToken();
+
+      // Create duplicate with new ID, token, and reset key fields
+      const duplicateShoot: Shoot = {
+        ...shoot,
+        id: newId,
+        accessToken: newToken,
+        title: `${shoot.title} (Copy)`,
+        status: 'in_progress',
+        date: new Date().toISOString().split('T')[0],
+        deliveryDate: null,
+        photoSelectionUrl: '',
+        finalPhotosUrl: '',
+        videoUrl: '',
+      };
+
+      await createShoot(duplicateShoot);
+      addNotification('success', 'Shoot duplicated successfully!');
+      loadShoots();
+    } catch (err) {
+      console.error('Failed to duplicate shoot:', err);
+      addNotification('error', 'Failed to duplicate shoot');
+    }
   };
 
   const filteredShoots = shoots.filter(
@@ -94,6 +146,20 @@ export const AdminDashboard: React.FC = () => {
                     Today
                   </span>
                 )}
+                <select
+                  value={shoot.status || 'pending'}
+                  onChange={(e) => {
+                    e.preventDefault();
+                    handleStatusChange(shoot, e.target.value as ShootStatus);
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border border-[#141413] bg-white hover:bg-[#141413] hover:text-white transition-colors cursor-pointer"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="completed">Completed</option>
+                  <option value="delivered">Delivered</option>
+                </select>
               </div>
               <p className="text-xs text-[#9E9E98] uppercase tracking-widest mt-1 group-hover:text-[#141413]">
                 {shoot.client}
@@ -117,6 +183,14 @@ export const AdminDashboard: React.FC = () => {
               <IconEdit className="w-4 h-4" />
             </Link>
             <button
+              onClick={e => handleDuplicate(e, shoot)}
+              className="text-[#9E9E98] hover:text-[#141413] transition-colors p-2"
+              title="Duplicate Shoot"
+              aria-label={`Duplicate ${shoot.title}`}
+            >
+              <IconDuplicate className="w-4 h-4" />
+            </button>
+            <button
               onClick={e => handleShare(e, shoot)}
               className={`text-[10px] font-bold uppercase tracking-widest px-4 py-2 border transition-all ${
                 copiedId === shoot.id
@@ -128,7 +202,7 @@ export const AdminDashboard: React.FC = () => {
               {copiedId === shoot.id ? 'Copied' : 'Copy Link'}
             </button>
             <button
-              onClick={e => handleDelete(e, shoot.id, shoot.title)}
+              onClick={e => handleDelete(e, shoot)}
               className="text-[#9E9E98] hover:text-red-600 transition-colors p-2"
               title="Delete Shoot"
               aria-label={`Delete ${shoot.title}`}
@@ -175,6 +249,14 @@ export const AdminDashboard: React.FC = () => {
               Edit
             </Link>
             <button
+              onClick={e => handleDuplicate(e, shoot)}
+              className="text-[#9E9E98] hover:text-[#141413] transition-colors p-2 border border-[#9E9E98] hover:border-[#141413]"
+              title="Duplicate Shoot"
+              aria-label={`Duplicate ${shoot.title}`}
+            >
+              <IconDuplicate className="w-4 h-4" />
+            </button>
+            <button
               onClick={e => handleShare(e, shoot)}
               className={`flex-1 text-[9px] font-bold uppercase tracking-wider py-2 px-3 border transition-all ${
                 copiedId === shoot.id
@@ -186,7 +268,7 @@ export const AdminDashboard: React.FC = () => {
               {copiedId === shoot.id ? '✓ Copied' : 'Share'}
             </button>
             <button
-              onClick={e => handleDelete(e, shoot.id, shoot.title)}
+              onClick={e => handleDelete(e, shoot)}
               className="text-[#9E9E98] hover:text-red-600 transition-colors p-2 border border-[#9E9E98] hover:border-red-600"
               title="Delete Shoot"
               aria-label={`Delete ${shoot.title}`}
@@ -350,6 +432,14 @@ export const AdminDashboard: React.FC = () => {
           </Link>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={deleteModal.isOpen}
+        shootTitle={deleteModal.shoot?.title || ''}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteModal({ isOpen: false, shoot: null })}
+      />
     </div>
   );
 };
