@@ -4,6 +4,113 @@
 
 ---
 
+## [2025-12-28] - Photography Packages Showcase
+
+### 📸 Добавлена элегантная витрина пакетов съемок
+
+**Проблема:**
+- Клиенты спрашивают про типы съемок и цены
+- Информация только в Notion - нет интеграции с Clixy
+- Нужна price transparency для informed decision-making
+- Съемки дорогие ($1000-1300) - клиент должен понимать investment
+
+**Решение:**
+Создана минималистичная система витрины пакетов с фокусом на ясность и элегантность.
+
+#### Изменения в коде:
+
+**1. Создан PackageCard компонент (components/PackageCard.tsx)**
+- Brutalist дизайн в стиле Clixy
+- Price-first approach - цена на видном месте
+- Ключевая информация: duration, photos count, location
+- Preview features (первые 4)
+- CTA: "Full Details" → Notion (полная информация)
+- CTA: "Book Now" → Tally форма
+- "Popular" badge для популярных пакетов
+
+**2. Создана PackagesPage (components/PackagesPage.tsx)**
+- Публичная страница `/packages`
+- Минималистичный layout
+- Price range в header: "Starting at $1,000"
+- Responsive grid (1-3 колонки)
+- Payment options info
+- Links: Gift Cards, Contact Us
+
+**3. Обновлен Landing.tsx**
+- Новая секция "Photography Sessions" между Hero и Contact Hub
+- Показывает: starting price, названия пакетов (Couple • Street Style • Family)
+- Одна CTA кнопка: "View All Packages"
+- Не перегружает главную страницу
+
+**4. Добавлен роут `/packages` (App.tsx:137)**
+- Публичный (без PIN)
+- Доступен всем клиентам
+
+#### Design Philosophy:
+
+**Price Transparency:**
+- ✅ Цены показаны сразу (no hidden costs)
+- ✅ Четкая структура: что получаешь за деньги
+- ✅ "Full Details" ссылка на Notion с полной информацией
+- ✅ Клиент может принять informed decision
+
+**Minimal & Elegant:**
+- ✅ Не cluttered - чистый layout
+- ✅ Фокус на важном: price, duration, deliverables
+- ✅ Brutalist style consistent с брендингом
+- ✅ Mobile-optimized
+
+**User Journey:**
+```
+Landing → "View All Packages" → /packages
+  ↓
+Просмотр карточек пакетов
+  ↓
+"Full Details" → Notion (подробная инфа)
+  OR
+"Book Now" → Tally форма бронирования
+```
+
+#### Benefits:
+
+**Для клиентов:**
+- ✅ Сразу видят price range
+- ✅ Понимают что включено
+- ✅ Могут сравнить пакеты
+- ✅ Direct booking через формы
+- ✅ Полная информация в Notion
+
+**Для бизнеса:**
+- ✅ Professional presentation
+- ✅ Filtering клиентов по budget (price upfront)
+- ✅ Less back-and-forth (вся инфа доступна)
+- ✅ Notion остается source of truth (easy updates)
+- ✅ Lead capture через Tally
+
+**Для команды:**
+- ✅ Одна ссылка для sharing: clixy.com/#/packages
+- ✅ Не нужно копировать Notion ссылки вручную
+- ✅ Branded experience
+
+#### Структура пакетов (из constants.ts):
+
+1. **Couple Photoshoot** - $1,000 (Popular ⭐)
+2. **Street Style (1 Outfit)** - $1,000
+3. **Street Style (2 Outfits)** - $1,300
+4. **Family Photoshoot** - $1,300
+
+Каждый пакет имеет:
+- Price, duration, photos count, location
+- Description
+- Features list (что включено)
+- Notion URL для full details
+
+**Автор:** AI Development Team
+**Статус:** ✅ Завершено
+**Build:** Pending test
+
+---
+
 ## [2025-12-28] - Token-Based Security Implementation
 
 ### 🔐 Добавлена система токенов для защиты shoot pages

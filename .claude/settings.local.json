@@ -31,7 +31,9 @@
       "Bash(git remote get-url:*)",
       "WebFetch(domain:tally.so)",
       "Bash(find:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "WebFetch(domain:www.notion.so)",
+      "WebFetch(domain:wheat-paw-7a1.notion.site)"
     ],
     "deny": [],
     "ask": []
