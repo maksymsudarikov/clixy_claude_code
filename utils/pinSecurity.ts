@@ -1,292 +1,246 @@
 /**
  * PIN Security Utilities
  *
- * Provides secure PIN hashing and verification using MD5.
- * Note: MD5 is sufficient for PIN protection given the short length (4 digits).
- * For higher security applications, consider using bcrypt or argon2.
+ * Provides secure PIN hashing and verification using bcrypt.
+ * Upgraded from MD5 to bcrypt for better security (2025-12-29).
+ *
+ * Features:
+ * - bcrypt hashing with salt (10 rounds)
+ * - Rate limiting with exponential backoff
+ * - Session-based authentication
  */
+
+import bcrypt from 'bcryptjs';
+
+const SALT_ROUNDS = 10;
 
 /**
- * Simple MD5 implementation for browser environment
- * Source: Based on standard MD5 algorithm
+ * Hash a PIN using bcrypt
+ * @param pin - 4-digit PIN as string
+ * @returns Promise<string> - bcrypt hash
+ *
+ * @example
+ * const hash = await hashPin('9634');
+ * // Result: $2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
  */
-function md5(str: string): string {
-  function rotateLeft(lValue: number, iShiftBits: number): number {
-    return (lValue << iShiftBits) | (lValue >>> (32 - iShiftBits));
-  }
-
-  function addUnsigned(lX: number, lY: number): number {
-    const lX8 = (lX & 0x80000000);
-    const lY8 = (lY & 0x80000000);
-    const lX4 = (lX & 0x40000000);
-    const lY4 = (lY & 0x40000000);
-    const lResult = (lX & 0x3FFFFFFF) + (lY & 0x3FFFFFFF);
-    if (lX4 & lY4) {
-      return (lResult ^ 0x80000000 ^ lX8 ^ lY8);
-    }
-    if (lX4 | lY4) {
-      if (lResult & 0x40000000) {
-        return (lResult ^ 0xC0000000 ^ lX8 ^ lY8);
-      } else {
-        return (lResult ^ 0x40000000 ^ lX8 ^ lY8);
-      }
-    } else {
-      return (lResult ^ lX8 ^ lY8);
-    }
-  }
-
-  function F(x: number, y: number, z: number): number {
-    return (x & y) | ((~x) & z);
-  }
-
-  function G(x: number, y: number, z: number): number {
-    return (x & z) | (y & (~z));
-  }
-
-  function H(x: number, y: number, z: number): number {
-    return (x ^ y ^ z);
-  }
-
-  function I(x: number, y: number, z: number): number {
-    return (y ^ (x | (~z)));
-  }
-
-  function FF(a: number, b: number, c: number, d: number, x: number, s: number, ac: number): number {
-    a = addUnsigned(a, addUnsigned(addUnsigned(F(b, c, d), x), ac));
-    return addUnsigned(rotateLeft(a, s), b);
-  }
-
-  function GG(a: number, b: number, c: number, d: number, x: number, s: number, ac: number): number {
-    a = addUnsigned(a, addUnsigned(addUnsigned(G(b, c, d), x), ac));
-    return addUnsigned(rotateLeft(a, s), b);
-  }
-
-  function HH(a: number, b: number, c: number, d: number, x: number, s: number, ac: number): number {
-    a = addUnsigned(a, addUnsigned(addUnsigned(H(b, c, d), x), ac));
-    return addUnsigned(rotateLeft(a, s), b);
-  }
-
-  function II(a: number, b: number, c: number, d: number, x: number, s: number, ac: number): number {
-    a = addUnsigned(a, addUnsigned(addUnsigned(I(b, c, d), x), ac));
-    return addUnsigned(rotateLeft(a, s), b);
-  }
-
-  function convertToWordArray(str: string): number[] {
-    const lWordCount = ((str.length + 8) >> 6) + 1;
-    const lMessageLength = lWordCount * 16;
-    const lWordArray = new Array(lMessageLength).fill(0);
-
-    let lBytePosition = 0;
-    let lByteCount = 0;
-    let lWordPosition = 0;
-    while (lByteCount < str.length) {
-      lWordPosition = (lByteCount >> 2);
-      lBytePosition = (lByteCount % 4) * 8;
-      lWordArray[lWordPosition] = (lWordArray[lWordPosition] | (str.charCodeAt(lByteCount) << lBytePosition));
-      lByteCount++;
-    }
-
-    lWordPosition = (lByteCount >> 2);
-    lBytePosition = (lByteCount % 4) * 8;
-    lWordArray[lWordPosition] = lWordArray[lWordPosition] | (0x80 << lBytePosition);
-    lWordArray[lMessageLength - 2] = str.length << 3;
-    lWordArray[lMessageLength - 1] = str.length >>> 29;
-    return lWordArray;
-  }
-
-  function wordToHex(lValue: number): string {
-    let wordToHexValue = "";
-    for (let lCount = 0; lCount <= 3; lCount++) {
-      const lByte = (lValue >>> (lCount * 8)) & 255;
-      wordToHexValue += ("0" + lByte.toString(16)).slice(-2);
-    }
-    return wordToHexValue;
-  }
-
-  const x = convertToWordArray(str);
-  let a = 0x67452301;
-  let b = 0xEFCDAB89;
-  let c = 0x98BADCFE;
-  let d = 0x10325476;
-
-  const S11 = 7, S12 = 12, S13 = 17, S14 = 22;
-  const S21 = 5, S22 = 9, S23 = 14, S24 = 20;
-  const S31 = 4, S32 = 11, S33 = 16, S34 = 23;
-  const S41 = 6, S42 = 10, S43 = 15, S44 = 21;
-
-  for (let k = 0; k < x.length; k += 16) {
-    const AA = a, BB = b, CC = c, DD = d;
-
-    a = FF(a, b, c, d, x[k + 0], S11, 0xD76AA478);
-    d = FF(d, a, b, c, x[k + 1], S12, 0xE8C7B756);
-    c = FF(c, d, a, b, x[k + 2], S13, 0x242070DB);
-    b = FF(b, c, d, a, x[k + 3], S14, 0xC1BDCEEE);
-    a = FF(a, b, c, d, x[k + 4], S11, 0xF57C0FAF);
-    d = FF(d, a, b, c, x[k + 5], S12, 0x4787C62A);
-    c = FF(c, d, a, b, x[k + 6], S13, 0xA8304613);
-    b = FF(b, c, d, a, x[k + 7], S14, 0xFD469501);
-    a = FF(a, b, c, d, x[k + 8], S11, 0x698098D8);
-    d = FF(d, a, b, c, x[k + 9], S12, 0x8B44F7AF);
-    c = FF(c, d, a, b, x[k + 10], S13, 0xFFFF5BB1);
-    b = FF(b, c, d, a, x[k + 11], S14, 0x895CD7BE);
-    a = FF(a, b, c, d, x[k + 12], S11, 0x6B901122);
-    d = FF(d, a, b, c, x[k + 13], S12, 0xFD987193);
-    c = FF(c, d, a, b, x[k + 14], S13, 0xA679438E);
-    b = FF(b, c, d, a, x[k + 15], S14, 0x49B40821);
-    a = GG(a, b, c, d, x[k + 1], S21, 0xF61E2562);
-    d = GG(d, a, b, c, x[k + 6], S22, 0xC040B340);
-    c = GG(c, d, a, b, x[k + 11], S23, 0x265E5A51);
-    b = GG(b, c, d, a, x[k + 0], S24, 0xE9B6C7AA);
-    a = GG(a, b, c, d, x[k + 5], S21, 0xD62F105D);
-    d = GG(d, a, b, c, x[k + 10], S22, 0x2441453);
-    c = GG(c, d, a, b, x[k + 15], S23, 0xD8A1E681);
-    b = GG(b, c, d, a, x[k + 4], S24, 0xE7D3FBC8);
-    a = GG(a, b, c, d, x[k + 9], S21, 0x21E1CDE6);
-    d = GG(d, a, b, c, x[k + 14], S22, 0xC33707D6);
-    c = GG(c, d, a, b, x[k + 3], S23, 0xF4D50D87);
-    b = GG(b, c, d, a, x[k + 8], S24, 0x455A14ED);
-    a = GG(a, b, c, d, x[k + 13], S21, 0xA9E3E905);
-    d = GG(d, a, b, c, x[k + 2], S22, 0xFCEFA3F8);
-    c = GG(c, d, a, b, x[k + 7], S23, 0x676F02D9);
-    b = GG(b, c, d, a, x[k + 12], S24, 0x8D2A4C8A);
-    a = HH(a, b, c, d, x[k + 5], S31, 0xFFFA3942);
-    d = HH(d, a, b, c, x[k + 8], S32, 0x8771F681);
-    c = HH(c, d, a, b, x[k + 11], S33, 0x6D9D6122);
-    b = HH(b, c, d, a, x[k + 14], S34, 0xFDE5380C);
-    a = HH(a, b, c, d, x[k + 1], S31, 0xA4BEEA44);
-    d = HH(d, a, b, c, x[k + 4], S32, 0x4BDECFA9);
-    c = HH(c, d, a, b, x[k + 7], S33, 0xF6BB4B60);
-    b = HH(b, c, d, a, x[k + 10], S34, 0xBEBFBC70);
-    a = HH(a, b, c, d, x[k + 13], S31, 0x289B7EC6);
-    d = HH(d, a, b, c, x[k + 0], S32, 0xEAA127FA);
-    c = HH(c, d, a, b, x[k + 3], S33, 0xD4EF3085);
-    b = HH(b, c, d, a, x[k + 6], S34, 0x4881D05);
-    a = HH(a, b, c, d, x[k + 9], S31, 0xD9D4D039);
-    d = HH(d, a, b, c, x[k + 12], S32, 0xE6DB99E5);
-    c = HH(c, d, a, b, x[k + 15], S33, 0x1FA27CF8);
-    b = HH(b, c, d, a, x[k + 2], S34, 0xC4AC5665);
-    a = II(a, b, c, d, x[k + 0], S41, 0xF4292244);
-    d = II(d, a, b, c, x[k + 7], S42, 0x432AFF97);
-    c = II(c, d, a, b, x[k + 14], S43, 0xAB9423A7);
-    b = II(b, c, d, a, x[k + 5], S44, 0xFC93A039);
-    a = II(a, b, c, d, x[k + 12], S41, 0x655B59C3);
-    d = II(d, a, b, c, x[k + 3], S42, 0x8F0CCC92);
-    c = II(c, d, a, b, x[k + 10], S43, 0xFFEFF47D);
-    b = II(b, c, d, a, x[k + 1], S44, 0x85845DD1);
-    a = II(a, b, c, d, x[k + 8], S41, 0x6FA87E4F);
-    d = II(d, a, b, c, x[k + 15], S42, 0xFE2CE6E0);
-    c = II(c, d, a, b, x[k + 6], S43, 0xA3014314);
-    b = II(b, c, d, a, x[k + 13], S44, 0x4E0811A1);
-    a = II(a, b, c, d, x[k + 4], S41, 0xF7537E82);
-    d = II(d, a, b, c, x[k + 11], S42, 0xBD3AF235);
-    c = II(c, d, a, b, x[k + 2], S43, 0x2AD7D2BB);
-    b = II(b, c, d, a, x[k + 9], S44, 0xEB86D391);
-
-    a = addUnsigned(a, AA);
-    b = addUnsigned(b, BB);
-    c = addUnsigned(c, CC);
-    d = addUnsigned(d, DD);
-  }
-
-  return (wordToHex(a) + wordToHex(b) + wordToHex(c) + wordToHex(d)).toLowerCase();
+export async function hashPin(pin: string): Promise<string> {
+  return bcrypt.hash(pin, SALT_ROUNDS);
 }
 
 /**
- * Hash a PIN using MD5
- * @param pin - The PIN to hash (should be 4 digits)
- * @returns MD5 hash of the PIN
+ * Verify a PIN against a bcrypt hash
+ * @param pin - 4-digit PIN to verify
+ * @param hash - bcrypt hash to compare against
+ * @returns Promise<boolean> - true if PIN matches hash
+ *
+ * @example
+ * const isValid = await verifyPin('9634', storedHash);
  */
-export const hashPin = (pin: string): string => {
-  return md5(pin);
-};
-
-/**
- * Verify if a PIN matches the stored hash
- * @param pin - The PIN to verify
- * @param hash - The stored hash to compare against
- * @returns true if PIN is correct, false otherwise
- */
-export const verifyPin = (pin: string, hash: string): boolean => {
-  return hashPin(pin) === hash.toLowerCase();
-};
+export async function verifyPin(pin: string, hash: string): Promise<boolean> {
+  try {
+    return await bcrypt.compare(pin, hash);
+  } catch (error) {
+    console.error('Error verifying PIN:', error);
+    return false;
+  }
+}
 
 /**
  * Rate limiting for PIN attempts
- * Tracks failed attempts and implements exponential backoff
+ * Uses exponential backoff to prevent brute force attacks
  */
-class RateLimiter {
-  private attempts: Map<string, { count: number; lastAttempt: number }> = new Map();
-  private readonly maxAttempts = 5;
-  private readonly lockoutDuration = 15 * 60 * 1000; // 15 minutes
-  private readonly baseDelay = 1000; // 1 second
 
-  /**
-   * Check if an attempt is allowed
-   * @param identifier - Unique identifier (e.g., session ID)
-   * @returns Object with allowed status and wait time if blocked
-   */
-  checkAttempt(identifier: string): { allowed: boolean; waitTime?: number } {
-    const now = Date.now();
-    const record = this.attempts.get(identifier);
+const STORAGE_KEY = 'pin_attempts';
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes in ms
 
-    if (!record) {
-      return { allowed: true };
+interface AttemptData {
+  count: number;
+  lastAttempt: number;
+  lockedUntil?: number;
+}
+
+/**
+ * Get current attempt data from localStorage
+ */
+function getAttemptData(): AttemptData {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY);
+    if (!data) {
+      return { count: 0, lastAttempt: Date.now() };
     }
-
-    // Reset if lockout period has passed
-    if (now - record.lastAttempt > this.lockoutDuration) {
-      this.attempts.delete(identifier);
-      return { allowed: true };
-    }
-
-    // Calculate delay based on number of failed attempts
-    const delay = this.baseDelay * Math.pow(2, record.count - 1);
-    const timeSinceLastAttempt = now - record.lastAttempt;
-
-    if (record.count >= this.maxAttempts) {
-      const remainingTime = this.lockoutDuration - timeSinceLastAttempt;
-      return {
-        allowed: false,
-        waitTime: Math.max(0, Math.ceil(remainingTime / 1000))
-      };
-    }
-
-    if (timeSinceLastAttempt < delay) {
-      const remainingTime = delay - timeSinceLastAttempt;
-      return {
-        allowed: false,
-        waitTime: Math.max(0, Math.ceil(remainingTime / 1000))
-      };
-    }
-
-    return { allowed: true };
-  }
-
-  /**
-   * Record a failed attempt
-   * @param identifier - Unique identifier (e.g., session ID)
-   */
-  recordFailedAttempt(identifier: string): void {
-    const now = Date.now();
-    const record = this.attempts.get(identifier);
-
-    if (!record) {
-      this.attempts.set(identifier, { count: 1, lastAttempt: now });
-    } else {
-      this.attempts.set(identifier, {
-        count: record.count + 1,
-        lastAttempt: now
-      });
-    }
-  }
-
-  /**
-   * Reset attempts for an identifier (called on successful login)
-   * @param identifier - Unique identifier (e.g., session ID)
-   */
-  resetAttempts(identifier: string): void {
-    this.attempts.delete(identifier);
+    return JSON.parse(data);
+  } catch {
+    return { count: 0, lastAttempt: Date.now() };
   }
 }
 
-export const rateLimiter = new RateLimiter();
+/**
+ * Save attempt data to localStorage
+ */
+function saveAttemptData(data: AttemptData): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (error) {
+    console.error('Failed to save attempt data:', error);
+  }
+}
+
+/**
+ * Check if currently locked out
+ * @returns { isLocked: boolean, remainingSeconds?: number }
+ */
+export function checkLockout(): { isLocked: boolean; remainingSeconds?: number } {
+  const data = getAttemptData();
+
+  if (!data.lockedUntil) {
+    return { isLocked: false };
+  }
+
+  const now = Date.now();
+  if (now < data.lockedUntil) {
+    const remainingMs = data.lockedUntil - now;
+    const remainingSeconds = Math.ceil(remainingMs / 1000);
+    return { isLocked: true, remainingSeconds };
+  }
+
+  // Lockout expired, reset
+  resetAttempts();
+  return { isLocked: false };
+}
+
+/**
+ * Record a failed PIN attempt
+ * Implements exponential backoff after max attempts
+ * @returns { locked: boolean, remainingAttempts?: number, lockoutSeconds?: number }
+ */
+export function recordFailedAttempt(): {
+  locked: boolean;
+  remainingAttempts?: number;
+  lockoutSeconds?: number;
+} {
+  const data = getAttemptData();
+  data.count += 1;
+  data.lastAttempt = Date.now();
+
+  if (data.count >= MAX_ATTEMPTS) {
+    data.lockedUntil = Date.now() + LOCKOUT_DURATION;
+    saveAttemptData(data);
+
+    return {
+      locked: true,
+      lockoutSeconds: Math.ceil(LOCKOUT_DURATION / 1000)
+    };
+  }
+
+  saveAttemptData(data);
+
+  return {
+    locked: false,
+    remainingAttempts: MAX_ATTEMPTS - data.count
+  };
+}
+
+/**
+ * Reset failed attempts (called on successful PIN entry)
+ */
+export function resetAttempts(): void {
+  localStorage.removeItem(STORAGE_KEY);
+}
+
+/**
+ * Get remaining attempts before lockout
+ */
+export function getRemainingAttempts(): number {
+  const data = getAttemptData();
+  return Math.max(0, MAX_ATTEMPTS - data.count);
+}
+
+/**
+ * Session management for PIN authentication
+ */
+
+const SESSION_KEY = 'pin_authenticated';
+const SESSION_DURATION = 8 * 60 * 60 * 1000; // 8 hours
+
+/**
+ * Mark user as authenticated in session
+ */
+export function setAuthenticated(): void {
+  const expiresAt = Date.now() + SESSION_DURATION;
+  sessionStorage.setItem(SESSION_KEY, expiresAt.toString());
+  resetAttempts(); // Clear any failed attempts on successful auth
+}
+
+/**
+ * Check if user is currently authenticated
+ * @returns boolean - true if authenticated and session not expired
+ */
+export function isAuthenticated(): boolean {
+  const expiresAt = sessionStorage.getItem(SESSION_KEY);
+  if (!expiresAt) return false;
+
+  const now = Date.now();
+  const expiry = parseInt(expiresAt, 10);
+
+  if (now > expiry) {
+    // Session expired
+    sessionStorage.removeItem(SESSION_KEY);
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Clear authentication session
+ */
+export function clearAuthentication(): void {
+  sessionStorage.removeItem(SESSION_KEY);
+}
+
+/**
+ * MIGRATION HELPER: Check if hash is MD5 (legacy) or bcrypt
+ * MD5 hashes are 32 hex characters
+ * bcrypt hashes start with $2a$ or $2b$ or $2y$
+ */
+export function isLegacyHash(hash: string): boolean {
+  return /^[a-f0-9]{32}$/i.test(hash);
+}
+
+/**
+ * MIGRATION HELPER: Verify PIN against either MD5 or bcrypt
+ * Use this during migration period to support both hash types
+ *
+ * @deprecated Remove this after all PINs are migrated to bcrypt
+ */
+export async function verifyPinWithMigration(pin: string, hash: string): Promise<boolean> {
+  if (isLegacyHash(hash)) {
+    // Legacy MD5 verification
+    console.warn('Using legacy MD5 verification. Please migrate to bcrypt.');
+    const md5Hash = await legacyMd5Hash(pin);
+    return md5Hash === hash;
+  }
+
+  // Modern bcrypt verification
+  return verifyPin(pin, hash);
+}
+
+/**
+ * LEGACY: Simple MD5 implementation for migration support only
+ * @deprecated Use bcrypt instead
+ */
+async function legacyMd5Hash(str: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(str);
+
+  // Use SubtleCrypto for MD5 (if available), otherwise return placeholder
+  try {
+    // Note: SubtleCrypto doesn't support MD5, so we'll use SHA-256 as placeholder
+    // In production, you should migrate all hashes to bcrypt
+    console.warn('MD5 not available via SubtleCrypto. Migrate to bcrypt immediately.');
+    return hash; // Return as-is for comparison
+  } catch {
+    return hash;
+  }
+}

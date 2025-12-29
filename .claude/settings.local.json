@@ -34,7 +34,8 @@
       "Bash(grep:*)",
       "WebFetch(domain:www.notion.so)",
       "WebFetch(domain:wheat-paw-7a1.notion.site)",
-      "Bash(lsof:*)"
+      "Bash(lsof:*)",
+      "Bash(node scripts/hashPin.cjs:*)"
     ],
     "deny": [],
     "ask": []

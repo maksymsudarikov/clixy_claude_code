@@ -1,4 +1,5 @@
 import { Shoot, GiftCardPackage } from './types';
+import { generateSecureToken } from './utils/tokenUtils';
 
 // Contact Information
 export const CONTACT_INFO = {
@@ -106,7 +107,7 @@ export const GIFT_CARD_PACKAGES: GiftCardPackage[] = [
 export const MOCK_SHOOTS: Shoot[] = [
   {
     id: 'editorial-q3',
-    accessToken: 'a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6', // Example token for mock data
+    accessToken: generateSecureToken(), // Динамически генерируем безопасный токен
     title: 'Urban Solstice Editorial',
     client: 'Vogue Scandinavia',
     date: '2023-10-24',
@@ -142,7 +143,7 @@ export const MOCK_SHOOTS: Shoot[] = [
   },
   {
     id: 'campaign-nike',
-    accessToken: 'x9y8z7w6v5u4t3s2r1q0p9o8n7m6l5k4', // Example token for mock data
+    accessToken: generateSecureToken(), // Динамически генерируем безопасный токен
     title: 'Speed Tech Campaign',
     client: 'Nike',
     date: '2023-11-05',
