@@ -49,13 +49,13 @@ export const ContactHub: React.FC = () => {
       formUrl: 'https://tally.so/r/woJg9b'
     },
     {
-      icon: '🏢',
+      icon: '🎯',
       title: 'Brand Partnership',
       description: 'Professional campaigns, lookbooks, and e-commerce photography for your brand.',
       formUrl: 'https://tally.so/r/wbaGqe'
     },
     {
-      icon: '💼',
+      icon: '💡',
       title: 'Share Your Vision',
       description: 'Personal portraits, couples, boudoir, or family sessions. Tell us what you envision.',
       formUrl: 'https://tally.so/r/woqr4O'
