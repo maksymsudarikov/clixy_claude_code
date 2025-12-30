@@ -56,8 +56,8 @@ export const ContactHub: React.FC = () => {
     },
     {
       icon: '💼',
-      title: 'Book a Shoot',
-      description: 'Personal portraits, couples, boudoir, or family sessions. Tell us your vision.',
+      title: 'Share Your Vision',
+      description: 'Personal portraits, couples, boudoir, or family sessions. Tell us what you envision.',
       formUrl: 'https://tally.so/r/woqr4O'
     },
     {
