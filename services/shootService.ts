@@ -109,11 +109,10 @@ export const createShoot = async (shoot: Shoot): Promise<void> => {
   try {
     // Convert camelCase to snake_case for DB
     // Ensure access_token is always present
-    const shootData = {
+    const shootData: any = {
       id: shoot.id,
       access_token: shoot.accessToken || generateSecureToken(),
       project_type: shoot.projectType || 'photo_shoot',
-      status: shoot.status || 'pending',
       title: shoot.title,
       client: shoot.client,
       date: shoot.date,
@@ -139,6 +138,11 @@ export const createShoot = async (shoot: Shoot): Promise<void> => {
       timeline: shoot.timeline,
       team: shoot.team
     };
+
+    // Add status only if provided (column might not exist in DB yet)
+    if (shoot.status) {
+      shootData.status = shoot.status;
+    }
 
     console.log('Creating shoot with data:', shootData);
 
@@ -166,12 +170,9 @@ export const createShoot = async (shoot: Shoot): Promise<void> => {
 export const updateShoot = async (shoot: Shoot): Promise<void> => {
   try {
     // Convert camelCase to snake_case for DB
-    const { error } = await supabase
-      .from('shoots')
-      .update({
+    const updateData: any = {
         access_token: shoot.accessToken || generateSecureToken(),
         project_type: shoot.projectType || 'photo_shoot',
-        status: shoot.status || 'pending',
         title: shoot.title,
         client: shoot.client,
         date: shoot.date,
@@ -197,7 +198,16 @@ export const updateShoot = async (shoot: Shoot): Promise<void> => {
         timeline: shoot.timeline,
         team: shoot.team,
         updated_at: new Date().toISOString()
-      })
+    };
+
+    // Add status only if provided (backward compatibility)
+    if (shoot.status) {
+      updateData.status = shoot.status;
+    }
+
+    const { error } = await supabase
+      .from('shoots')
+      .update(updateData)
       .eq('id', shoot.id);
 
     if (error) {
