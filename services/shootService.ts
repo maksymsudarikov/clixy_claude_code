@@ -18,9 +18,28 @@ export const fetchShootById = async (id: string): Promise<Shoot | undefined> => 
 
     // Convert snake_case from DB to camelCase
     // Handle missing fields with defaults
+
+    // CRITICAL: Generate token if missing (backward compatibility)
+    let accessToken = data.access_token;
+    if (!accessToken) {
+      console.warn(`Shoot ${data.id} missing access_token, generating new one...`);
+      accessToken = generateSecureToken();
+
+      // Save the generated token to DB immediately
+      try {
+        await supabase
+          .from('shoots')
+          .update({ access_token: accessToken })
+          .eq('id', data.id);
+        console.log(`✅ Generated and saved token for shoot ${data.id}`);
+      } catch (updateError) {
+        console.error('Failed to save generated token:', updateError);
+      }
+    }
+
     return data ? {
       id: data.id,
-      accessToken: data.access_token,
+      accessToken: accessToken,
       projectType: data.project_type || 'photo_shoot',
       status: data.status || 'pending',
       title: data.title,
@@ -68,12 +87,32 @@ export const fetchAllShoots = async (): Promise<Shoot[]> => {
     }
 
     // Convert snake_case from DB to camelCase with defaults
-    return (data || []).map(shoot => ({
-      id: shoot.id,
-      accessToken: shoot.access_token,
-      projectType: shoot.project_type || 'photo_shoot',
-      status: shoot.status || 'pending',
-      title: shoot.title,
+    // CRITICAL: Generate tokens for any shoots missing them
+    const shootsWithTokens = await Promise.all((data || []).map(async (shoot) => {
+      let accessToken = shoot.access_token;
+
+      // Auto-generate and save token if missing
+      if (!accessToken) {
+        console.warn(`Shoot ${shoot.id} missing token, generating...`);
+        accessToken = generateSecureToken();
+
+        try {
+          await supabase
+            .from('shoots')
+            .update({ access_token: accessToken })
+            .eq('id', shoot.id);
+          console.log(`✅ Generated token for ${shoot.id}`);
+        } catch (err) {
+          console.error(`Failed to save token for ${shoot.id}:`, err);
+        }
+      }
+
+      return {
+        id: shoot.id,
+        accessToken: accessToken,
+        projectType: shoot.project_type || 'photo_shoot',
+        status: shoot.status || 'pending',
+        title: shoot.title,
       client: shoot.client,
       date: shoot.date,
       startTime: shoot.start_time || '09:00',
@@ -97,7 +136,10 @@ export const fetchAllShoots = async (): Promise<Shoot[]> => {
       coverImage: shoot.cover_image || '',
       timeline: shoot.timeline || [],
       team: shoot.team || []
+    };
     }));
+
+    return shootsWithTokens;
   } catch (error) {
     console.error('Error fetching shoots:', error);
     return [];
