@@ -136,7 +136,7 @@ export const AdminDashboard: React.FC = () => {
         {/* Desktop/Tablet View */}
         <div className="hidden md:grid grid-cols-12 gap-4 p-6 border-b border-[#141413] items-center hover:bg-[#F0F0EB] transition-colors bg-white group last:border-b-0">
           <div className="col-span-5">
-            <Link to={`/shoot/${shoot.id}`} className="block">
+            <Link to={`/shoot/${shoot.id}?token=${shoot.accessToken}`} className="block">
               <div className="flex items-center gap-3">
                 <h3 className="font-bold text-lg text-[#141413] uppercase tracking-tight">
                   {shoot.title}
@@ -214,7 +214,7 @@ export const AdminDashboard: React.FC = () => {
 
         {/* Mobile Card View */}
         <div className="md:hidden border-b border-[#141413] p-4 bg-white last:border-b-0">
-          <Link to={`/shoot/${shoot.id}`} className="block mb-3">
+          <Link to={`/shoot/${shoot.id}?token=${shoot.accessToken}`} className="block mb-3">
             <div className="flex items-start justify-between mb-2">
               <div className="flex-1">
                 <h3 className="font-bold text-base text-[#141413] uppercase tracking-tight leading-tight">
