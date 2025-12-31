@@ -8,6 +8,7 @@ import {
   isAuthenticated,
   clearAuthentication
 } from '../utils/pinSecurity';
+import { FEATURES } from '../config/features';
 
 interface PinProtectionProps {
   children: React.ReactNode;
@@ -135,14 +136,16 @@ export const PinProtection: React.FC<PinProtectionProps> = ({ children }) => {
         {/* Sticky header with backdrop */}
         <div className="sticky top-0 z-50 backdrop-blur-sm bg-[#D8D9CF]/95 border-b border-[#141413]/10">
           <div className="max-w-7xl mx-auto px-4 py-3 flex justify-end gap-2">
-            <a
-              href="/#/gift-card"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white border-2 border-[#141413] px-3 md:px-4 py-2 text-xs md:text-sm font-medium hover:bg-[#141413] hover:text-white transition-colors flex items-center gap-2 touch-manipulation"
-            >
-              🎁 <span className="hidden sm:inline">Gift Card Link</span><span className="sm:hidden">Gift Card</span>
-            </a>
+            {FEATURES.giftCards && (
+              <a
+                href="/#/gift-card"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white border-2 border-[#141413] px-3 md:px-4 py-2 text-xs md:text-sm font-medium hover:bg-[#141413] hover:text-white transition-colors flex items-center gap-2 touch-manipulation"
+              >
+                🎁 <span className="hidden sm:inline">Gift Card Link</span><span className="sm:hidden">Gift Card</span>
+              </a>
+            )}
             <button
               onClick={handleLogout}
               className="bg-[#141413] text-white px-3 md:px-4 py-2 text-xs md:text-sm font-medium hover:bg-white hover:text-[#141413] border-2 border-[#141413] transition-colors touch-manipulation"
@@ -211,15 +214,17 @@ export const PinProtection: React.FC<PinProtectionProps> = ({ children }) => {
           </div>
         )}
 
-        <div className="mt-6 sm:mt-8 text-center text-sm text-[#9E9E98]">
-          <p className="mb-1">Looking for gift cards?</p>
-          <a
-            href="/#/gift-card"
-            className="text-[#141413] hover:underline font-medium inline-block py-2 touch-manipulation"
-          >
-            Purchase a Gift Card →
-          </a>
-        </div>
+        {FEATURES.giftCards && (
+          <div className="mt-6 sm:mt-8 text-center text-sm text-[#9E9E98]">
+            <p className="mb-1">Looking for gift cards?</p>
+            <a
+              href="/#/gift-card"
+              className="text-[#141413] hover:underline font-medium inline-block py-2 touch-manipulation"
+            >
+              Purchase a Gift Card →
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );
