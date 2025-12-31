@@ -1,4 +1,5 @@
 import React from 'react';
+import { FEATURES } from '../config/features';
 
 interface ContactCardProps {
   icon: string;
@@ -41,6 +42,30 @@ const ContactCard: React.FC<ContactCardProps> = ({ icon, title, description, for
 };
 
 export const ContactHub: React.FC = () => {
+  // If Tally forms disabled, show generic contact for producers
+  if (!FEATURES.tallyForms) {
+    return (
+      <section id="contact" className="py-24 px-6 bg-[#D8D9CF]">
+        <div className="max-w-2xl mx-auto text-center">
+          <h2 className="text-4xl md:text-6xl font-extrabold uppercase tracking-tighter leading-none mb-6">
+            Get In Touch
+          </h2>
+          <p className="text-base md:text-lg text-[#9E9E98] font-light tracking-wide mb-8 leading-relaxed">
+            Interested in Clixy for your production company?<br />
+            Let's talk about how we can help streamline your shoot coordination.
+          </p>
+          <a
+            href="mailto:hello@clixy.studio"
+            className="inline-block bg-[#141413] text-white px-8 py-4 text-xs font-bold uppercase tracking-widest hover:bg-white hover:text-[#141413] border-2 border-[#141413] transition-colors shadow-[8px_8px_0px_0px_rgba(20,20,19,1)]"
+          >
+            Contact Us
+          </a>
+        </div>
+      </section>
+    );
+  }
+
+  // Olga's Tally forms
   const forms = [
     {
       icon: '📸',

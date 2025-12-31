@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ContactHub } from './ContactHub';
+import { FEATURES } from '../config/features';
 
 export const Landing: React.FC = () => {
   return (
@@ -45,64 +46,66 @@ export const Landing: React.FC = () => {
         </div>
       </div>
 
-      {/* Photography Sessions - Minimal Links */}
-      <section className="py-20 md:py-32 px-6 border-t-2 border-b-2 border-[#141413]">
-        <div className="max-w-3xl mx-auto text-center">
-          {/* Title */}
-          <h2 className="text-3xl md:text-5xl font-extrabold uppercase tracking-tight mb-12">
-            Photography Sessions
-          </h2>
+      {/* Photography Sessions - Minimal Links - Olga only */}
+      {FEATURES.packageCatalog && (
+        <section className="py-20 md:py-32 px-6 border-t-2 border-b-2 border-[#141413]">
+          <div className="max-w-3xl mx-auto text-center">
+            {/* Title */}
+            <h2 className="text-3xl md:text-5xl font-extrabold uppercase tracking-tight mb-12">
+              Photography Sessions
+            </h2>
 
-          {/* Simple Links List */}
-          <div className="space-y-4 max-w-md mx-auto mb-12">
-            <a
-              href="https://www.notion.so/COUPLE-PHOTOSHOOT-2af387bff96a803b9a85d88b01b15066"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block w-full text-left px-6 py-4 border-2 border-[#141413] bg-white hover:bg-[#141413] hover:text-white transition-all duration-200 group"
-            >
-              <span className="text-sm md:text-base font-bold uppercase tracking-wide">
-                Couple Photoshoot →
-              </span>
-            </a>
+            {/* Simple Links List */}
+            <div className="space-y-4 max-w-md mx-auto mb-12">
+              <a
+                href="https://www.notion.so/COUPLE-PHOTOSHOOT-2af387bff96a803b9a85d88b01b15066"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full text-left px-6 py-4 border-2 border-[#141413] bg-white hover:bg-[#141413] hover:text-white transition-all duration-200 group"
+              >
+                <span className="text-sm md:text-base font-bold uppercase tracking-wide">
+                  Couple Photoshoot →
+                </span>
+              </a>
 
-            <a
-              href="https://www.notion.so/STREET-STYLE-PHOTOSHOOT-2af387bff96a80fd943cd55499d4b657"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block w-full text-left px-6 py-4 border-2 border-[#141413] bg-white hover:bg-[#141413] hover:text-white transition-all duration-200 group"
-            >
-              <span className="text-sm md:text-base font-bold uppercase tracking-wide">
-                Street Style →
-              </span>
-            </a>
+              <a
+                href="https://www.notion.so/STREET-STYLE-PHOTOSHOOT-2af387bff96a80fd943cd55499d4b657"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full text-left px-6 py-4 border-2 border-[#141413] bg-white hover:bg-[#141413] hover:text-white transition-all duration-200 group"
+              >
+                <span className="text-sm md:text-base font-bold uppercase tracking-wide">
+                  Street Style →
+                </span>
+              </a>
 
-            <a
-              href="https://www.notion.so/FAMILY-PHOTOSHOOT-2a5387bff96a80289610d556cc0b2bc9"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block w-full text-left px-6 py-4 border-2 border-[#141413] bg-white hover:bg-[#141413] hover:text-white transition-all duration-200 group"
-            >
-              <span className="text-sm md:text-base font-bold uppercase tracking-wide">
-                Family Photoshoot →
-              </span>
-            </a>
+              <a
+                href="https://www.notion.so/FAMILY-PHOTOSHOOT-2a5387bff96a80289610d556cc0b2bc9"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full text-left px-6 py-4 border-2 border-[#141413] bg-white hover:bg-[#141413] hover:text-white transition-all duration-200 group"
+              >
+                <span className="text-sm md:text-base font-bold uppercase tracking-wide">
+                  Family Photoshoot →
+                </span>
+              </a>
+            </div>
+
+            {/* Contact Info */}
+            <div className="text-center">
+              <p className="text-sm text-[#9E9E98] mb-3">
+                Have questions about our sessions?
+              </p>
+              <a
+                href="mailto:art@olgaprudka.com"
+                className="text-sm font-bold text-[#141413] hover:opacity-60 transition-opacity"
+              >
+                art@olgaprudka.com
+              </a>
+            </div>
           </div>
-
-          {/* Contact Info */}
-          <div className="text-center">
-            <p className="text-sm text-[#9E9E98] mb-3">
-              Have questions about our sessions?
-            </p>
-            <a
-              href="mailto:art@olgaprudka.com"
-              className="text-sm font-bold text-[#141413] hover:opacity-60 transition-opacity"
-            >
-              art@olgaprudka.com
-            </a>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Contact Hub Section */}
       <ContactHub />
@@ -143,12 +146,14 @@ export const Landing: React.FC = () => {
             >
               Portfolio
             </a>
-            <a
-              href="/#/gift-card"
-              className="text-[10px] uppercase font-bold tracking-widest hover:opacity-60 transition-opacity"
-            >
-              Gift Cards
-            </a>
+            {FEATURES.giftCards && (
+              <a
+                href="/#/gift-card"
+                className="text-[10px] uppercase font-bold tracking-widest hover:opacity-60 transition-opacity"
+              >
+                Gift Cards
+              </a>
+            )}
           </div>
 
           {/* Copyright */}

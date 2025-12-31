@@ -14,6 +14,7 @@ import { NotificationContainer } from './components/NotificationContainer';
 import { Shoot } from './types';
 import { fetchShootById, fetchAllShoots } from './services/shootService';
 import { isValidTokenFormat } from './utils/tokenUtils';
+import { FEATURES } from './config/features';
 
 const ShootRoute = () => {
   const { id } = useParams<{ id: string }>();
@@ -145,8 +146,15 @@ const App: React.FC = () => {
           <Routes>
             {/* Public routes - no PIN required */}
             <Route path="/" element={<Landing />} />
-            <Route path="/gift-card" element={<GiftCardPurchase />} />
-            <Route path="/gift-card/success" element={<GiftCardSuccess />} />
+
+            {/* Gift card routes - Olga only */}
+            {FEATURES.giftCards && (
+              <>
+                <Route path="/gift-card" element={<GiftCardPurchase />} />
+                <Route path="/gift-card/success" element={<GiftCardSuccess />} />
+              </>
+            )}
+
             <Route path="/shoot/:id" element={<ShootRoute />} />
 
             {/* Protected routes - PIN required */}

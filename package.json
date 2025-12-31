@@ -5,9 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:olga": "vite --mode olga",
+    "dev:generic": "vite --mode generic",
     "build": "vite build",
+    "build:olga": "vite build --mode olga",
+    "build:generic": "vite build --mode generic",
     "preview": "vite preview",
-    "predeploy": "npm run build && touch dist/.nojekyll",
+    "predeploy": "npm run build:olga && touch dist/.nojekyll",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
