@@ -7,6 +7,7 @@ import { validateShootForm, sanitizeUrl } from '../utils/validation';
 import { inputClasses, labelClasses, sectionHeaderClasses, cardClasses } from '../utils/designSystem';
 import { TimelineBuilder } from './form/TimelineBuilder';
 import { TeamBuilder } from './form/TeamBuilder';
+import { TalentBuilder } from './form/TalentBuilder';
 import { MoodboardBuilder } from './form/MoodboardBuilder';
 import { NavigationBar } from './NavigationBar';
 import { saveDraft, loadDraft, clearDraft, hasDraft, getDraftMetadata, getTimeSinceSave } from '../utils/autosave';
@@ -51,6 +52,7 @@ export const ShootForm: React.FC = () => {
     hairMakeupNotes: '',
     coverImage: '',
     team: [],
+    talent: [],
     timeline: []
   });
 
@@ -126,6 +128,7 @@ export const ShootForm: React.FC = () => {
   const showLocationFields = formData.projectType === 'photo_shoot' || formData.projectType === 'hybrid';
   const showTimelineFields = formData.projectType === 'photo_shoot' || formData.projectType === 'hybrid';
   const showTeamFields = formData.projectType === 'photo_shoot' || formData.projectType === 'hybrid';
+  const showTalentFields = formData.projectType === 'photo_shoot' || formData.projectType === 'hybrid';
 
   const handleRestoreDraft = () => {
     const draft = loadDraft<Shoot>(draftKey);
@@ -623,6 +626,22 @@ export const ShootForm: React.FC = () => {
                 <TeamBuilder
                   team={formData.team}
                   onChange={team => setFormData(prev => ({ ...prev, team }))}
+                />
+              </div>
+            </section>
+          )}
+
+          {/* SECTION 6: TALENT - Only for photo shoots and hybrid projects */}
+          {showTalentFields && (
+            <section>
+              <h3 className={sectionHeaderClasses}>06. Talent</h3>
+              <div className={cardClasses}>
+                <p className="text-xs text-[#9E9E98] uppercase tracking-wider mb-6">
+                  Models, actors, influencers, or anyone being photographed
+                </p>
+                <TalentBuilder
+                  talent={formData.talent}
+                  onChange={talent => setFormData(prev => ({ ...prev, talent }))}
                 />
               </div>
             </section>

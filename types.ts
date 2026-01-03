@@ -5,6 +5,25 @@ export interface TeamMember {
   phone?: string;
 }
 
+export interface Talent {
+  name: string;
+  role?: string; // model, actor, influencer, real_people, etc.
+  phone?: string;
+  email?: string;
+  agencyUrl?: string; // Link to agency profile (modelagency.com/name)
+  photo?: string; // Headshot URL
+  arrivalTime?: string; // e.g. "09:00"
+
+  // Quick reference sizes (optional if agencyUrl provided)
+  sizes?: {
+    height?: string; // e.g. "175cm" or "5'9\""
+    clothing?: string; // e.g. "S/36" or "Medium"
+    shoes?: string; // e.g. "39" or "US 8"
+  };
+
+  notes?: string; // Dietary restrictions, special needs, etc.
+}
+
 export interface TimelineEvent {
   time: string;
   activity: string;
@@ -46,6 +65,7 @@ export interface Shoot {
   stylingNotes?: string; // Kept optional for backward compatibility
   hairMakeupNotes: string;
   team: TeamMember[];
+  talent: Talent[]; // Models, actors, influencers being photographed
   timeline: TimelineEvent[]; // Array of schedule events
   coverImage: string;
 }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Shoot } from '../types';
 import { TeamList } from './TeamList';
+import { TalentList } from './TalentList';
 import { ShootAvatar } from './ShootAvatar';
 import { NavigationBar } from './NavigationBar';
 
@@ -262,7 +263,21 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
 
         {/* TEAM TAB - Only for photo shoots and hybrid */}
         {activeTab === 'team' && showTeamFields && (
-          <TeamList team={shoot.team} />
+          <div className="space-y-16">
+            {/* Crew Section */}
+            <section>
+              <h3 className="text-sm font-bold uppercase tracking-widest mb-6 border-b border-[#141413] pb-2">Crew</h3>
+              <TeamList team={shoot.team} />
+            </section>
+
+            {/* Talent Section */}
+            {shoot.talent && shoot.talent.length > 0 && (
+              <section>
+                <h3 className="text-sm font-bold uppercase tracking-widest mb-6 border-b border-[#141413] pb-2">Talent</h3>
+                <TalentList talent={shoot.talent} />
+              </section>
+            )}
+          </div>
         )}
 
       </main>

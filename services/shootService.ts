@@ -65,7 +65,8 @@ export const fetchShootById = async (id: string): Promise<Shoot | undefined> => 
       hairMakeupNotes: data.hair_makeup_notes || '',
       coverImage: data.cover_image || '',
       timeline: data.timeline || [],
-      team: data.team || []
+      team: data.team || [],
+      talent: data.talent || [] // Talent support (backward compatible)
     } : undefined;
   } catch (error) {
     console.error('Error fetching shoot:', error);
@@ -135,7 +136,8 @@ export const fetchAllShoots = async (): Promise<Shoot[]> => {
       hairMakeupNotes: shoot.hair_makeup_notes || '',
       coverImage: shoot.cover_image || '',
       timeline: shoot.timeline || [],
-      team: shoot.team || []
+      team: shoot.team || [],
+      talent: shoot.talent || [] // Talent support
     };
     }));
 
@@ -178,7 +180,8 @@ export const createShoot = async (shoot: Shoot): Promise<void> => {
       hair_makeup_notes: shoot.hairMakeupNotes,
       cover_image: shoot.coverImage,
       timeline: shoot.timeline,
-      team: shoot.team
+      team: shoot.team,
+      talent: shoot.talent || [] // Talent support
     };
 
     // Add status only if provided (column might not exist in DB yet)
@@ -239,6 +242,7 @@ export const updateShoot = async (shoot: Shoot): Promise<void> => {
         cover_image: shoot.coverImage,
         timeline: shoot.timeline,
         team: shoot.team,
+        talent: shoot.talent || [], // Talent support
         updated_at: new Date().toISOString()
     };
 
