@@ -4,6 +4,9 @@ import { TeamList } from './TeamList';
 import { TalentList } from './TalentList';
 import { ShootAvatar } from './ShootAvatar';
 import { NavigationBar } from './NavigationBar';
+import { generateCallSheetPDF } from '../utils/callSheetGenerator';
+import { shareViaWhatsApp, copyShootLink } from '../utils/whatsappShare';
+import { useNotification } from '../contexts/NotificationContext';
 
 interface ShootDetailsProps {
   shoot: Shoot;
@@ -17,12 +20,23 @@ const IconExternal = () => <svg className="w-4 h-4" fill="none" stroke="currentC
 
 export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
   const [activeTab, setActiveTab] = useState<'details' | 'style' | 'team'>('details');
+  const { addNotification } = useNotification();
 
   // Determine which fields to show based on project type
   const isPhotoShoot = shoot.projectType === 'photo_shoot' || shoot.projectType === 'hybrid' || !shoot.projectType;
   const isVideoProject = shoot.projectType === 'video_project' || shoot.projectType === 'hybrid';
   const showLocationFields = isPhotoShoot;
   const showTeamFields = isPhotoShoot;
+
+  // Handle copy link
+  const handleCopyLink = async () => {
+    const success = await copyShootLink(shoot);
+    if (success) {
+      addNotification('success', 'Link copied to clipboard!');
+    } else {
+      addNotification('error', 'Failed to copy link');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#D8D9CF] text-[#141413] pb-24 md:pb-0 font-light selection:bg-[#141413] selection:text-white">
@@ -140,6 +154,31 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
               <div className="bg-[#141413] text-white p-8 border border-[#141413]">
                  <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[#9E9E98] mb-6">Production Files</h3>
                  <div className="space-y-4">
+                    {/* Generate Call Sheet PDF Button */}
+                    <button
+                      onClick={() => generateCallSheetPDF(shoot)}
+                      className="flex items-center justify-between w-full p-4 bg-[#D8D9CF] text-[#141413] border border-[#D8D9CF] hover:bg-white transition-colors"
+                    >
+                      <span className="text-sm font-bold uppercase tracking-wider">📄 Generate Call Sheet PDF</span>
+                      <IconDownload />
+                    </button>
+
+                    {/* Share Buttons */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => shareViaWhatsApp(shoot)}
+                        className="flex items-center justify-center p-3 bg-[#25D366] text-white border border-[#25D366] hover:bg-[#20BA5A] transition-colors"
+                      >
+                        <span className="text-sm font-bold uppercase tracking-wider">📱 WhatsApp</span>
+                      </button>
+                      <button
+                        onClick={handleCopyLink}
+                        className="flex items-center justify-center p-3 bg-transparent border border-[#9E9E98] text-white hover:bg-white hover:text-[#141413] transition-colors"
+                      >
+                        <span className="text-sm font-bold uppercase tracking-wider">🔗 Copy Link</span>
+                      </button>
+                    </div>
+
                     {shoot.callSheetUrl && (
                       <a href={shoot.callSheetUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between w-full p-4 bg-transparent border border-[#9E9E98] hover:bg-white hover:text-[#141413] hover:border-white transition-all group">
                         <span className="text-sm font-bold uppercase tracking-wider">Call Sheet</span>

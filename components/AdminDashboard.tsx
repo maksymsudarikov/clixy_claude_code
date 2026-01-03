@@ -4,6 +4,7 @@ import { Shoot, ShootStatus } from '../types';
 import { fetchAllShoots, deleteShoot, createShoot, updateShoot } from '../services/shootService';
 import { useNotification } from '../contexts/NotificationContext';
 import { generateSecureToken } from '../utils/tokenUtils';
+import { shareViaWhatsApp } from '../utils/whatsappShare';
 import { IconTrash, IconEdit, IconSearch, IconDuplicate } from './Icons';
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
 
@@ -189,6 +190,18 @@ export const AdminDashboard: React.FC = () => {
               aria-label={`Duplicate ${shoot.title}`}
             >
               <IconDuplicate className="w-4 h-4" />
+            </button>
+            <button
+              onClick={e => {
+                e.preventDefault();
+                e.stopPropagation();
+                shareViaWhatsApp(shoot);
+              }}
+              className="text-[10px] font-bold uppercase tracking-widest px-3 py-2 bg-[#25D366] text-white hover:bg-[#20BA5A] transition-colors"
+              aria-label="Share via WhatsApp"
+              title="Share via WhatsApp"
+            >
+              📱 Share
             </button>
             <button
               onClick={e => handleShare(e, shoot)}
