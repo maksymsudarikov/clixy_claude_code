@@ -29,6 +29,12 @@ export interface TimelineEvent {
   activity: string;
 }
 
+export interface Document {
+  name: string; // e.g. "Client Contract", "Model Release - Anna"
+  type: 'client_contract' | 'model_release' | 'location_permit' | 'nda' | 'other';
+  url: string; // Google Drive, Dropbox, PandaDoc link
+}
+
 export type ProjectType = 'photo_shoot' | 'video_project' | 'hybrid';
 
 export type ShootStatus = 'pending' | 'in_progress' | 'completed' | 'delivered';
@@ -67,6 +73,7 @@ export interface Shoot {
   team: TeamMember[];
   talent: Talent[]; // Models, actors, influencers being photographed
   timeline: TimelineEvent[]; // Array of schedule events
+  documents: Document[]; // Admin-only: contracts, releases, permits
   coverImage: string;
 }
 

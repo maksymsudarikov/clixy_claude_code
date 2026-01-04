@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Shoot } from '../types';
 import { TeamList } from './TeamList';
 import { TalentList } from './TalentList';
 import { ShootAvatar } from './ShootAvatar';
 import { NavigationBar } from './NavigationBar';
-import { generateCallSheetPDF } from '../utils/callSheetGenerator';
-import { shareViaWhatsApp, copyShootLink } from '../utils/whatsappShare';
+import { copyShootLink } from '../utils/whatsappShare';
 import { useNotification } from '../contexts/NotificationContext';
 
 interface ShootDetailsProps {
@@ -21,6 +21,10 @@ const IconExternal = () => <svg className="w-4 h-4" fill="none" stroke="currentC
 export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
   const [activeTab, setActiveTab] = useState<'details' | 'style' | 'team'>('details');
   const { addNotification } = useNotification();
+  const [searchParams] = useSearchParams();
+
+  // Determine if user is admin (no accessToken in URL = logged in via /admin)
+  const isAdmin = !searchParams.get('token');
 
   // Determine which fields to show based on project type
   const isPhotoShoot = shoot.projectType === 'photo_shoot' || shoot.projectType === 'hybrid' || !shoot.projectType;
@@ -154,30 +158,13 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
               <div className="bg-[#141413] text-white p-8 border border-[#141413]">
                  <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[#9E9E98] mb-6">Production Files</h3>
                  <div className="space-y-4">
-                    {/* Generate Call Sheet PDF Button */}
+                    {/* Share Button */}
                     <button
-                      onClick={() => generateCallSheetPDF(shoot)}
-                      className="flex items-center justify-between w-full p-4 bg-[#D8D9CF] text-[#141413] border border-[#D8D9CF] hover:bg-white transition-colors"
+                      onClick={handleCopyLink}
+                      className="flex items-center justify-center w-full p-4 bg-transparent border border-[#9E9E98] text-white hover:bg-white hover:text-[#141413] transition-colors"
                     >
-                      <span className="text-sm font-bold uppercase tracking-wider">📄 Generate Call Sheet PDF</span>
-                      <IconDownload />
+                      <span className="text-sm font-bold uppercase tracking-wider">🔗 Copy Shareable Link</span>
                     </button>
-
-                    {/* Share Buttons */}
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        onClick={() => shareViaWhatsApp(shoot)}
-                        className="flex items-center justify-center p-3 bg-[#25D366] text-white border border-[#25D366] hover:bg-[#20BA5A] transition-colors"
-                      >
-                        <span className="text-sm font-bold uppercase tracking-wider">📱 WhatsApp</span>
-                      </button>
-                      <button
-                        onClick={handleCopyLink}
-                        className="flex items-center justify-center p-3 bg-transparent border border-[#9E9E98] text-white hover:bg-white hover:text-[#141413] transition-colors"
-                      >
-                        <span className="text-sm font-bold uppercase tracking-wider">🔗 Copy Link</span>
-                      </button>
-                    </div>
 
                     {shoot.callSheetUrl && (
                       <a href={shoot.callSheetUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between w-full p-4 bg-transparent border border-[#9E9E98] hover:bg-white hover:text-[#141413] hover:border-white transition-all group">
@@ -251,6 +238,45 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
                       <div className="w-full p-4 bg-transparent border border-[#9E9E98]">
                         <p className="text-xs font-bold uppercase tracking-widest text-[#9E9E98] mb-2">Revision Notes</p>
                         <p className="text-sm font-serif italic whitespace-pre-wrap">{shoot.revisionNotes}</p>
+                      </div>
+                    )}
+
+                    {/* DOCUMENTS - Admin only */}
+                    {isAdmin && shoot.documents && shoot.documents.length > 0 && (
+                      <div className="border-t border-[#9E9E98] pt-4 mt-4">
+                        <p className="text-xs font-bold uppercase tracking-widest text-[#9E9E98] mb-3">
+                          📁 Documents (Admin Only)
+                        </p>
+                        <div className="space-y-2">
+                          {shoot.documents.map((doc, index) => (
+                            <a
+                              key={index}
+                              href={doc.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center justify-between w-full p-3 bg-transparent border border-[#9E9E98] hover:bg-white hover:text-[#141413] transition-colors group"
+                            >
+                              <div className="flex items-center space-x-2">
+                                <span>
+                                  {doc.type === 'client_contract' && '📄'}
+                                  {doc.type === 'model_release' && '✍️'}
+                                  {doc.type === 'location_permit' && '📍'}
+                                  {doc.type === 'nda' && '🔒'}
+                                  {doc.type === 'other' && '📎'}
+                                </span>
+                                <div>
+                                  <span className="text-xs font-bold uppercase tracking-wider block">
+                                    {doc.name}
+                                  </span>
+                                  <span className="text-[10px] uppercase text-[#9E9E98]">
+                                    {doc.type.replace('_', ' ')}
+                                  </span>
+                                </div>
+                              </div>
+                              <IconExternal />
+                            </a>
+                          ))}
+                        </div>
                       </div>
                     )}
                  </div>

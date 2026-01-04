@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link, useParams } from 'react-router-dom';
-import { Shoot, ProjectType } from '../types';
+import { Shoot } from '../types';
 import { createShoot, updateShoot, fetchShootById } from '../services/shootService';
 import { useNotification } from '../contexts/NotificationContext';
 import { validateShootForm, sanitizeUrl } from '../utils/validation';
@@ -8,6 +8,7 @@ import { inputClasses, labelClasses, sectionHeaderClasses, cardClasses } from '.
 import { TimelineBuilder } from './form/TimelineBuilder';
 import { TeamBuilder } from './form/TeamBuilder';
 import { TalentBuilder } from './form/TalentBuilder';
+import { DocumentsBuilder } from './form/DocumentsBuilder';
 import { MoodboardBuilder } from './form/MoodboardBuilder';
 import { NavigationBar } from './NavigationBar';
 import { saveDraft, loadDraft, clearDraft, hasDraft, getDraftMetadata, getTimeSinceSave } from '../utils/autosave';
@@ -53,7 +54,8 @@ export const ShootForm: React.FC = () => {
     coverImage: '',
     team: [],
     talent: [],
-    timeline: []
+    timeline: [],
+    documents: []
   });
 
   // Check for draft on mount
@@ -646,6 +648,20 @@ export const ShootForm: React.FC = () => {
               </div>
             </section>
           )}
+
+          {/* SECTION 7: DOCUMENTS - Admin only, for all project types */}
+          <section>
+            <h3 className={sectionHeaderClasses}>07. Documents (Admin Only)</h3>
+            <div className={cardClasses}>
+              <p className="text-xs text-[#9E9E98] uppercase tracking-wider mb-6">
+                Contracts, releases, and permits - visible only to producers
+              </p>
+              <DocumentsBuilder
+                documents={formData.documents}
+                onChange={documents => setFormData(prev => ({ ...prev, documents }))}
+              />
+            </div>
+          </section>
 
           <div className="pt-8 border-t border-[#141413] flex flex-col md:flex-row justify-end gap-4">
             <Link
