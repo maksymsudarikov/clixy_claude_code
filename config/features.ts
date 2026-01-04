@@ -12,6 +12,9 @@ export interface FeatureFlags {
   packageCatalog: boolean;
   tallyForms: boolean;
 
+  // Notification system
+  notifications: boolean; // Email notifications for status changes
+
   // Future features
   analytics: boolean;
   multiPhotographer: boolean;
@@ -22,6 +25,7 @@ const featuresByTenant: Record<string, FeatureFlags> = {
     giftCards: true,
     packageCatalog: true,
     tallyForms: true,
+    notifications: false,    // Phase 2: Foundation ready, disabled for production safety
     analytics: false,
     multiPhotographer: false,
   },
@@ -29,6 +33,7 @@ const featuresByTenant: Record<string, FeatureFlags> = {
     giftCards: false,        // Hide for generic demo
     packageCatalog: false,   // Hide for generic demo
     tallyForms: false,       // Hide for generic demo (show generic contact)
+    notifications: false,    // Phase 2: Console logging only
     analytics: false,
     multiPhotographer: false,
   },

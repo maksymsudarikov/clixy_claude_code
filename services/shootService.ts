@@ -1,6 +1,8 @@
 import { supabase } from './supabase';
 import { Shoot } from '../types';
 import { generateSecureToken } from '../utils/tokenUtils';
+import { detectStatusChange } from './notificationService';
+import { FEATURES } from '../config/features';
 
 // Fetch shoot by ID
 export const fetchShootById = async (id: string): Promise<Shoot | undefined> => {
@@ -229,6 +231,9 @@ export const createShoot = async (shoot: Shoot): Promise<void> => {
 // Update existing shoot
 export const updateShoot = async (id: string, shoot: Shoot): Promise<void> => {
   try {
+    // Fetch old shoot data for notification comparison
+    const oldShoot = await fetchShootById(id);
+
     // Convert camelCase to snake_case for DB
     const updateData: any = {
         access_token: shoot.accessToken || generateSecureToken(),
@@ -279,6 +284,14 @@ export const updateShoot = async (id: string, shoot: Shoot): Promise<void> => {
     if (error) {
       console.error('Error updating shoot:', error);
       throw new Error(`Failed to update shoot: ${error.message}`);
+    }
+
+    // Check for status changes and trigger notifications (async, non-blocking)
+    if (oldShoot && FEATURES.notifications) {
+      detectStatusChange(oldShoot, shoot).catch(err => {
+        console.error('[NotificationService] Failed to detect status changes (non-critical):', err);
+        // Shoot update succeeded, notification failure is non-critical
+      });
     }
   } catch (error) {
     console.error('Error updating shoot:', error);
