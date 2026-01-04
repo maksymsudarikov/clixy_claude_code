@@ -4,6 +4,51 @@
 
 ---
 
+## [2026-01-04] - Phase 1: Selected Photos URL + Notification Planning
+
+### 🎯 Added: Selected Photos URL Field
+**Feature:** Dedicated field for storing link to photos client has already selected
+
+**Problem Solved:**
+- Clients select photos in Adobe, then need to review their selections
+- Previously: Admin had to create new link manually each time
+- No dedicated place to store "selected photos" link separate from "selection link"
+
+**What's New:**
+- New field: `selectedPhotosUrl` in Shoot interface
+- Input field in Photo Delivery Workflow (between Selection URL and Final Photos URL)
+- Beautiful display button: "🎯 Review Selected Photos" for clients
+- Solves the workflow issue where clients need to re-review their selections
+
+**Workflow:**
+```
+1. Admin adds photoSelectionUrl → Client selects photos in Adobe
+2. Admin creates new link with selected photos → Pastes in selectedPhotosUrl
+3. Client sees "🎯 Review Selected Photos" button → Can review anytime
+4. Admin edits selected photos → Updates finalPhotosUrl
+```
+
+**Technical Details:**
+- `types.ts`: Added `selectedPhotosUrl?: string` field
+- `services/shootService.ts`: Added `selected_photos_url` mapping in all CRUD operations
+- `components/ShootForm.tsx`: New input field with helpful placeholder
+- `components/ShootDetails.tsx`: Conditional display between selection and final stages
+- Database: `ALTER TABLE shoots ADD COLUMN selected_photos_url TEXT`
+
+**Files Changed:**
+- `/types.ts` (+1 line)
+- `/services/shootService.ts` (+4 mappings)
+- `/components/ShootForm.tsx` (+12 lines)
+- `/components/ShootDetails.tsx` (+10 lines)
+- `/supabase-add-selected-photos.sql` (NEW - migration script)
+
+**Migration SQL:**
+```sql
+ALTER TABLE shoots ADD COLUMN IF NOT EXISTS selected_photos_url TEXT;
+```
+
+---
+
 ## [2026-01-04] - Documents Management & Talent System
 
 ### 📁 Added: Documents Management System
