@@ -177,7 +177,7 @@ export const ShootForm: React.FC = () => {
 
       if (id) {
         // Keep existing accessToken when updating
-        await updateShoot(sanitizedData);
+        await updateShoot(id, sanitizedData);
         addNotification('success', 'Shoot updated successfully!');
       } else {
         const newId =

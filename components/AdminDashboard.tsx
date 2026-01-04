@@ -54,7 +54,7 @@ export const AdminDashboard: React.FC = () => {
   const handleStatusChange = async (shoot: Shoot, newStatus: ShootStatus) => {
     try {
       const updatedShoot = { ...shoot, status: newStatus };
-      await updateShoot(updatedShoot);
+      await updateShoot(shoot.id, updatedShoot);
       addNotification('success', `Status updated to ${newStatus}`);
       loadShoots();
     } catch (err) {

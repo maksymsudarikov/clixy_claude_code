@@ -74,6 +74,12 @@ export interface Shoot {
   talent: Talent[]; // Models, actors, influencers being photographed
   timeline: TimelineEvent[]; // Array of schedule events
   documents: Document[]; // Admin-only: contracts, releases, permits
+
+  // Terms & Conditions tracking (client agreement)
+  clientAcceptedTerms?: boolean; // Has client agreed to T&C?
+  termsAcceptedAt?: string; // ISO timestamp when agreed
+  termsAcceptedIP?: string; // IP address when agreed (optional)
+
   coverImage: string;
 }
 

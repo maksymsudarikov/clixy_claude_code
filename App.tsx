@@ -11,9 +11,10 @@ import { PinProtection } from './components/PinProtection';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { NotificationContainer } from './components/NotificationContainer';
+import { TermsModal } from './components/TermsModal';
 import { Shoot } from './types';
-import { fetchShootById, fetchAllShoots } from './services/shootService';
-import { isValidTokenFormat } from './utils/tokenUtils';
+import { fetchShootById, fetchAllShoots, updateShoot } from './services/shootService';
+
 import { FEATURES } from './config/features';
 
 const ShootRoute = () => {
@@ -23,6 +24,7 @@ const ShootRoute = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [accessDenied, setAccessDenied] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -41,11 +43,19 @@ const ShootRoute = () => {
             localStorage.setItem(storageKey, urlToken);
             setShoot(data);
             setAccessDenied(false);
+            // Check if client needs to accept terms
+            if (!data.clientAcceptedTerms) {
+              setShowTermsModal(true);
+            }
           }
           // Check if saved token is valid
           else if (savedToken && savedToken === data.accessToken) {
             setShoot(data);
             setAccessDenied(false);
+            // Check if client needs to accept terms
+            if (!data.clientAcceptedTerms) {
+              setShowTermsModal(true);
+            }
           }
           // No valid token found
           else {
@@ -62,6 +72,26 @@ const ShootRoute = () => {
     };
     loadData();
   }, [id, searchParams]);
+
+  const handleAcceptTerms = async () => {
+    if (!shoot || !id) return;
+
+    try {
+      // Update shoot with terms acceptance
+      const updatedShoot: Shoot = {
+        ...shoot,
+        clientAcceptedTerms: true,
+        termsAcceptedAt: new Date().toISOString()
+      };
+
+      await updateShoot(id, updatedShoot);
+      setShoot(updatedShoot);
+      setShowTermsModal(false);
+    } catch (err) {
+      console.error('Failed to save terms acceptance:', err);
+      // Modal will remain open if save fails
+    }
+  };
 
   if (loading) {
     return (
@@ -110,7 +140,17 @@ const ShootRoute = () => {
     );
   }
 
-  return <ShootDetails shoot={shoot} />;
+  return (
+    <>
+      {showTermsModal && (
+        <TermsModal
+          onAccept={handleAcceptTerms}
+          shootTitle={shoot.title}
+        />
+      )}
+      <ShootDetails shoot={shoot} />
+    </>
+  );
 };
 
 const HomeRoute = () => {

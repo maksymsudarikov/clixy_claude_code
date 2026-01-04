@@ -67,7 +67,10 @@ export const fetchShootById = async (id: string): Promise<Shoot | undefined> => 
       timeline: data.timeline || [],
       team: data.team || [],
       talent: data.talent || [], // Talent support (backward compatible)
-      documents: data.documents || [] // Documents support (backward compatible)
+      documents: data.documents || [], // Documents support (backward compatible)
+      clientAcceptedTerms: data.client_accepted_terms || false, // Terms tracking
+      termsAcceptedAt: data.terms_accepted_at || undefined, // Terms timestamp
+      termsAcceptedIP: data.terms_accepted_ip || undefined // Terms IP (optional)
     } : undefined;
   } catch (error) {
     console.error('Error fetching shoot:', error);
@@ -139,7 +142,10 @@ export const fetchAllShoots = async (): Promise<Shoot[]> => {
       timeline: shoot.timeline || [],
       team: shoot.team || [],
       talent: shoot.talent || [], // Talent support
-      documents: shoot.documents || [] // Documents support
+      documents: shoot.documents || [], // Documents support
+      clientAcceptedTerms: shoot.client_accepted_terms || false, // Terms tracking
+      termsAcceptedAt: shoot.terms_accepted_at || undefined, // Terms timestamp
+      termsAcceptedIP: shoot.terms_accepted_ip || undefined // Terms IP (optional)
     };
     }));
 
@@ -184,7 +190,10 @@ export const createShoot = async (shoot: Shoot): Promise<void> => {
       timeline: shoot.timeline,
       team: shoot.team,
       talent: shoot.talent || [], // Talent support
-      documents: shoot.documents || [] // Documents support
+      documents: shoot.documents || [], // Documents support
+      client_accepted_terms: shoot.clientAcceptedTerms || false, // Terms tracking
+      terms_accepted_at: shoot.termsAcceptedAt || null, // Terms timestamp
+      terms_accepted_ip: shoot.termsAcceptedIP || null // Terms IP (optional)
     };
 
     // Add status only if provided (column might not exist in DB yet)
@@ -215,7 +224,7 @@ export const createShoot = async (shoot: Shoot): Promise<void> => {
 };
 
 // Update existing shoot
-export const updateShoot = async (shoot: Shoot): Promise<void> => {
+export const updateShoot = async (id: string, shoot: Shoot): Promise<void> => {
   try {
     // Convert camelCase to snake_case for DB
     const updateData: any = {
@@ -247,6 +256,9 @@ export const updateShoot = async (shoot: Shoot): Promise<void> => {
         team: shoot.team,
         talent: shoot.talent || [], // Talent support
         documents: shoot.documents || [], // Documents support
+        client_accepted_terms: shoot.clientAcceptedTerms || false, // Terms tracking
+        terms_accepted_at: shoot.termsAcceptedAt || null, // Terms timestamp
+        terms_accepted_ip: shoot.termsAcceptedIP || null, // Terms IP (optional)
         updated_at: new Date().toISOString()
     };
 
@@ -258,7 +270,7 @@ export const updateShoot = async (shoot: Shoot): Promise<void> => {
     const { error } = await supabase
       .from('shoots')
       .update(updateData)
-      .eq('id', shoot.id);
+      .eq('id', id);
 
     if (error) {
       console.error('Error updating shoot:', error);
