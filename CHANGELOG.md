@@ -4,6 +4,79 @@
 
 ---
 
+## [2026-01-04] - Documents Management & Talent System
+
+### 📁 Added: Documents Management System
+**Feature:** Admin-only document storage for contracts, releases, and permits
+
+**What's New:**
+- **Section 07: Documents** in shoot creation form
+- Document types: Client Contract, Model Release, Location Permit, NDA, Other
+- Store links to Google Drive, Dropbox, PandaDoc
+- **Conditional display**: Only visible to admins (no `?token=` in URL)
+- Database: Added `documents` JSONB column to shoots table
+
+**How It Works:**
+- Producer adds document links when creating shoot
+- Links stored as JSONB array in database
+- Admin views shoot → sees documents in Production Files
+- Client views shoot (via token link) → documents hidden
+
+**Files:**
+- `components/form/DocumentsBuilder.tsx` - Document management UI
+- `supabase-add-documents.sql` - Database migration
+- Updated: `types.ts`, `shootService.ts`, `ShootForm.tsx`, `ShootDetails.tsx`
+
+### 👥 Added: Talent Management System
+**Feature:** Separate section for managing models, actors, and influencers
+
+**What's New:**
+- **Section 06: Talent** in shoot creation form (photo shoots & hybrid only)
+- Fields: name, role, contact, agency URL, arrival time, sizes, notes
+- Hybrid approach: agency profile link + optional quick reference sizes
+- Displayed in Team tab alongside crew
+
+**Data Model:**
+```typescript
+interface Talent {
+  name: string;
+  role?: string; // model, actor, influencer, etc.
+  phone?: string;
+  email?: string;
+  agencyUrl?: string;
+  photo?: string;
+  arrivalTime?: string;
+  sizes?: { height, clothing, shoes };
+  notes?: string;
+}
+```
+
+**Files:**
+- `components/form/TalentBuilder.tsx` - Talent input form
+- `components/TalentList.tsx` - Talent display component
+- Database migration: `supabase-add-talent.sql`
+
+### ❌ Removed: Call Sheet PDF Generator
+**Reason:** pdfmake library issues, complexity vs. value
+
+**What Changed:**
+- Removed `utils/callSheetGenerator.ts`
+- Removed `pdfmake` dependency from package.json
+- Removed PDF button from ShootDetails Production Files
+- Removed WhatsApp sharing buttons from AdminDashboard
+
+**Migration Impact:**
+- `copyShootLink()` function preserved for Copy Link button
+- No breaking changes for existing shoots
+
+### 🔧 Technical Improvements
+- Fixed: `index.html` CSS link error (removed non-existent `/index.css`)
+- Fixed: Vite dependency cache issues
+- Fixed: PostCSS module resolution errors
+- Backward compatible: All new features default to empty arrays `[]`
+
+---
+
 ## [2025-12-29] - Smart Access Token System & Landing Page Enhancements
 
 ### 🔐 Реализована система Smart Access для токенов доступа к съемкам
