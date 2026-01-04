@@ -4,9 +4,74 @@
 
 ---
 
-## [2026-01-04] - Phase 1: Selected Photos URL + Notification Planning
+## [2026-01-04] - Phase 1 & 2: Selected Photos URL + Notification Service
 
-### 🎯 Added: Selected Photos URL Field
+### 🔔 Phase 2: Notification Service Foundation (COMPLETED)
+**Feature:** Automatic status change detection with console logging
+
+**What's Working:**
+- System detects 4 types of status changes automatically
+- Console logs show what emails would be sent (Phase 3 will send real emails)
+- Feature flag system for safe deployment
+- Fire-and-forget pattern (non-blocking, won't break saves)
+
+**Notification Types:**
+1. 📸 **Photo Selection Ready** - When `photoStatus` changes to `selection_ready`
+2. ✅ **Final Photos Delivered** - When `photoStatus` changes to `completed`
+3. 🎬 **Video Review Ready** - When `videoStatus` changes to `review`
+4. ⏰ **24-Hour Shoot Reminder** - Cron job (Phase 5 implementation)
+
+**How It Works:**
+```
+Admin changes photoStatus → "completed"
+  ↓
+System fetches old data for comparison
+  ↓
+Database updates successfully
+  ↓
+detectStatusChange() runs (async, non-blocking)
+  ↓
+Console logs: "✅ Email would be sent to [client]"
+```
+
+**Testing Results:**
+```
+✅ Tested photoStatus change to 'completed'
+✅ Console logged: "✅ Final photos ready!"
+✅ Shoot saved successfully
+✅ No errors or performance impact
+```
+
+**Technical Implementation:**
+- `/services/notificationService.ts` (NEW - 200 lines):
+  - `detectStatusChange()` - Compares old vs new shoot data
+  - `queueNotification()` - Phase 2: console logs, Phase 3: sends emails
+  - `check24HourReminders()` - For future cron job
+  - Detailed logging for debugging
+
+- `/config/features.ts`:
+  - Added `notifications: boolean` feature flag
+  - Currently `false` (disabled for production safety)
+  - Can enable for testing
+
+- `/services/shootService.ts`:
+  - Added detectStatusChange call in `updateShoot()`
+  - Fetches old shoot before update for comparison
+  - Wrapped in try-catch (non-critical failure)
+  - Only runs if `FEATURES.notifications === true`
+
+**Safety Features:**
+- ✅ Feature flag OFF by default
+- ✅ Errors don't break shoot updates
+- ✅ Only triggers on actual status changes
+- ✅ Non-blocking async execution
+
+**Next: Phase 3 - Resend Email Integration**
+Will add real email sending (3000 emails/month free).
+
+---
+
+### 🎯 Phase 1: Selected Photos URL Field (COMPLETED)
 **Feature:** Dedicated field for storing link to photos client has already selected
 
 **Problem Solved:**
