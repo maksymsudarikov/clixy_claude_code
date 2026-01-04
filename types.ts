@@ -59,6 +59,7 @@ export interface Shoot {
 
   // Photo-specific fields
   photoSelectionUrl?: string; // URL for client to select photos (Adobe/GDrive/WeTransfer)
+  selectedPhotosUrl?: string; // URL for photos client already selected (for re-review)
   finalPhotosUrl?: string; // URL for final edited photos (same folder, updated)
   photoStatus?: 'selection_ready' | 'editing_in_progress' | 'completed'; // Photo workflow status
 

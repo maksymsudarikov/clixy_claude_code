@@ -187,7 +187,18 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
                       </a>
                     )}
 
-                    {isPhotoShoot && shoot.photoStatus === 'editing_in_progress' && (
+                    {/* SELECTED PHOTOS - Show after client selected */}
+                    {isPhotoShoot && shoot.selectedPhotosUrl && (
+                      <a href={shoot.selectedPhotosUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between w-full p-4 bg-white text-[#141413] border-2 border-[#141413] hover:bg-[#D8D9CF] transition-colors">
+                        <div>
+                          <span className="text-sm font-bold uppercase tracking-wider block">🎯 Review Selected Photos</span>
+                          <span className="text-xs text-[#9E9E98] mt-1 block">Photos you selected for editing</span>
+                        </div>
+                        <IconExternal />
+                      </a>
+                    )}
+
+                    {isPhotoShoot && shoot.photoStatus === 'editing_in_progress' && !shoot.selectedPhotosUrl && (
                       <div className="w-full p-4 bg-transparent border border-[#9E9E98] opacity-60 cursor-not-allowed">
                         <span className="text-sm font-bold uppercase tracking-wider italic">Editing in Progress...</span>
                       </div>

@@ -43,6 +43,7 @@ export const ShootForm: React.FC = () => {
     moodboardImages: [],
     callSheetUrl: '',
     photoSelectionUrl: '',
+    selectedPhotosUrl: '',
     finalPhotosUrl: '',
     photoStatus: 'selection_ready',
     videoUrl: '',
@@ -169,6 +170,7 @@ export const ShootForm: React.FC = () => {
         callSheetUrl: sanitizeUrl(formData.callSheetUrl || ''),
         finalPhotosUrl: sanitizeUrl(formData.finalPhotosUrl || ''),
         photoSelectionUrl: sanitizeUrl(formData.photoSelectionUrl || ''),
+        selectedPhotosUrl: sanitizeUrl(formData.selectedPhotosUrl || ''),
         videoUrl: sanitizeUrl(formData.videoUrl || ''),
         stylingUrl: sanitizeUrl(formData.stylingUrl || ''),
         locationMapUrl: sanitizeUrl(formData.locationMapUrl || ''),
@@ -495,6 +497,19 @@ export const ShootForm: React.FC = () => {
                       />
                       <p className="text-[10px] text-[#9E9E98] mt-2 uppercase tracking-wider">
                         Link for client to select photos
+                      </p>
+                    </div>
+                    <div>
+                      <label className={labelClasses}>Selected Photos URL 🎯</label>
+                      <input
+                        name="selectedPhotosUrl"
+                        value={formData.selectedPhotosUrl || ''}
+                        onChange={handleChange}
+                        className={inputClasses}
+                        placeholder="LINK TO PHOTOS CLIENT SELECTED"
+                      />
+                      <p className="text-[10px] text-[#9E9E98] mt-2 uppercase tracking-wider">
+                        After client selects, paste new link for their review
                       </p>
                     </div>
                     <div>
