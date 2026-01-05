@@ -32,6 +32,7 @@ export const ShootForm: React.FC = () => {
     projectType: 'photo_shoot',
     title: '',
     client: '',
+    clientEmail: '',
     date: '',
     startTime: '09:00',
     endTime: '18:00',
@@ -107,7 +108,10 @@ export const ShootForm: React.FC = () => {
       setInitialLoading(true);
       const shoot = await fetchShootById(shootId);
       if (shoot) {
-        setFormData(shoot);
+        setFormData({
+          ...shoot,
+          accessToken: shoot.accessToken || generateSecureToken()
+        });
       } else {
         addNotification('error', 'Shoot not found');
         navigate('/admin');
@@ -136,7 +140,10 @@ export const ShootForm: React.FC = () => {
   const handleRestoreDraft = () => {
     const draft = loadDraft<Shoot>(draftKey);
     if (draft) {
-      setFormData(draft);
+      setFormData({
+        ...draft,
+        accessToken: draft.accessToken || generateSecureToken()
+      });
       const metadata = getDraftMetadata(draftKey);
       if (metadata) {
         addNotification('success', `Draft restored from ${getTimeSinceSave(metadata.savedAt)}`);
@@ -322,6 +329,20 @@ export const ShootForm: React.FC = () => {
                     className={inputClasses}
                     placeholder="e.g. BRAND NAME"
                   />
+                </div>
+                <div>
+                  <label className={labelClasses}>Client Email</label>
+                  <input
+                    type="email"
+                    name="clientEmail"
+                    value={formData.clientEmail || ''}
+                    onChange={handleChange}
+                    className={inputClasses}
+                    placeholder="client@example.com"
+                  />
+                  <p className="text-[10px] text-[#9E9E98] mt-2 uppercase tracking-wider">
+                    For email notifications
+                  </p>
                 </div>
               </div>
 

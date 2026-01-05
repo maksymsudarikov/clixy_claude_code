@@ -1,10 +1,11 @@
 import { Shoot } from '../types';
+import { sendEmail } from './emailService';
 
 /**
  * Notification Service - Detects status changes and triggers notifications
  *
- * Phase 2: Foundation - Console logging only (no emails yet)
- * Phase 3: Email integration via Resend API
+ * Phase 2: Foundation - Console logging (COMPLETED)
+ * Phase 3: Email integration via Resend API (ACTIVE)
  * Phase 4: Production deployment with feature flag
  */
 
@@ -13,6 +14,7 @@ export interface NotificationPayload {
   shootId: string;
   shootTitle: string;
   client: string;
+  clientEmail?: string; // Client's email address for notifications
   date?: string;
   startTime?: string;
   locationName?: string;
@@ -54,6 +56,7 @@ export async function detectStatusChange(
       shootId: newShoot.id,
       shootTitle: newShoot.title,
       client: newShoot.client,
+      clientEmail: newShoot.clientEmail,
       photoSelectionUrl: newShoot.photoSelectionUrl
     });
   }
@@ -68,6 +71,7 @@ export async function detectStatusChange(
       shootId: newShoot.id,
       shootTitle: newShoot.title,
       client: newShoot.client,
+      clientEmail: newShoot.clientEmail,
       finalPhotosUrl: newShoot.finalPhotosUrl,
       selectedPhotosUrl: newShoot.selectedPhotosUrl // Optional: show what they selected
     });
@@ -83,6 +87,7 @@ export async function detectStatusChange(
       shootId: newShoot.id,
       shootTitle: newShoot.title,
       client: newShoot.client,
+      clientEmail: newShoot.clientEmail,
       videoUrl: newShoot.videoUrl
     });
   }
@@ -92,8 +97,7 @@ export async function detectStatusChange(
 
 /**
  * Queues a notification for sending
- * Phase 2: Just logs to console
- * Phase 3: Will call email service
+ * Phase 3: Sends real emails via Resend API
  */
 async function queueNotification(payload: NotificationPayload): Promise<void> {
   console.log('🔔 [NOTIFICATION TRIGGERED]', {
@@ -103,35 +107,28 @@ async function queueNotification(payload: NotificationPayload): Promise<void> {
     details: payload
   });
 
-  // Phase 2: Console logging only
-  switch (payload.type) {
-    case 'photo_selection_ready':
-      console.log(`📸 Email would be sent to ${payload.client}:`);
-      console.log(`   Subject: Your photos are ready to select!`);
-      console.log(`   Link: ${payload.photoSelectionUrl}`);
-      break;
-
-    case 'photos_delivered':
-      console.log(`✅ Email would be sent to ${payload.client}:`);
-      console.log(`   Subject: Your final photos are ready!`);
-      console.log(`   Link: ${payload.finalPhotosUrl}`);
-      break;
-
-    case 'video_review_ready':
-      console.log(`🎬 Email would be sent to ${payload.client}:`);
-      console.log(`   Subject: Your video is ready for review!`);
-      console.log(`   Link: ${payload.videoUrl}`);
-      break;
-
-    case 'shoot_reminder_24h':
-      console.log(`⏰ Email would be sent to ${payload.client}:`);
-      console.log(`   Subject: Reminder: Shoot tomorrow at ${payload.startTime}!`);
-      console.log(`   Location: ${payload.locationName}`);
-      break;
+  // Phase 3: Send real email via Resend
+  try {
+    await sendEmail(payload);
+    console.log('[NotificationService] ✅ Email sent successfully');
+  } catch (error) {
+    console.error('[NotificationService] ❌ Email sending failed:', error);
+    // Log preview for debugging
+    switch (payload.type) {
+      case 'photo_selection_ready':
+        console.log(`📸 Failed email to ${payload.client}: Photos ready to select`);
+        break;
+      case 'photos_delivered':
+        console.log(`✅ Failed email to ${payload.client}: Final photos ready`);
+        break;
+      case 'video_review_ready':
+        console.log(`🎬 Failed email to ${payload.client}: Video ready for review`);
+        break;
+      case 'shoot_reminder_24h':
+        console.log(`⏰ Failed email to ${payload.client}: Shoot reminder`);
+        break;
+    }
   }
-
-  // Phase 3: Uncomment to enable real emails
-  // await sendEmail(payload);
 }
 
 /**
@@ -157,6 +154,7 @@ export async function check24HourReminders(shoots: Shoot[]): Promise<void> {
         shootId: shoot.id,
         shootTitle: shoot.title,
         client: shoot.client,
+        clientEmail: shoot.clientEmail,
         date: shoot.date,
         startTime: shoot.startTime,
         locationName: shoot.locationName
@@ -166,12 +164,3 @@ export async function check24HourReminders(shoots: Shoot[]): Promise<void> {
 
   console.log('[NotificationService] 24-hour reminder check complete');
 }
-
-/**
- * Phase 3: Email sending function (placeholder)
- * Will integrate with Resend API
- */
-// async function sendEmail(payload: NotificationPayload): Promise<void> {
-//   // TODO: Implement Resend API integration
-//   throw new Error('Email service not yet implemented');
-// }

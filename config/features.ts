@@ -25,7 +25,7 @@ const featuresByTenant: Record<string, FeatureFlags> = {
     giftCards: true,
     packageCatalog: true,
     tallyForms: true,
-    notifications: false,    // Phase 2: Foundation ready, disabled for production safety
+    notifications: false,    // Phase 3: COMPLETE - Ready to enable when needed
     analytics: false,
     multiPhotographer: false,
   },

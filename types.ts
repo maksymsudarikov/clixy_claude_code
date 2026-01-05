@@ -46,6 +46,7 @@ export interface Shoot {
   status?: ShootStatus; // Overall project status
   title: string;
   client: string;
+  clientEmail?: string; // Client's email for notifications
   date: string;
   startTime: string;
   endTime: string;
