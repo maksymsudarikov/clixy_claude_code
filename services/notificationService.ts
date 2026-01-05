@@ -27,11 +27,12 @@ export interface NotificationPayload {
 /**
  * Detects status changes between old and new shoot data
  * Determines which notifications should be sent
+ * Returns: Array of notification results
  */
 export async function detectStatusChange(
   oldShoot: Shoot,
   newShoot: Shoot
-): Promise<void> {
+): Promise<Array<{ type: string; success: boolean; error?: string }>> {
   console.log('[NotificationService] Checking for status changes...', {
     shootId: newShoot.id,
     oldStatus: {
@@ -46,12 +47,14 @@ export async function detectStatusChange(
     }
   });
 
+  const results: Array<{ type: string; success: boolean; error?: string }> = [];
+
   // 1. Photo Selection Ready - Client can now select photos
   if (oldShoot.photoStatus !== 'selection_ready' &&
       newShoot.photoStatus === 'selection_ready' &&
       newShoot.photoSelectionUrl) {
 
-    await queueNotification({
+    const result = await queueNotification({
       type: 'photo_selection_ready',
       shootId: newShoot.id,
       shootTitle: newShoot.title,
@@ -59,6 +62,7 @@ export async function detectStatusChange(
       clientEmail: newShoot.clientEmail,
       photoSelectionUrl: newShoot.photoSelectionUrl
     });
+    results.push({ type: 'photo_selection_ready', ...result });
   }
 
   // 2. Final Photos Delivered - Edited photos ready for download
@@ -66,7 +70,7 @@ export async function detectStatusChange(
       newShoot.photoStatus === 'completed' &&
       newShoot.finalPhotosUrl) {
 
-    await queueNotification({
+    const result = await queueNotification({
       type: 'photos_delivered',
       shootId: newShoot.id,
       shootTitle: newShoot.title,
@@ -75,6 +79,7 @@ export async function detectStatusChange(
       finalPhotosUrl: newShoot.finalPhotosUrl,
       selectedPhotosUrl: newShoot.selectedPhotosUrl // Optional: show what they selected
     });
+    results.push({ type: 'photos_delivered', ...result });
   }
 
   // 3. Video Ready for Review - Draft/review video available
@@ -82,7 +87,7 @@ export async function detectStatusChange(
       newShoot.videoStatus === 'review' &&
       newShoot.videoUrl) {
 
-    await queueNotification({
+    const result = await queueNotification({
       type: 'video_review_ready',
       shootId: newShoot.id,
       shootTitle: newShoot.title,
@@ -90,45 +95,54 @@ export async function detectStatusChange(
       clientEmail: newShoot.clientEmail,
       videoUrl: newShoot.videoUrl
     });
+    results.push({ type: 'video_review_ready', ...result });
   }
 
-  console.log('[NotificationService] Status change detection complete');
+  console.log('[NotificationService] Status change detection complete', {
+    notificationsSent: results.length,
+    results
+  });
+
+  return results;
 }
 
 /**
  * Queues a notification for sending
  * Phase 3: Sends real emails via Resend API
+ * Phase 4: Returns success/failure status for UI feedback
  */
-async function queueNotification(payload: NotificationPayload): Promise<void> {
+async function queueNotification(payload: NotificationPayload): Promise<{ success: boolean; error?: string }> {
   console.log('🔔 [NOTIFICATION TRIGGERED]', {
     type: payload.type,
     shoot: payload.shootTitle,
     client: payload.client,
+    clientEmail: payload.clientEmail,
     details: payload
   });
 
-  // Phase 3: Send real email via Resend
-  try {
-    await sendEmail(payload);
-    console.log('[NotificationService] ✅ Email sent successfully');
-  } catch (error) {
-    console.error('[NotificationService] ❌ Email sending failed:', error);
-    // Log preview for debugging
-    switch (payload.type) {
-      case 'photo_selection_ready':
-        console.log(`📸 Failed email to ${payload.client}: Photos ready to select`);
-        break;
-      case 'photos_delivered':
-        console.log(`✅ Failed email to ${payload.client}: Final photos ready`);
-        break;
-      case 'video_review_ready':
-        console.log(`🎬 Failed email to ${payload.client}: Video ready for review`);
-        break;
-      case 'shoot_reminder_24h':
-        console.log(`⏰ Failed email to ${payload.client}: Shoot reminder`);
-        break;
-    }
+  // Phase 4: Send email with retry logic and get result
+  const result = await sendEmail(payload);
+
+  if (result.success) {
+    console.log('[NotificationService] ✅ Email sent successfully!', {
+      emailId: result.emailId,
+      to: payload.clientEmail
+    });
+  } else {
+    console.error('[NotificationService] ❌ Email sending failed after all retries:', result.error);
+
+    // Log what notification failed
+    const notificationTypeNames = {
+      'photo_selection_ready': '📸 Photos ready to select',
+      'photos_delivered': '✅ Final photos ready',
+      'video_review_ready': '🎬 Video ready for review',
+      'shoot_reminder_24h': '⏰ Shoot reminder'
+    };
+
+    console.error(`Failed to send: ${notificationTypeNames[payload.type]} to ${payload.clientEmail}`);
   }
+
+  return result;
 }
 
 /**

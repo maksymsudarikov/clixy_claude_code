@@ -290,12 +290,26 @@ export const updateShoot = async (id: string, shoot: Shoot): Promise<void> => {
       throw new Error(`Failed to update shoot: ${error.message}`);
     }
 
-    // Check for status changes and trigger notifications (async, non-blocking)
+    // Check for status changes and trigger notifications
+    // Phase 4: Await notification results to ENSURE delivery before returning
     if (oldShoot && FEATURES.notifications) {
-      detectStatusChange(oldShoot, shoot).catch(err => {
-        console.error('[NotificationService] Failed to detect status changes (non-critical):', err);
-        // Shoot update succeeded, notification failure is non-critical
-      });
+      try {
+        const notificationResults = await detectStatusChange(oldShoot, shoot);
+
+        // Check for any failed notifications
+        const failedNotifications = notificationResults.filter(r => !r.success);
+
+        if (failedNotifications.length > 0) {
+          console.error('[ShootService] ⚠️ EMAIL NOTIFICATION FAILED:', failedNotifications);
+          console.error('⚠️⚠️⚠️ CLIENT DID NOT RECEIVE EMAIL - MANUAL FOLLOW-UP REQUIRED ⚠️⚠️⚠️');
+          // Shoot was saved successfully, but email failed - admin needs to know!
+        } else if (notificationResults.length > 0) {
+          console.log('[ShootService] ✅ Email notification delivered successfully');
+        }
+      } catch (err) {
+        console.error('[ShootService] ❌ CRITICAL: Failed to send email notification:', err);
+        console.error('⚠️⚠️⚠️ CLIENT DID NOT RECEIVE EMAIL - MANUAL FOLLOW-UP REQUIRED ⚠️⚠️⚠️');
+      }
     }
   } catch (error) {
     console.error('Error updating shoot:', error);
