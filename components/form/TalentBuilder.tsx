@@ -78,17 +78,17 @@ export const TalentBuilder: React.FC<TalentBuilderProps> = ({ talent, onChange }
       {talent.length > 0 && (
         <div className="space-y-2 mb-6">
           {talent.map((member, idx) => (
-            <div key={idx} className="flex items-start justify-between p-4 bg-[#F0F0EB] border border-[#141413]">
-              <div className="flex gap-4 flex-1">
+            <div key={idx} className="p-3 sm:p-4 bg-[#F0F0EB] border border-[#141413]">
+              <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
                 {member.photo && (
                   <img
                     src={member.photo}
                     alt={member.name}
-                    className="w-16 h-16 object-cover border border-[#141413]"
+                    className="w-14 h-14 sm:w-16 sm:h-16 object-cover border border-[#141413] flex-shrink-0"
                   />
                 )}
-                <div className="flex-1">
-                  <span className="font-bold text-sm block text-[#141413] uppercase tracking-wide">
+                <div className="flex-1 min-w-0">
+                  <span className="font-bold text-sm block text-[#141413] uppercase tracking-wide truncate">
                     {member.name}
                   </span>
                   {member.role && (
@@ -104,8 +104,8 @@ export const TalentBuilder: React.FC<TalentBuilderProps> = ({ talent, onChange }
                       View Agency Profile →
                     </a>
                   )}
-                  <div className="flex gap-4 mt-2 text-xs text-[#9E9E98]">
-                    {member.email && <span>{member.email}</span>}
+                  <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-xs text-[#9E9E98]">
+                    {member.email && <span className="break-all">{member.email}</span>}
                     {member.phone && <span className="font-mono">{member.phone}</span>}
                     {member.arrivalTime && <span>Arrives: {member.arrivalTime}</span>}
                   </div>
@@ -122,20 +122,22 @@ export const TalentBuilder: React.FC<TalentBuilderProps> = ({ talent, onChange }
                   )}
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => removeTalent(idx)}
-                className="text-[#9E9E98] hover:text-red-600 font-bold uppercase text-xs transition-colors ml-4"
-                aria-label={`Remove ${member.name}`}
-              >
-                Remove
-              </button>
+              <div className="mt-3 pt-3 border-t border-[#9E9E98]/30 sm:border-0 sm:mt-0 sm:pt-0">
+                <button
+                  type="button"
+                  onClick={() => removeTalent(idx)}
+                  className="text-[#9E9E98] hover:text-red-600 font-bold uppercase text-xs transition-colors min-h-[44px] px-2 -mx-2 touch-manipulation"
+                  aria-label={`Remove ${member.name}`}
+                >
+                  Remove
+                </button>
+              </div>
             </div>
           ))}
         </div>
       )}
 
-      <div className="p-6 border border-[#141413] bg-white">
+      <div className="p-4 sm:p-6 border border-[#141413] bg-white">
         <p className="text-xs font-bold uppercase tracking-widest text-[#141413] mb-4">Add Talent</p>
 
         {/* Basic Info */}
@@ -243,7 +245,7 @@ export const TalentBuilder: React.FC<TalentBuilderProps> = ({ talent, onChange }
               <p className="text-xs text-[#9E9E98] uppercase tracking-widest mb-3">
                 Quick Reference Sizes {talentMember.agencyUrl && '(Optional - see agency for full stats)'}
               </p>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <input
                   placeholder="HEIGHT"
                   value={talentMember.sizes?.height || ''}
@@ -295,7 +297,7 @@ export const TalentBuilder: React.FC<TalentBuilderProps> = ({ talent, onChange }
           type="button"
           onClick={addTalent}
           disabled={!talentMember.name.trim()}
-          className="w-full py-3 bg-[#F0F0EB] hover:bg-[#141413] hover:text-white text-xs font-bold uppercase tracking-[0.2em] border border-[#141413] transition-colors disabled:opacity-50 text-[#141413]"
+          className="w-full py-3 min-h-[48px] bg-[#F0F0EB] hover:bg-[#141413] hover:text-white text-xs font-bold uppercase tracking-[0.2em] border border-[#141413] transition-colors disabled:opacity-50 text-[#141413] touch-manipulation active:scale-[0.98]"
         >
           Add Talent
         </button>

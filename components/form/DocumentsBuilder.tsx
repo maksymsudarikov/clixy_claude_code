@@ -72,7 +72,7 @@ export const DocumentsBuilder: React.FC<DocumentsBuilderProps> = ({ documents, o
   return (
     <div className="space-y-6">
       {/* Input Form */}
-      <div className="bg-[#F5F5F0] p-6 border border-[#141413]">
+      <div className="bg-[#F5F5F0] p-4 sm:p-6 border border-[#141413]">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label className={labelClasses}>
@@ -127,7 +127,7 @@ export const DocumentsBuilder: React.FC<DocumentsBuilderProps> = ({ documents, o
         <button
           type="button"
           onClick={addDocument}
-          className={buttonClasses}
+          className={`${buttonClasses} min-h-[48px] w-full sm:w-auto touch-manipulation active:scale-[0.98]`}
           disabled={!doc.name.trim() || !doc.url.trim()}
         >
           + Add Document
@@ -143,19 +143,19 @@ export const DocumentsBuilder: React.FC<DocumentsBuilderProps> = ({ documents, o
           {documents.map((document, index) => (
             <div
               key={index}
-              className="flex items-center justify-between p-4 bg-white border border-[#141413]"
+              className="p-3 sm:p-4 bg-white border border-[#141413]"
             >
-              <div className="flex-1">
-                <div className="flex items-center space-x-3">
-                  <span className="text-lg">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex items-start sm:items-center space-x-3 flex-1 min-w-0">
+                  <span className="text-lg flex-shrink-0">
                     {document.type === 'client_contract' && '📄'}
                     {document.type === 'model_release' && '✍️'}
                     {document.type === 'location_permit' && '📍'}
                     {document.type === 'nda' && '🔒'}
                     {document.type === 'other' && '📎'}
                   </span>
-                  <div>
-                    <p className="font-bold text-sm">{document.name}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-sm truncate">{document.name}</p>
                     <p className="text-xs text-[#9E9E98] uppercase">
                       {DOCUMENT_TYPES.find(t => t.value === document.type)?.label}
                     </p>
@@ -163,20 +163,20 @@ export const DocumentsBuilder: React.FC<DocumentsBuilderProps> = ({ documents, o
                       href={document.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs text-blue-600 hover:underline break-all"
+                      className="text-xs text-blue-600 hover:underline break-all line-clamp-2"
                     >
                       {document.url}
                     </a>
                   </div>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => removeDocument(index)}
+                  className="text-xs font-bold uppercase tracking-widest text-red-600 hover:text-red-800 px-3 py-2 min-h-[44px] border border-red-600 hover:bg-red-50 transition-colors flex-shrink-0 self-start sm:self-center touch-manipulation"
+                >
+                  Remove
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => removeDocument(index)}
-                className="ml-4 text-xs font-bold uppercase tracking-widest text-red-600 hover:text-red-800 px-3 py-2 border border-red-600 hover:bg-red-50 transition-colors"
-              >
-                Remove
-              </button>
             </div>
           ))}
         </div>

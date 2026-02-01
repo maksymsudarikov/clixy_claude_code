@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Shoot, ShootStatus } from '../types';
 import { fetchAllShoots, deleteShoot, createShoot, updateShoot } from '../services/shootService';
 import { useNotification } from '../contexts/NotificationContext';
 import { generateSecureToken } from '../utils/tokenUtils';
 import { IconTrash, IconEdit, IconSearch, IconDuplicate } from './Icons';
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 
 export const AdminDashboard: React.FC = () => {
   const [shoots, setShoots] = useState<Shoot[]>([]);
@@ -13,7 +14,10 @@ export const AdminDashboard: React.FC = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; shoot: Shoot | null }>({ isOpen: false, shoot: null });
+  const [selectedIndex, setSelectedIndex] = useState<number>(-1);
   const { addNotification } = useNotification();
+  const navigate = useNavigate();
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     loadShoots();
@@ -124,16 +128,102 @@ export const AdminDashboard: React.FC = () => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
+  // Combine upcoming and past for keyboard navigation
+  const allFilteredShoots = [...filteredShoots.filter(s => new Date(s.date + 'T00:00:00') >= today), ...filteredShoots.filter(s => new Date(s.date + 'T00:00:00') < today).reverse()];
+  const selectedShoot = selectedIndex >= 0 && selectedIndex < allFilteredShoots.length ? allFilteredShoots[selectedIndex] : null;
+
+  // Keyboard shortcut handlers
+  const handleKeyboardNew = useCallback(() => {
+    navigate('/admin/create');
+  }, [navigate]);
+
+  const handleKeyboardSearch = useCallback(() => {
+    searchInputRef.current?.focus();
+  }, []);
+
+  const handleKeyboardEdit = useCallback(() => {
+    if (selectedShoot) {
+      navigate(`/studio/edit/${selectedShoot.id}`);
+    }
+  }, [selectedShoot, navigate]);
+
+  const handleKeyboardDuplicate = useCallback(async () => {
+    if (selectedShoot) {
+      try {
+        const timestamp = Date.now();
+        const newId = `${selectedShoot.id}-copy-${timestamp}`;
+        const newToken = generateSecureToken();
+        const duplicateShoot: Shoot = {
+          ...selectedShoot,
+          id: newId,
+          accessToken: newToken,
+          title: `${selectedShoot.title} (Copy)`,
+          status: 'in_progress',
+          date: new Date().toISOString().split('T')[0],
+          photoSelectionUrl: '',
+          finalPhotosUrl: '',
+          videoUrl: '',
+        };
+        await createShoot(duplicateShoot);
+        addNotification('success', 'Shoot duplicated successfully!');
+        loadShoots();
+      } catch (err) {
+        addNotification('error', 'Failed to duplicate shoot');
+      }
+    }
+  }, [selectedShoot, addNotification]);
+
+  const handleKeyboardDelete = useCallback(() => {
+    if (selectedShoot) {
+      setDeleteModal({ isOpen: true, shoot: selectedShoot });
+    }
+  }, [selectedShoot]);
+
+  const handleKeyboardClose = useCallback(() => {
+    if (deleteModal.isOpen) {
+      setDeleteModal({ isOpen: false, shoot: null });
+    } else {
+      setSelectedIndex(-1);
+    }
+  }, [deleteModal.isOpen]);
+
+  const handleKeyboardNavigateUp = useCallback(() => {
+    setSelectedIndex(prev => Math.max(0, prev - 1));
+  }, []);
+
+  const handleKeyboardNavigateDown = useCallback(() => {
+    setSelectedIndex(prev => Math.min(allFilteredShoots.length - 1, prev + 1));
+  }, [allFilteredShoots.length]);
+
+  const handleKeyboardSelect = useCallback(() => {
+    if (selectedShoot) {
+      navigate(`/shoot/${selectedShoot.id}?token=${selectedShoot.accessToken}`);
+    }
+  }, [selectedShoot, navigate]);
+
+  // Register keyboard shortcuts
+  useKeyboardShortcuts({
+    onNew: handleKeyboardNew,
+    onSearch: handleKeyboardSearch,
+    onEdit: handleKeyboardEdit,
+    onDuplicate: handleKeyboardDuplicate,
+    onDelete: handleKeyboardDelete,
+    onClose: handleKeyboardClose,
+    onNavigateUp: handleKeyboardNavigateUp,
+    onNavigateDown: handleKeyboardNavigateDown,
+    onSelect: handleKeyboardSelect,
+  }, !loading && !deleteModal.isOpen);
+
   const upcomingShoots = filteredShoots.filter(s => new Date(s.date + 'T00:00:00') >= today);
   const pastShoots = filteredShoots.filter(s => new Date(s.date + 'T00:00:00') < today).reverse();
 
-  const ShootRow = ({ shoot }: { shoot: Shoot }) => {
+  const ShootRow = ({ shoot, isSelected }: { shoot: Shoot; isSelected: boolean }) => {
     const isToday = new Date(shoot.date + 'T00:00:00').toDateString() === new Date().toDateString();
 
     return (
       <>
         {/* Desktop/Tablet View */}
-        <div className="hidden md:grid grid-cols-12 gap-4 p-6 border-b border-[#141413] items-center hover:bg-[#F0F0EB] transition-colors bg-white group last:border-b-0">
+        <div className={`hidden md:grid grid-cols-12 gap-4 p-6 border-b border-[#141413] items-center hover:bg-[#F0F0EB] transition-colors group last:border-b-0 ${isSelected ? 'bg-[#F0F0EB] ring-2 ring-[#141413] ring-inset' : 'bg-white'}`}>
           <div className="col-span-5">
             <Link to={`/shoot/${shoot.id}?token=${shoot.accessToken}`} className="block">
               <div className="flex items-center gap-3">
@@ -174,7 +264,7 @@ export const AdminDashboard: React.FC = () => {
           </div>
           <div className="col-span-4 flex justify-end items-center space-x-3">
             <Link
-              to={`/admin/edit/${shoot.id}`}
+              to={`/studio/edit/${shoot.id}`}
               className="text-[#9E9E98] hover:text-[#141413] transition-colors p-2"
               title="Edit Shoot"
               aria-label={`Edit ${shoot.title}`}
@@ -212,7 +302,7 @@ export const AdminDashboard: React.FC = () => {
         </div>
 
         {/* Mobile Card View */}
-        <div className="md:hidden border-b border-[#141413] p-4 bg-white last:border-b-0">
+        <div className={`md:hidden border-b border-[#141413] p-4 last:border-b-0 ${isSelected ? 'bg-[#F0F0EB] ring-2 ring-[#141413] ring-inset' : 'bg-white'}`}>
           <Link to={`/shoot/${shoot.id}?token=${shoot.accessToken}`} className="block mb-3">
             <div className="flex items-start justify-between mb-2">
               <div className="flex-1">
@@ -241,7 +331,7 @@ export const AdminDashboard: React.FC = () => {
           {/* Mobile Actions */}
           <div className="flex items-center gap-2 pt-3 border-t border-[#F0F0EB]">
             <Link
-              to={`/admin/edit/${shoot.id}`}
+              to={`/studio/edit/${shoot.id}`}
               className="flex-1 text-center text-[#9E9E98] hover:text-[#141413] transition-colors py-2 px-3 border border-[#9E9E98] hover:border-[#141413] text-xs font-bold uppercase tracking-wider"
               aria-label={`Edit ${shoot.title}`}
             >
@@ -371,7 +461,7 @@ export const AdminDashboard: React.FC = () => {
             </p>
           </div>
           <Link
-            to="/admin/create"
+            to="/studio/create"
             className="w-full md:w-auto text-center bg-[#141413] text-white px-6 md:px-8 py-3 md:py-3 text-xs font-bold uppercase tracking-widest hover:bg-white hover:text-[#141413] border border-[#141413] transition-colors touch-manipulation active:bg-[#000000]"
           >
             + New Project
@@ -383,13 +473,22 @@ export const AdminDashboard: React.FC = () => {
             <div className="relative">
               <IconSearch className="w-4 h-4 absolute left-4 top-1/2 transform -translate-y-1/2 text-[#9E9E98]" />
               <input
+                ref={searchInputRef}
                 type="text"
-                placeholder="SEARCH BY TITLE OR CLIENT..."
+                placeholder="SEARCH BY TITLE OR CLIENT... (Press / or ⌘F)"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 className="w-full bg-white border border-[#141413] pl-12 pr-4 py-3 text-sm uppercase placeholder-[#9E9E98] text-[#141413] focus:border-[#141413] outline-none tracking-wider"
                 aria-label="Search shoots"
               />
+            </div>
+            {/* Keyboard shortcuts hint */}
+            <div className="mt-2 hidden md:flex gap-4 text-[10px] text-[#9E9E98] uppercase tracking-wider">
+              <span><kbd className="px-1.5 py-0.5 bg-[#F0F0EB] border border-[#9E9E98] rounded text-[9px] font-mono">N</kbd> New</span>
+              <span><kbd className="px-1.5 py-0.5 bg-[#F0F0EB] border border-[#9E9E98] rounded text-[9px] font-mono">↑↓</kbd> Navigate</span>
+              <span><kbd className="px-1.5 py-0.5 bg-[#F0F0EB] border border-[#9E9E98] rounded text-[9px] font-mono">E</kbd> Edit</span>
+              <span><kbd className="px-1.5 py-0.5 bg-[#F0F0EB] border border-[#9E9E98] rounded text-[9px] font-mono">D</kbd> Duplicate</span>
+              <span><kbd className="px-1.5 py-0.5 bg-[#F0F0EB] border border-[#9E9E98] rounded text-[9px] font-mono">⌫</kbd> Delete</span>
             </div>
           </div>
         )}
@@ -404,7 +503,9 @@ export const AdminDashboard: React.FC = () => {
                 {searchQuery ? 'No matching upcoming shoots.' : 'No upcoming shoots scheduled.'}
               </div>
             ) : (
-              upcomingShoots.map(shoot => <ShootRow key={shoot.id} shoot={shoot} />)
+              upcomingShoots.map((shoot, index) => (
+                <ShootRow key={shoot.id} shoot={shoot} isSelected={selectedIndex === index} />
+              ))
             )}
           </div>
         </div>
@@ -417,14 +518,16 @@ export const AdminDashboard: React.FC = () => {
                 {searchQuery ? 'No matching past shoots.' : 'No past shoots.'}
               </div>
             ) : (
-              pastShoots.map(shoot => <ShootRow key={shoot.id} shoot={shoot} />)
+              pastShoots.map((shoot, index) => (
+                <ShootRow key={shoot.id} shoot={shoot} isSelected={selectedIndex === (upcomingShoots.length + index)} />
+              ))
             )}
           </div>
         </div>
 
         <div className="mt-24 text-center">
           <Link
-            to="/dashboard"
+            to="/studio"
             className="text-xs font-bold uppercase tracking-widest text-[#9E9E98] hover:text-[#141413] border-b border-transparent hover:border-[#141413] pb-0.5 transition-all"
           >
             Return to Client Dashboard

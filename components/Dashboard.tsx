@@ -27,7 +27,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ shoots }) => {
                     <Link to="/" className="text-[10px] uppercase font-bold tracking-widest text-[#9E9E98] hover:text-[#141413] transition-colors">
                         ← Home
                     </Link>
-                    <Link to="/admin" className="inline-block text-[10px] uppercase font-bold tracking-widest border border-[#141413] px-4 py-2 hover:bg-[#141413] hover:text-[#D8D9CF] transition-colors">
+                    <Link to="/studio" className="inline-block text-[10px] uppercase font-bold tracking-widest border border-[#141413] px-4 py-2 hover:bg-[#141413] hover:text-[#D8D9CF] transition-colors">
                         Producer Access
                     </Link>
                 </div>

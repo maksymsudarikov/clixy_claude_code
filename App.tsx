@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { HashRouter, Routes, Route, Navigate, useParams, useSearchParams } from 'react-router-dom';
 import { ShootDetails } from './components/ShootDetails';
-import { Dashboard } from './components/Dashboard';
+// Dashboard component no longer used - all routes go to /studio
 import { AdminDashboard } from './components/AdminDashboard';
 import { ShootForm } from './components/ShootForm';
+import { ShootFormWizard } from './components/form/ShootFormWizard';
 import { GiftCardPurchase } from './components/giftcard/GiftCardPurchase';
 import { GiftCardSuccess } from './components/giftcard/GiftCardSuccess';
 import { Landing } from './components/Landing';
@@ -13,7 +14,7 @@ import { NotificationProvider } from './contexts/NotificationContext';
 import { NotificationContainer } from './components/NotificationContainer';
 import { TermsModal } from './components/TermsModal';
 import { Shoot } from './types';
-import { fetchShootById, fetchAllShoots, updateShoot } from './services/shootService';
+import { fetchShootById, updateShoot } from './services/shootService';
 
 import { FEATURES } from './config/features';
 
@@ -153,30 +154,6 @@ const ShootRoute = () => {
   );
 };
 
-const HomeRoute = () => {
-  const [shoots, setShoots] = useState<Shoot[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchAllShoots()
-      .then(setShoots)
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#D8D9CF]">
-        <div className="animate-pulse flex flex-col items-center">
-          <div className="h-4 w-4 bg-black rounded-full mb-2 animate-bounce"></div>
-          <span className="text-xs font-medium tracking-widest text-gray-400 uppercase">Loading</span>
-        </div>
-      </div>
-    );
-  }
-
-  return <Dashboard shoots={shoots} />;
-};
-
 const App: React.FC = () => {
   return (
     <ErrorBoundary>
@@ -198,10 +175,16 @@ const App: React.FC = () => {
             <Route path="/shoot/:id" element={<ShootRoute />} />
 
             {/* Protected routes - PIN required */}
-            <Route path="/dashboard" element={<PinProtection><HomeRoute /></PinProtection>} />
-            <Route path="/admin" element={<PinProtection><AdminDashboard /></PinProtection>} />
-            <Route path="/admin/create" element={<PinProtection><ShootForm /></PinProtection>} />
-            <Route path="/admin/edit/:id" element={<PinProtection><ShootForm /></PinProtection>} />
+            <Route path="/studio" element={<PinProtection><AdminDashboard /></PinProtection>} />
+            <Route path="/studio/create" element={<PinProtection>{FEATURES.formWizard ? <ShootFormWizard /> : <ShootForm />}</PinProtection>} />
+            <Route path="/studio/edit/:id" element={<PinProtection>{FEATURES.formWizard ? <ShootFormWizard /> : <ShootForm />}</PinProtection>} />
+
+            {/* Legacy redirects */}
+            <Route path="/dashboard" element={<Navigate to="/studio" replace />} />
+            <Route path="/admin" element={<Navigate to="/studio" replace />} />
+            <Route path="/admin/create" element={<Navigate to="/studio/create" replace />} />
+            <Route path="/admin/edit/:id" element={<Navigate to="/studio/edit/:id" replace />} />
+
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </NotificationProvider>

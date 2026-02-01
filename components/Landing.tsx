@@ -5,40 +5,40 @@ import { FEATURES } from '../config/features';
 
 export const Landing: React.FC = () => {
   return (
-    <div className="min-h-screen bg-[#D8D9CF] text-[#141413] font-light selection:bg-[#141413] selection:text-white">
+    <div className="min-h-screen bg-[#D8D9CF] text-[#141413] font-light selection:bg-[#141413] selection:text-white overflow-x-hidden">
       {/* Hero Section */}
-      <div className="min-h-screen flex items-center justify-center px-6">
+      <div className="min-h-screen flex items-center justify-center px-4 sm:px-6">
         <div className="max-w-4xl w-full text-center">
 
           {/* Hero */}
-          <h1 className="text-6xl md:text-[8rem] font-extrabold tracking-tighter leading-[0.8] mb-3 uppercase font-stretch-wide">
+          <h1 className="text-5xl sm:text-6xl md:text-[8rem] font-extrabold tracking-tighter leading-[0.85] mb-3 uppercase">
             CLIXY
           </h1>
 
-          <p className="text-sm md:text-base font-light tracking-wide mb-2 text-[#9E9E98]">
+          <p className="text-xs sm:text-sm md:text-base font-light tracking-wide mb-2 text-[#9E9E98]">
             by
           </p>
 
-          <p className="text-base md:text-xl font-bold uppercase tracking-[0.2em] mb-8">
+          <p className="text-sm sm:text-base md:text-xl font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] mb-6 sm:mb-8">
             Studio Olga Prudka®
           </p>
 
-          <p className="text-sm md:text-base font-light tracking-wide max-w-2xl mx-auto mb-12 leading-relaxed">
-            Production portal for Studio Olga Prudka.<br />
-            Track your photo and video shoots in real-time.
+          <p className="text-sm md:text-base font-light tracking-wide max-w-2xl mx-auto mb-8 sm:mb-12 leading-relaxed px-2">
+            Production portal for Studio Olga Prudka.<br className="hidden sm:inline" />
+            <span className="sm:hidden"> </span>Track your photo and video shoots in real-time.
           </p>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          {/* CTA Buttons - Mobile optimized with proper touch targets */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-2">
             <Link
-              to="/dashboard"
-              className="inline-block text-sm uppercase font-bold tracking-widest border-2 border-[#141413] px-8 py-4 hover:bg-[#141413] hover:text-[#D8D9CF] transition-all duration-300 hover:shadow-[8px_8px_0px_0px_rgba(20,20,19,1)]"
+              to="/studio"
+              className="w-full sm:w-auto inline-block text-xs sm:text-sm uppercase font-bold tracking-widest border-2 border-[#141413] px-6 sm:px-8 py-4 min-h-[48px] hover:bg-[#141413] hover:text-[#D8D9CF] transition-all duration-300 hover:shadow-[8px_8px_0px_0px_rgba(20,20,19,1)] touch-manipulation active:scale-[0.98]"
             >
               Team Access →
             </Link>
             <a
               href="#contact"
-              className="inline-block text-sm uppercase font-bold tracking-widest border-2 border-[#141413] bg-[#141413] text-[#D8D9CF] px-8 py-4 hover:bg-white hover:text-[#141413] transition-all duration-300 hover:shadow-[8px_8px_0px_0px_rgba(20,20,19,1)]"
+              className="w-full sm:w-auto inline-block text-xs sm:text-sm uppercase font-bold tracking-widest border-2 border-[#141413] bg-[#141413] text-[#D8D9CF] px-6 sm:px-8 py-4 min-h-[48px] hover:bg-white hover:text-[#141413] transition-all duration-300 hover:shadow-[8px_8px_0px_0px_rgba(20,20,19,1)] touch-manipulation active:scale-[0.98]"
             >
               Work With Us →
             </a>

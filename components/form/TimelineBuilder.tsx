@@ -62,7 +62,7 @@ export const TimelineBuilder: React.FC<TimelineBuilderProps> = ({ timeline, onCh
   };
 
   return (
-    <div className="mt-8 bg-[#F0F0EB] p-6 border border-[#141413]">
+    <div className="mt-8 bg-[#F0F0EB] p-4 sm:p-6 border border-[#141413]">
       <p className="text-xs font-bold uppercase tracking-widest text-[#141413] mb-4">Run of Show</p>
 
       {timeline.length > 0 && (
@@ -70,37 +70,39 @@ export const TimelineBuilder: React.FC<TimelineBuilderProps> = ({ timeline, onCh
           {timeline.map((event, idx) => (
             <div
               key={idx}
-              className={`flex items-center justify-between p-3 border border-[#141413] text-sm ${
+              className={`p-3 border border-[#141413] text-sm ${
                 editingIndex === idx ? 'bg-[#141413] text-white' : 'bg-white text-[#141413]'
               }`}
             >
-              <div className="flex items-center space-x-6">
-                <span className="font-mono font-bold w-24">{formatTimeDisplay(event.time)}</span>
-                <span className="uppercase tracking-wide">{event.activity}</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <button
-                  type="button"
-                  onClick={() => editTimelineEvent(idx)}
-                  className={`${
-                    editingIndex === idx ? 'text-white' : 'text-[#9E9E98] hover:text-[#141413]'
-                  } transition-colors`}
-                  title="Edit"
-                  aria-label={`Edit ${event.activity}`}
-                >
-                  <IconEdit className="w-4 h-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => removeTimelineEvent(idx)}
-                  className={`${
-                    editingIndex === idx ? 'text-white' : 'text-[#9E9E98] hover:text-red-600'
-                  } transition-colors`}
-                  title="Remove"
-                  aria-label={`Remove ${event.activity}`}
-                >
-                  <IconClose className="w-4 h-4" />
-                </button>
+              <div className="flex items-start sm:items-center justify-between gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-6 min-w-0 flex-1">
+                  <span className="font-mono font-bold flex-shrink-0">{formatTimeDisplay(event.time)}</span>
+                  <span className="uppercase tracking-wide text-xs sm:text-sm truncate">{event.activity}</span>
+                </div>
+                <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => editTimelineEvent(idx)}
+                    className={`p-2 min-w-[44px] min-h-[44px] flex items-center justify-center ${
+                      editingIndex === idx ? 'text-white' : 'text-[#9E9E98] hover:text-[#141413]'
+                    } transition-colors touch-manipulation`}
+                    title="Edit"
+                    aria-label={`Edit ${event.activity}`}
+                  >
+                    <IconEdit className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => removeTimelineEvent(idx)}
+                    className={`p-2 min-w-[44px] min-h-[44px] flex items-center justify-center ${
+                      editingIndex === idx ? 'text-white' : 'text-[#9E9E98] hover:text-red-600'
+                    } transition-colors touch-manipulation`}
+                    title="Remove"
+                    aria-label={`Remove ${event.activity}`}
+                  >
+                    <IconClose className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -184,7 +186,7 @@ export const TimelineBuilder: React.FC<TimelineBuilderProps> = ({ timeline, onCh
                 setTimelineActivity('');
                 setTimeInput({ hour: '09', minute: '00', ampm: 'AM' });
               }}
-              className="flex-1 text-xs px-2 py-3 font-bold uppercase tracking-wider bg-white text-[#141413] hover:bg-red-600 hover:text-white border border-[#141413] transition-colors"
+              className="flex-1 text-xs px-2 py-3 min-h-[48px] font-bold uppercase tracking-wider bg-white text-[#141413] hover:bg-red-600 hover:text-white border border-[#141413] transition-colors touch-manipulation active:scale-[0.98]"
               title="Cancel editing"
             >
               Cancel
@@ -194,7 +196,7 @@ export const TimelineBuilder: React.FC<TimelineBuilderProps> = ({ timeline, onCh
             type="button"
             onClick={saveTimelineEvent}
             disabled={!timelineActivity.trim() || !isValidTime(timeInput.hour, timeInput.minute)}
-            className={`${editingIndex !== null ? 'flex-1' : 'w-full'} text-xs px-2 py-3 font-bold uppercase tracking-wider disabled:opacity-50 border border-[#141413] transition-colors ${
+            className={`${editingIndex !== null ? 'flex-1' : 'w-full'} text-xs px-2 py-3 min-h-[48px] font-bold uppercase tracking-wider disabled:opacity-50 border border-[#141413] transition-colors touch-manipulation active:scale-[0.98] ${
               editingIndex !== null
                 ? 'bg-[#141413] text-white hover:bg-white hover:text-[#141413]'
                 : 'bg-white text-[#141413] hover:bg-[#141413] hover:text-white'

@@ -50,33 +50,35 @@ export const TeamBuilder: React.FC<TeamBuilderProps> = ({ team, onChange }) => {
       {team.length > 0 && (
         <div className="space-y-2 mb-6">
           {team.map((member, idx) => (
-            <div key={idx} className="flex items-center justify-between p-4 bg-[#F0F0EB] border border-[#141413]">
-              <div>
-                <span className="font-bold text-sm block text-[#141413] uppercase tracking-wide">
-                  {member.name}
-                </span>
-                <span className="text-xs text-[#9E9E98] uppercase tracking-widest">{member.role}</span>
-                {member.email && (
-                  <span className="text-xs text-[#9E9E98] block mt-1">{member.email}</span>
-                )}
-                {member.phone && (
-                  <span className="text-xs text-[#9E9E98] font-mono block">{member.phone}</span>
-                )}
+            <div key={idx} className="p-3 sm:p-4 bg-[#F0F0EB] border border-[#141413]">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <span className="font-bold text-sm block text-[#141413] uppercase tracking-wide truncate">
+                    {member.name}
+                  </span>
+                  <span className="text-xs text-[#9E9E98] uppercase tracking-widest">{member.role}</span>
+                  {member.email && (
+                    <span className="text-xs text-[#9E9E98] block mt-1 break-all">{member.email}</span>
+                  )}
+                  {member.phone && (
+                    <span className="text-xs text-[#9E9E98] font-mono block">{member.phone}</span>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeTeamMember(idx)}
+                  className="text-[#9E9E98] hover:text-red-600 font-bold uppercase text-xs transition-colors min-h-[44px] px-2 -mx-2 sm:mx-0 sm:px-0 touch-manipulation self-start sm:self-center flex-shrink-0"
+                  aria-label={`Remove ${member.name}`}
+                >
+                  Remove
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => removeTeamMember(idx)}
-                className="text-[#9E9E98] hover:text-red-600 font-bold uppercase text-xs transition-colors"
-                aria-label={`Remove ${member.name}`}
-              >
-                Remove
-              </button>
             </div>
           ))}
         </div>
       )}
 
-      <div className="p-6 border border-[#141413] bg-white">
+      <div className="p-4 sm:p-6 border border-[#141413] bg-white">
         <p className="text-xs font-bold uppercase tracking-widest text-[#141413] mb-4">Add Crew Member</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
@@ -132,7 +134,7 @@ export const TeamBuilder: React.FC<TeamBuilderProps> = ({ team, onChange }) => {
           type="button"
           onClick={addTeamMember}
           disabled={!teamMember.role.trim() || !teamMember.name.trim()}
-          className="w-full py-3 bg-[#F0F0EB] hover:bg-[#141413] hover:text-white text-xs font-bold uppercase tracking-[0.2em] border border-[#141413] transition-colors disabled:opacity-50 text-[#141413]"
+          className="w-full py-3 min-h-[48px] bg-[#F0F0EB] hover:bg-[#141413] hover:text-white text-xs font-bold uppercase tracking-[0.2em] border border-[#141413] transition-colors disabled:opacity-50 text-[#141413] touch-manipulation active:scale-[0.98]"
         >
           Add to Call Sheet
         </button>

@@ -1,7 +1,7 @@
 // Keep Supabase project active by pinging it periodically
 // Run this on a cron job (GitHub Actions, Vercel Cron, etc.)
 
-import { createClient } from '@supabase/supabase-js';
+const { createClient } = require('@supabase/supabase-js');
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;

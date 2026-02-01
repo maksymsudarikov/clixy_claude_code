@@ -62,11 +62,11 @@ export interface Shoot {
   photoSelectionUrl?: string; // URL for client to select photos (Adobe/GDrive/WeTransfer)
   selectedPhotosUrl?: string; // URL for photos client already selected (for re-review)
   finalPhotosUrl?: string; // URL for final edited photos (same folder, updated)
-  photoStatus?: 'selection_ready' | 'editing_in_progress' | 'completed'; // Photo workflow status
+  photoStatus?: 'pending' | 'selection_ready' | 'selection_in_progress' | 'selected' | 'editing' | 'delivered'; // Photo workflow status
 
   // Video-specific fields
   videoUrl?: string; // URL for video deliverables (Google Drive, WeTransfer, etc.)
-  videoStatus?: 'draft' | 'editing' | 'review' | 'final'; // Video workflow status
+  videoStatus?: 'pending' | 'draft' | 'editing' | 'review' | 'final'; // Video workflow status
   revisionNotes?: string; // Client revision notes for video
 
   stylingUrl?: string; // Changed from notes to URL
@@ -134,4 +134,59 @@ export interface GiftCard {
   paymentStatus: 'pending' | 'completed' | 'failed' | 'refunded';
   redeemedBy?: string;
   adminNotes?: string;
+}
+
+// AI Assistant Types (Phase 1: Text Input MVP)
+
+/**
+ * AI-generated data from text/voice/image input
+ * This is a Partial<Shoot> to allow flexible merging with existing form data
+ */
+export interface AIGeneratedData extends Partial<Shoot> {
+  // All fields are optional - AI may extract only some information
+}
+
+/**
+ * AI service response wrapper
+ */
+export interface AIServiceResponse {
+  success: boolean;
+  data?: AIGeneratedData;
+  error?: string;
+}
+
+/**
+ * Voice recognition state (Phase 2)
+ */
+export interface VoiceRecognitionState {
+  isRecording: boolean;
+  transcript: string;
+  interimTranscript: string;
+  error: string | null;
+  isSupported: boolean;
+}
+
+/**
+ * Image analysis result from Vision AI (Phase 3)
+ */
+export interface ImageAnalysisResult {
+  description: string;
+  stylingNotes: string;
+  hairMakeupNotes: string;
+  mood: string;
+  colorPalette: string[];
+  visualThemes: string[];
+}
+
+/**
+ * AI Assistant modal state
+ */
+export interface AIAssistantState {
+  activeTab: 'text' | 'voice' | 'images';
+  textInput: string;
+  voiceTranscript: string;
+  uploadedImages: string[]; // Supabase Storage URLs
+  isProcessing: boolean;
+  aiResponse: AIGeneratedData | null;
+  error: string | null;
 }

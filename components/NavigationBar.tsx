@@ -45,9 +45,9 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
     transparent: 'text-white bg-[#141413]/80 backdrop-blur-sm hover:bg-[#141413]'
   };
 
-  // Position styles
+  // Position styles - adjusted for mobile safe areas
   const positionClasses = {
-    fixed: 'fixed top-6 left-6 z-50',
+    fixed: 'fixed top-4 left-4 md:top-6 md:left-6 z-50',
     relative: 'relative'
   };
 
@@ -57,20 +57,21 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
         onClick={handleBack}
         className={`
           inline-flex items-center gap-2
-          px-4 py-3
+          px-3 py-2.5 md:px-4 md:py-3
+          min-h-[44px]
           border-2 border-[#141413]
-          text-xs font-bold uppercase tracking-widest
+          text-[10px] md:text-xs font-bold uppercase tracking-widest
           transition-all duration-200
           ${variantClasses[variant]}
           touch-manipulation
-          shadow-[4px_4px_0px_0px_rgba(20,20,19,1)]
-          hover:shadow-[6px_6px_0px_0px_rgba(20,20,19,1)]
-          active:shadow-[2px_2px_0px_0px_rgba(20,20,19,1)]
-          active:translate-x-[2px] active:translate-y-[2px]
+          shadow-[3px_3px_0px_0px_rgba(20,20,19,1)] md:shadow-[4px_4px_0px_0px_rgba(20,20,19,1)]
+          hover:shadow-[4px_4px_0px_0px_rgba(20,20,19,1)] md:hover:shadow-[6px_6px_0px_0px_rgba(20,20,19,1)]
+          active:shadow-[1px_1px_0px_0px_rgba(20,20,19,1)] md:active:shadow-[2px_2px_0px_0px_rgba(20,20,19,1)]
+          active:translate-x-[1px] active:translate-y-[1px] md:active:translate-x-[2px] md:active:translate-y-[2px]
         `}
       >
         <IconArrowLeft />
-        <span>{backLabel}</span>
+        <span className="hidden sm:inline">{backLabel}</span>
       </button>
     </div>
   );

@@ -16,7 +16,7 @@ interface ShootDetailsProps {
 const IconClock = () => <svg className="w-4 h-4 mr-3 text-[#141413]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
 const IconMap = () => <svg className="w-4 h-4 mr-3 text-[#141413]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
 const IconDownload = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>;
-const IconExternal = () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>;
+const IconExternal: React.FC<{ className?: string }> = ({ className = "w-4 h-4" }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>;
 
 export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
   const [activeTab, setActiveTab] = useState<'details' | 'style' | 'team'>('details');
@@ -46,26 +46,26 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
     <div className="min-h-screen bg-[#D8D9CF] text-[#141413] pb-24 md:pb-0 font-light selection:bg-[#141413] selection:text-white">
       {/* Navigation Bar */}
       <NavigationBar
-        backTo="/dashboard"
+        backTo="/studio"
         backLabel="Dashboard"
         variant="transparent"
         position="fixed"
       />
 
       {/* Header Image - Full Width, Geometric */}
-      <div className="relative h-[50vh] w-full overflow-hidden">
+      <div className="relative h-[40vh] sm:h-[50vh] w-full overflow-hidden">
         <ShootAvatar title={shoot.title} client={shoot.client} variant="hero" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#141413]/70 pointer-events-none" />
-        
+
         {/* Large Title Overlay */}
-        <div className="absolute bottom-0 left-0 p-6 md:p-12 w-full">
+        <div className="absolute bottom-0 left-0 p-4 sm:p-6 md:p-12 w-full">
           <div className="max-w-5xl mx-auto">
-             <div className="flex items-center space-x-3 text-xs md:text-sm uppercase font-bold tracking-[0.2em] text-white mb-4 bg-[#141413] inline-block px-3 py-1">
-                <span>{shoot.client}</span>
+             <div className="flex flex-wrap items-center gap-2 sm:space-x-3 text-[10px] sm:text-xs md:text-sm uppercase font-bold tracking-[0.1em] sm:tracking-[0.2em] text-white mb-2 sm:mb-4 bg-[#141413] inline-block px-2 sm:px-3 py-1">
+                <span className="truncate max-w-[120px] sm:max-w-none">{shoot.client}</span>
                 <span>//</span>
-                <span>{new Date(shoot.date + 'T00:00:00').toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}</span>
+                <span>{new Date(shoot.date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
              </div>
-             <h1 className="text-4xl md:text-7xl font-extrabold uppercase tracking-tight text-white leading-none">
+             <h1 className="text-2xl sm:text-4xl md:text-7xl font-extrabold uppercase tracking-tight text-white leading-none break-words">
                 {shoot.title}
              </h1>
           </div>
@@ -79,7 +79,7 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
             <button
               key={tab}
               onClick={() => setActiveTab(tab as any)}
-              className={`flex-1 py-5 text-xs font-bold uppercase tracking-[0.2em] transition-all
+              className={`flex-1 py-4 sm:py-5 text-[10px] sm:text-xs font-bold uppercase tracking-[0.1em] sm:tracking-[0.2em] transition-all min-h-[44px] touch-manipulation
                 ${activeTab === tab
                     ? 'text-[#141413] bg-white border-r border-l border-[#141413] -mx-[1px]'
                     : 'text-[#9E9E98] hover:text-[#141413]'}`}
@@ -91,7 +91,7 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
       </div>
 
       {/* Main Content */}
-      <main className="max-w-5xl mx-auto px-6 py-12 animate-fade-in">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 animate-fade-in">
         
         {/* DETAILS TAB */}
         {activeTab === 'details' && (
@@ -155,56 +155,56 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
               )}
               
               {/* Documents Card */}
-              <div className="bg-[#141413] text-white p-8 border border-[#141413]">
-                 <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[#9E9E98] mb-6">Production Files</h3>
-                 <div className="space-y-4">
+              <div className="bg-[#141413] text-white p-4 sm:p-8 border border-[#141413]">
+                 <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[#9E9E98] mb-4 sm:mb-6">Production Files</h3>
+                 <div className="space-y-3 sm:space-y-4">
                     {/* Share Button */}
                     <button
                       onClick={handleCopyLink}
-                      className="flex items-center justify-center w-full p-4 bg-transparent border border-[#9E9E98] text-white hover:bg-white hover:text-[#141413] transition-colors"
+                      className="flex items-center justify-center w-full p-3 sm:p-4 min-h-[44px] bg-transparent border border-[#9E9E98] text-white hover:bg-white hover:text-[#141413] transition-colors touch-manipulation active:scale-[0.98]"
                     >
-                      <span className="text-sm font-bold uppercase tracking-wider">🔗 Copy Shareable Link</span>
+                      <span className="text-xs sm:text-sm font-bold uppercase tracking-wider">🔗 Copy Link</span>
                     </button>
 
                     {shoot.callSheetUrl && (
-                      <a href={shoot.callSheetUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between w-full p-4 bg-transparent border border-[#9E9E98] hover:bg-white hover:text-[#141413] hover:border-white transition-all group">
-                        <span className="text-sm font-bold uppercase tracking-wider">Call Sheet</span>
+                      <a href={shoot.callSheetUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between w-full p-3 sm:p-4 min-h-[44px] bg-transparent border border-[#9E9E98] hover:bg-white hover:text-[#141413] hover:border-white transition-all group touch-manipulation">
+                        <span className="text-xs sm:text-sm font-bold uppercase tracking-wider">Call Sheet</span>
                         <IconDownload />
                       </a>
                     )}
                     {shoot.moodboardUrl && (
-                      <a href={shoot.moodboardUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between w-full p-4 bg-transparent border border-[#9E9E98] hover:bg-white hover:text-[#141413] hover:border-white transition-all group">
-                        <span className="text-sm font-bold uppercase tracking-wider">Moodboard</span>
+                      <a href={shoot.moodboardUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between w-full p-3 sm:p-4 min-h-[44px] bg-transparent border border-[#9E9E98] hover:bg-white hover:text-[#141413] hover:border-white transition-all group touch-manipulation">
+                        <span className="text-xs sm:text-sm font-bold uppercase tracking-wider">Moodboard</span>
                         <IconExternal />
                       </a>
                     )}
 
                     {/* PHOTO WORKFLOW STATUS - Only for photo shoots and hybrid */}
                     {isPhotoShoot && shoot.photoStatus === 'selection_ready' && shoot.photoSelectionUrl && (
-                      <a href={shoot.photoSelectionUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between w-full p-4 bg-[#D8D9CF] text-[#141413] border border-[#D8D9CF] hover:bg-white transition-colors">
-                        <span className="text-sm font-bold uppercase tracking-wider">Select Your Photos</span>
+                      <a href={shoot.photoSelectionUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between w-full p-3 sm:p-4 min-h-[44px] bg-[#D8D9CF] text-[#141413] border border-[#D8D9CF] hover:bg-white transition-colors touch-manipulation">
+                        <span className="text-xs sm:text-sm font-bold uppercase tracking-wider">Select Photos</span>
                         <IconExternal />
                       </a>
                     )}
 
                     {/* SELECTED PHOTOS - Show after client selected */}
                     {isPhotoShoot && shoot.selectedPhotosUrl && (
-                      <a href={shoot.selectedPhotosUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between w-full p-4 bg-white text-[#141413] border-2 border-[#141413] hover:bg-[#D8D9CF] transition-colors">
-                        <div>
-                          <span className="text-sm font-bold uppercase tracking-wider block">🎯 Review Selected Photos</span>
-                          <span className="text-xs text-[#9E9E98] mt-1 block">Photos you selected for editing</span>
+                      <a href={shoot.selectedPhotosUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between w-full p-3 sm:p-4 min-h-[44px] bg-white text-[#141413] border-2 border-[#141413] hover:bg-[#D8D9CF] transition-colors touch-manipulation">
+                        <div className="flex-1 min-w-0">
+                          <span className="text-xs sm:text-sm font-bold uppercase tracking-wider block truncate">🎯 Review Selected</span>
+                          <span className="text-[10px] sm:text-xs text-[#9E9E98] mt-1 block truncate">Photos for editing</span>
                         </div>
-                        <IconExternal />
+                        <IconExternal className="flex-shrink-0 ml-2" />
                       </a>
                     )}
 
-                    {isPhotoShoot && shoot.photoStatus === 'editing_in_progress' && !shoot.selectedPhotosUrl && (
-                      <div className="w-full p-4 bg-transparent border border-[#9E9E98] opacity-60 cursor-not-allowed">
-                        <span className="text-sm font-bold uppercase tracking-wider italic">Editing in Progress...</span>
+                    {isPhotoShoot && shoot.photoStatus === 'editing' && !shoot.selectedPhotosUrl && (
+                      <div className="w-full p-3 sm:p-4 min-h-[44px] bg-transparent border border-[#9E9E98] opacity-60 cursor-not-allowed">
+                        <span className="text-xs sm:text-sm font-bold uppercase tracking-wider italic">Editing in Progress...</span>
                       </div>
                     )}
 
-                    {isPhotoShoot && shoot.photoStatus === 'completed' && shoot.finalPhotosUrl && (
+                    {isPhotoShoot && shoot.photoStatus === 'delivered' && shoot.finalPhotosUrl && (
                       <a href={shoot.finalPhotosUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between w-full p-4 bg-[#D8D9CF] text-[#141413] border border-[#D8D9CF] hover:bg-white transition-colors">
                         <span className="text-sm font-bold uppercase tracking-wider">Download Final Photos</span>
                         <IconDownload />

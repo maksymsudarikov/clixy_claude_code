@@ -21,41 +21,55 @@ const generateGiftCardCode = (): string => {
   return `CLIXY-${code}`;
 };
 
-// Generate unique ID
+// Generate cryptographically secure unique ID
 const generateId = (): string => {
-  return `gc-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const array = new Uint8Array(12);
+  crypto.getRandomValues(array);
+  const randomPart = Array.from(array)
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+  return `gc-${Date.now()}-${randomPart}`;
 };
 
-// Fallback: Send gift card via email if database fails
+// Fallback: Log gift card request if database fails
+// SECURITY: Does not expose PII in URLs/logs
 const sendGiftCardViaEmail = async (formData: GiftCardPurchaseForm, code: string, pkg: any): Promise<void> => {
-  // Create email body with all gift card info
+  // Log minimal info for debugging (no PII)
+  console.warn('[GiftCard Fallback] Database unavailable. Code:', code, 'Package:', pkg.name);
+
+  // Create email with minimal info (no PII in URL)
+  // The admin will need to check logs or contact the customer
   const emailBody = encodeURIComponent(`
-NEW GIFT CARD REQUEST - URGENT (Database unavailable)
+NEW GIFT CARD REQUEST - ACTION REQUIRED
 
 CODE: ${code}
 Package: ${pkg.name}
 Amount: $${pkg.price} ${pkg.currency}
+Timestamp: ${new Date().toISOString()}
 
-PURCHASER:
-Name: ${formData.purchaserName}
-Email: ${formData.purchaserEmail}
-Phone: ${formData.purchaserPhone}
-
-RECIPIENT:
-Name: ${formData.recipientName}
-Email: ${formData.recipientEmail}
-
-Delivery: ${formData.deliveryType === 'immediate' ? 'Immediate' : formData.deliveryDate}
-Message: ${formData.personalMessage || 'None'}
-
-⚠️ This request was sent via fallback because the database was unavailable.
-Please process manually and add to database when possible.
+⚠️ Database was unavailable during this request.
+Customer details are NOT included for security reasons.
+Please check server logs or await customer contact.
   `);
 
-  // Create mailto link
-  const mailtoLink = `mailto:maksym.sudarikov@gmail.com?subject=URGENT: Gift Card Request ${code}&body=${emailBody}`;
+  // Create mailto link (no PII exposed)
+  const mailtoLink = `mailto:art@olgaprudka.com?subject=Gift Card Request ${code}&body=${emailBody}`;
 
-  // Only open email client after a small delay to ensure user sees the success page first
+  // Store request in sessionStorage for potential recovery (encrypted would be better)
+  try {
+    const pendingRequests = JSON.parse(sessionStorage.getItem('pending_gift_cards') || '[]');
+    pendingRequests.push({
+      code,
+      packageId: pkg.id,
+      timestamp: Date.now(),
+      // Note: Full form data stays in memory only, not persisted
+    });
+    sessionStorage.setItem('pending_gift_cards', JSON.stringify(pendingRequests));
+  } catch (e) {
+    console.error('Failed to store pending request');
+  }
+
+  // Open email client
   setTimeout(() => {
     const link = document.createElement('a');
     link.href = mailtoLink;

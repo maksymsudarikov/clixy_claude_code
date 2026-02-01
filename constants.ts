@@ -133,6 +133,8 @@ export const MOCK_SHOOTS: Shoot[] = [
       { role: 'Model', name: 'Sasha K.', email: 'sasha@agency.com' },
       { role: 'MUA', name: 'David Chen' }
     ],
+    talent: [],
+    documents: [],
     timeline: [
         { time: '08:00', activity: 'Crew Call / Coffee & Setup' },
         { time: '08:30', activity: 'Hair & Makeup Start' },
@@ -163,6 +165,8 @@ export const MOCK_SHOOTS: Shoot[] = [
       { role: 'DOP', name: 'Sarah Conner' },
       { role: 'Producer', name: 'Skynet Productions' }
     ],
+    talent: [],
+    documents: [],
     timeline: [
         { time: '06:00', activity: 'Call Time (Golden Hour)' },
         { time: '14:00', activity: 'Wrap' }
