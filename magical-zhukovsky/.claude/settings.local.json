@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(git init:*)",
+      "Bash(cat:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)",
+      "Bash(git remote remove origin)",
+      "Bash(npm install:*)",
+      "Bash(npm run dev:*)",
+      "Bash(/opt/homebrew/bin/node:*)",
+      "Bash(/usr/local/bin/node:*)",
+      "Bash(/usr/local/bin/npm run dev)",
+      "Bash(export PATH=\"/usr/local/bin:$PATH\")",
+      "Bash(export PATH=\"$HOME/.nvm/versions/node/v22.19.0/bin:$PATH\")",
+      "Bash(node --version:*)",
+      "Bash(npm:*)",
+      "Bash(ssh:*)",
+      "Bash(pbcopy)",
+      "Bash(ssh-add:*)",
+      "Bash(git log:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(gh run list:*)",
+      "Bash(git fetch:*)",
+      "Bash(node scripts/hashPin.js:*)",
+      "Bash(git branch:*)",
+      "Bash(gh pr create --title \"🔐 Security & UX Enhancements\" --body \"$(cat <<''EOF''\n## 🎯 Summary\nComprehensive security hardening and UX improvements for Clixy production management platform.\n\n---\n\n## 🔐 Security Enhancements\n\n### PIN Authentication\n- ✅ **Hashed PIN storage** - Replaced plaintext PIN with MD5 hashing\n- ✅ **Environment variables** - PIN hash now stored in `VITE_ADMIN_PIN_HASH`\n- ✅ **Rate limiting** - Brute-force protection with exponential backoff\n  - 5 failed attempts → 15-minute lockout\n  - Progressive delays between attempts\n- ✅ **PIN generator script** - `scripts/hashPin.cjs` for easy hash generation\n\n### Input Validation\n- ✅ **XSS Protection** - Enhanced URL validation (only http/https allowed)\n- ✅ **Email validation** - Added to gift card purchase flow\n- ✅ **Phone validation** - Minimum 7 digits required\n- ✅ **Sanitization** - All URLs sanitized before storage\n\n### Configuration Security\n- ✅ **`.env` protection** - Updated `.gitignore` to prevent credential leaks\n- ✅ **`.env.example`** - Template for required environment variables\n\n---\n\n## ⚡ Performance & UX Improvements\n\n### Loading States\n- ✅ **Skeleton screens** - Beautiful loading placeholders in admin dashboard\n- ✅ **Brand-consistent design** - Matches Clixy''s brutalist aesthetic\n- ✅ **Progress indicators** - Animated bounce dots during load\n\n### Auto-save System\n- ✅ **Draft auto-save** - Every 30 seconds after changes\n- ✅ **Draft restoration** - Prompt to restore unsaved work\n- ✅ **Timestamp tracking** - Shows when draft was last saved\n- ✅ **Smart cleanup** - Drafts cleared on successful publish\n\n### Error Handling\n- ✅ **Detailed messages** - More specific error feedback\n- ✅ **Loading states** - All buttons show processing status\n- ✅ **Validation feedback** - Clear inline error messages\n\n---\n\n## 📁 New Files\n\n```\nscripts/hashPin.cjs          # PIN hash generator utility\nutils/pinSecurity.ts         # PIN hashing & rate limiting\nutils/autosave.ts           # Draft auto-save system\n.env.example                # Environment variables template\n```\n\n---\n\n## 🛠️ Modified Components\n\n### Core Security\n- `components/PinProtection.tsx` - Hash-based auth + rate limiting UI\n- `components/giftcard/GiftCardPurchase.tsx` - Email/phone validation\n- `vite.config.ts` - Environment variables documentation\n- `.gitignore` - Added `.env*` protection\n\n### UX Improvements\n- `components/AdminDashboard.tsx` - Skeleton loading screen\n- `components/ShootForm.tsx` - Auto-save draft functionality\n\n### Documentation\n- `README.md` - Complete setup guide, security best practices\n\n---\n\n## 📊 Stats\n\n- **+1089 lines** added\n- **-17 lines** removed\n- **11 files** changed\n- **4 new files** created\n\n---\n\n## 🚀 Migration Guide\n\n### For Development\n```bash\n# 1. Copy environment template\ncp .env.example .env\n\n# 2. Generate PIN hash\nnode scripts/hashPin.cjs YOUR_PIN\n\n# 3. Add hash to .env\nVITE_ADMIN_PIN_HASH=your_generated_hash_here\n\n# 4. Restart dev server\nnpm run dev\n```\n\n### For Production\nSet `VITE_ADMIN_PIN_HASH` in your deployment platform''s environment variables.\n\n---\n\n## ⚠️ Breaking Changes\n\n**None** - All changes are backward compatible. The PIN system includes a fallback hash for development.\n\n---\n\n## ✅ Testing Checklist\n\n- [x] PIN authentication works with hashed values\n- [x] Rate limiting triggers after 5 failed attempts\n- [x] Auto-save drafts every 30 seconds\n- [x] Draft restoration prompt appears correctly\n- [x] Skeleton screens display during loading\n- [x] URL/email/phone validation works\n- [x] All forms submit successfully\n\n---\n\n## 📝 Next Steps (Future PRs)\n\n**High Priority:**\n- Email notifications when photos ready\n- Pagination for shoots (when > 50)\n- Sentry error tracking\n\n**Medium Priority:**\n- Calendar view in admin\n- Duplicate shoot functionality\n- Advanced search filters\n\n---\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git checkout:*)",
+      "Bash(git pull:*)",
+      "Bash(git merge:*)",
+      "Bash(node scripts/hashPin.cjs:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
