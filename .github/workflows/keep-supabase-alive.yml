@@ -1,15 +1,12 @@
-name: Keep Supabase Active
+name: Keep Services Active
 
 on:
   schedule:
-    # Runs every 3 days at 3am UTC (Supabase pauses after 7 days inactivity)
-    - cron: '0 3 */3 * *'
-  workflow_dispatch: # Allows manual trigger
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/keep-supabase-alive.yml'
+    # Every 3 days at 8am UTC
+    # Supabase pauses after 7 days inactivity
+    # Vercel Hobby pauses after ~14 days inactivity
+    - cron: '0 8 */3 * *'
+  workflow_dispatch: # Manual trigger
 
 jobs:
   ping:
@@ -30,3 +27,25 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: node scripts/keepAlive.js
+
+      - name: Ping Vercel deployment
+        env:
+          VERCEL_URL: ${{ secrets.VERCEL_URL }}
+        run: |
+          if [ -z "$VERCEL_URL" ]; then
+            echo "⚠️  VERCEL_URL secret not set, skipping Vercel ping"
+            exit 0
+          fi
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$VERCEL_URL/api/keep-alive" || true)
+          if [ "$STATUS" = "200" ]; then
+            echo "✅ Vercel is active (HTTP $STATUS): $(date -u)"
+          else
+            # Even a non-200 means the project is awake - Vercel wakes it on any request
+            echo "⚠️  Vercel responded with HTTP $STATUS, but project should be awake: $(date -u)"
+            # Also ping the main page as fallback
+            MAIN_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$VERCEL_URL" || true)
+            echo "   Main page: HTTP $MAIN_STATUS"
+          fi
+
+      - name: Summary
+        run: echo "🏓 Keep-alive pings completed at $(date -u)"
