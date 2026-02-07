@@ -138,7 +138,7 @@ export const clearAllDrafts = (): void => {
 /**
  * React hook for auto-saving form data
  */
-export const useAutoSave = (key: string, data: any, enabled: boolean = true, interval: number = AUTOSAVE_INTERVAL) => {
+export const useAutoSave = (key: string, data: unknown, _enabled: boolean = true, _interval: number = AUTOSAVE_INTERVAL) => {
   // This is a placeholder - actual implementation would use useEffect
   // The hook will be implemented in the component that uses it
   return {

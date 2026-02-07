@@ -8,7 +8,7 @@ interface ShootAvatarProps {
 }
 
 // Always use brand black color
-const getColorFromString = (str: string): string => {
+const getColorFromString = (_str: string): string => {
   return '#141413'; // Primary Black - consistent for all shoots
 };
 
@@ -28,7 +28,6 @@ export const ShootAvatar: React.FC<ShootAvatarProps> = ({ title, client, classNa
   // Different sizes for card vs hero
   const isHero = variant === 'hero';
   const fontSize = isHero ? 'clamp(1.5rem, 4vw, 3rem)' : 'clamp(3rem, 8vw, 6rem)';
-  const opacity = isHero ? 0.12 : 1;
 
   return (
     <div

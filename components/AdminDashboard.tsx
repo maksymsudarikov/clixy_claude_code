@@ -4,6 +4,7 @@ import { Shoot, ShootStatus } from '../types';
 import { fetchAllShoots, deleteShoot, createShoot, updateShoot } from '../services/shootService';
 import { useNotification } from '../contexts/NotificationContext';
 import { generateSecureToken } from '../utils/tokenUtils';
+import { createShareLink } from '../services/shareLinkService';
 import { IconTrash, IconEdit, IconSearch, IconDuplicate } from './Icons';
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
@@ -71,19 +72,16 @@ export const AdminDashboard: React.FC = () => {
     e.preventDefault();
     e.stopPropagation();
 
-    const baseUrl = window.location.href.split('#')[0];
-    // Include access token in the URL for secure access
-    const shareUrl = `${baseUrl}#/shoot/${shoot.id}?token=${shoot.accessToken}`;
-
-    navigator.clipboard
-      .writeText(shareUrl)
+    createShareLink(shoot.id)
+      .then(({ shareUrl }) => navigator.clipboard.writeText(shareUrl))
       .then(() => {
         setCopiedId(shoot.id);
         addNotification('success', 'Private link copied to clipboard!', 2000);
         setTimeout(() => setCopiedId(null), 2000);
       })
-      .catch(() => {
-        addNotification('error', 'Failed to copy link');
+      .catch((err) => {
+        console.error('Failed to create share link:', err);
+        addNotification('error', 'Failed to create private link');
       });
   };
 
@@ -197,7 +195,7 @@ export const AdminDashboard: React.FC = () => {
 
   const handleKeyboardSelect = useCallback(() => {
     if (selectedShoot) {
-      navigate(`/shoot/${selectedShoot.id}?token=${selectedShoot.accessToken}`);
+      navigate(`/shoot/${selectedShoot.id}`);
     }
   }, [selectedShoot, navigate]);
 
@@ -225,7 +223,7 @@ export const AdminDashboard: React.FC = () => {
         {/* Desktop/Tablet View */}
         <div className={`hidden md:grid grid-cols-12 gap-4 p-6 border-b border-[#141413] items-center hover:bg-[#F0F0EB] transition-colors group last:border-b-0 ${isSelected ? 'bg-[#F0F0EB] ring-2 ring-[#141413] ring-inset' : 'bg-white'}`}>
           <div className="col-span-5">
-            <Link to={`/shoot/${shoot.id}?token=${shoot.accessToken}`} className="block">
+            <Link to={`/shoot/${shoot.id}`} className="block">
               <div className="flex items-center gap-3">
                 <h3 className="font-bold text-lg text-[#141413] uppercase tracking-tight">
                   {shoot.title}
@@ -303,7 +301,7 @@ export const AdminDashboard: React.FC = () => {
 
         {/* Mobile Card View */}
         <div className={`md:hidden border-b border-[#141413] p-4 last:border-b-0 ${isSelected ? 'bg-[#F0F0EB] ring-2 ring-[#141413] ring-inset' : 'bg-white'}`}>
-          <Link to={`/shoot/${shoot.id}?token=${shoot.accessToken}`} className="block mb-3">
+          <Link to={`/shoot/${shoot.id}`} className="block mb-3">
             <div className="flex items-start justify-between mb-2">
               <div className="flex-1">
                 <h3 className="font-bold text-base text-[#141413] uppercase tracking-tight leading-tight">

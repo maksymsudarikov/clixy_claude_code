@@ -3,9 +3,10 @@ import { Shoot } from '../types';
 import { generateSecureToken } from '../utils/tokenUtils';
 import { detectStatusChange } from './notificationService';
 import { FEATURES } from '../config/features';
+import { mapShootRecord, resolveShareLink } from './shareLinkService';
 
-// Fetch shoot by ID
-export const fetchShootById = async (id: string): Promise<Shoot | undefined> => {
+// Fetch shoot by ID for authenticated admins
+export const fetchShootByIdAdmin = async (id: string): Promise<Shoot | undefined> => {
   try {
     const { data, error } = await supabase
       .from('shoots')
@@ -18,67 +19,29 @@ export const fetchShootById = async (id: string): Promise<Shoot | undefined> => 
       return undefined;
     }
 
-    // Convert snake_case from DB to camelCase
-    // Handle missing fields with defaults
-
-    // CRITICAL: Generate token if missing (backward compatibility)
-    let accessToken = data.access_token;
-    if (!accessToken) {
-      console.warn(`Shoot ${data.id} missing access_token, generating new one...`);
-      accessToken = generateSecureToken();
-
-      // Save the generated token to DB immediately
-      try {
-        await supabase
-          .from('shoots')
-          .update({ access_token: accessToken })
-          .eq('id', data.id);
-        console.log(`✅ Generated and saved token for shoot ${data.id}`);
-      } catch (updateError) {
-        console.error('Failed to save generated token:', updateError);
-      }
-    }
-
-    return data ? {
-      id: data.id,
-      accessToken: accessToken,
-      projectType: data.project_type || 'photo_shoot',
-      status: data.status || 'pending',
-      title: data.title,
-      client: data.client,
-      clientEmail: data.client_email || '',
-      date: data.date,
-      startTime: data.start_time || '09:00',
-      endTime: data.end_time || '18:00',
-      locationName: data.location_name || data.location || '',
-      locationAddress: data.location_address || '',
-      locationMapUrl: data.location_map_url || '',
-      description: data.description || '',
-      moodboardUrl: data.moodboard_url || '',
-      moodboardImages: data.moodboard_images || [],
-      callSheetUrl: data.call_sheet_url || '',
-      photoSelectionUrl: data.photo_selection_url || '',
-      selectedPhotosUrl: data.selected_photos_url || '',
-      finalPhotosUrl: data.final_photos_url || '',
-      photoStatus: data.photo_status || 'selection_ready',
-      videoUrl: data.video_url || '',
-      videoStatus: data.video_status || 'draft',
-      revisionNotes: data.revision_notes || '',
-      stylingUrl: data.styling_url || '',
-      stylingNotes: data.styling_notes || '',
-      hairMakeupNotes: data.hair_makeup_notes || '',
-      coverImage: data.cover_image || '',
-      timeline: data.timeline || [],
-      team: data.team || [],
-      talent: data.talent || [], // Talent support (backward compatible)
-      documents: data.documents || [], // Documents support (backward compatible)
-      clientAcceptedTerms: data.client_accepted_terms || false, // Terms tracking
-      termsAcceptedAt: data.terms_accepted_at || undefined, // Terms timestamp
-      termsAcceptedIP: data.terms_accepted_ip || undefined // Terms IP (optional)
-    } : undefined;
+    return data ? mapShootRecord(data) : undefined;
   } catch (error) {
     console.error('Error fetching shoot:', error);
     return undefined;
+  }
+};
+
+// Backward-compatible alias
+export const fetchShootById = fetchShootByIdAdmin;
+
+// Fetch shoot by share token (public route)
+export const fetchShootByShareToken = async (
+  id: string,
+  token: string
+): Promise<{ shoot?: Shoot; expiresAt?: string }> => {
+  try {
+    const result = await resolveShareLink(id, token);
+    return {
+      shoot: mapShootRecord(result.shoot),
+      expiresAt: result.expiresAt,
+    };
+  } catch {
+    return {};
   }
 };
 
@@ -95,67 +58,7 @@ export const fetchAllShoots = async (): Promise<Shoot[]> => {
       return [];
     }
 
-    // Convert snake_case from DB to camelCase with defaults
-    // CRITICAL: Generate tokens for any shoots missing them
-    const shootsWithTokens = await Promise.all((data || []).map(async (shoot) => {
-      let accessToken = shoot.access_token;
-
-      // Auto-generate and save token if missing
-      if (!accessToken) {
-        console.warn(`Shoot ${shoot.id} missing token, generating...`);
-        accessToken = generateSecureToken();
-
-        try {
-          await supabase
-            .from('shoots')
-            .update({ access_token: accessToken })
-            .eq('id', shoot.id);
-          console.log(`✅ Generated token for ${shoot.id}`);
-        } catch (err) {
-          console.error(`Failed to save token for ${shoot.id}:`, err);
-        }
-      }
-
-      return {
-        id: shoot.id,
-        accessToken: accessToken,
-        projectType: shoot.project_type || 'photo_shoot',
-        status: shoot.status || 'pending',
-        title: shoot.title,
-      client: shoot.client,
-      clientEmail: shoot.client_email || '',
-      date: shoot.date,
-      startTime: shoot.start_time || '09:00',
-      endTime: shoot.end_time || '18:00',
-      locationName: shoot.location_name || shoot.location || '',
-      locationAddress: shoot.location_address || '',
-      locationMapUrl: shoot.location_map_url || '',
-      description: shoot.description || '',
-      moodboardUrl: shoot.moodboard_url || '',
-      moodboardImages: shoot.moodboard_images || [],
-      callSheetUrl: shoot.call_sheet_url || '',
-      photoSelectionUrl: shoot.photo_selection_url || '',
-      selectedPhotosUrl: shoot.selected_photos_url || '',
-      finalPhotosUrl: shoot.final_photos_url || '',
-      photoStatus: shoot.photo_status || 'selection_ready',
-      videoUrl: shoot.video_url || '',
-      videoStatus: shoot.video_status || 'draft',
-      revisionNotes: shoot.revision_notes || '',
-      stylingUrl: shoot.styling_url || '',
-      stylingNotes: shoot.styling_notes || '',
-      hairMakeupNotes: shoot.hair_makeup_notes || '',
-      coverImage: shoot.cover_image || '',
-      timeline: shoot.timeline || [],
-      team: shoot.team || [],
-      talent: shoot.talent || [], // Talent support
-      documents: shoot.documents || [], // Documents support
-      clientAcceptedTerms: shoot.client_accepted_terms || false, // Terms tracking
-      termsAcceptedAt: shoot.terms_accepted_at || undefined, // Terms timestamp
-      termsAcceptedIP: shoot.terms_accepted_ip || undefined // Terms IP (optional)
-    };
-    }));
-
-    return shootsWithTokens;
+    return (data || []).map(mapShootRecord);
   } catch (error) {
     console.error('Error fetching shoots:', error);
     return [];
@@ -209,22 +112,15 @@ export const createShoot = async (shoot: Shoot): Promise<void> => {
       shootData.status = shoot.status;
     }
 
-    console.log('Creating shoot with data:', shootData);
-
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('shoots')
       .insert([shootData])
-      .select();
+      .select('id')
+      .single();
 
     if (error) {
-      console.error('Supabase error details:', JSON.stringify(error, null, 2));
-      console.error('Error code:', error.code);
-      console.error('Error message:', error.message);
-      console.error('Error hint:', error.hint);
       throw new Error(`Failed to create shoot: ${error.message}`);
     }
-
-    console.log('Shoot created successfully:', data);
   } catch (error) {
     console.error('Error creating shoot:', error);
     throw error;
@@ -235,7 +131,7 @@ export const createShoot = async (shoot: Shoot): Promise<void> => {
 export const updateShoot = async (id: string, shoot: Shoot): Promise<void> => {
   try {
     // Fetch old shoot data for notification comparison
-    const oldShoot = await fetchShootById(id);
+    const oldShoot = await fetchShootByIdAdmin(id);
 
     // Convert camelCase to snake_case for DB
     const updateData: any = {

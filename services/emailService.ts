@@ -1,4 +1,5 @@
 import { NotificationPayload } from './notificationService';
+import { supabase } from './supabase';
 
 /**
  * Email Service - Supabase Edge Function Integration
@@ -29,10 +30,19 @@ export async function sendEmail(payload: NotificationPayload): Promise<{ success
 
   // Get Supabase configuration
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-  if (!supabaseUrl || !supabaseAnonKey) {
+  if (!supabaseUrl) {
     const error = 'Supabase configuration missing';
+    console.error('[EmailService]', error);
+    return { success: false, error };
+  }
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session?.access_token) {
+    const error = 'Admin session required to send notifications';
     console.error('[EmailService]', error);
     return { success: false, error };
   }
@@ -52,7 +62,7 @@ export async function sendEmail(payload: NotificationPayload): Promise<{ success
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${supabaseAnonKey}`
+          'Authorization': `Bearer ${session.access_token}`
         },
         body: JSON.stringify(payload)
       });

@@ -124,9 +124,9 @@ export const PackageCard: React.FC<PackageCardProps> = ({
           </a>
         )}
 
-        {/* Book Now - Secondary CTA */}
+        {/* Inquiry CTA (Gift cards are disabled) */}
         <a
-          href="/#/gift-card"
+          href="mailto:art@olgaprudka.com?subject=Package%20Inquiry"
           className="
             block w-full text-center
             bg-white text-[#141413]
@@ -138,7 +138,7 @@ export const PackageCard: React.FC<PackageCardProps> = ({
             touch-manipulation
           "
         >
-          Book Now
+          Inquire →
         </a>
       </div>
     </div>

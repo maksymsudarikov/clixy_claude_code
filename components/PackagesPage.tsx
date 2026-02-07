@@ -20,12 +20,12 @@ export const PackagesPage: React.FC = () => {
               Back to Home
             </Link>
 
-            <Link
-              to="/gift-card"
+            <a
+              href="mailto:art@olgaprudka.com?subject=Package%20Inquiry"
               className="text-xs uppercase tracking-widest font-bold border-2 border-[#141413] px-4 py-2 hover:bg-[#141413] hover:text-white transition-colors"
             >
-              Gift Cards
-            </Link>
+              Inquire
+            </a>
           </div>
         </div>
       </div>
@@ -69,10 +69,10 @@ export const PackagesPage: React.FC = () => {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <a
-              href="/#/gift-card"
+              href="mailto:art@olgaprudka.com?subject=Package%20Inquiry"
               className="inline-block bg-[#141413] text-white px-8 py-4 text-xs font-bold uppercase tracking-widest hover:bg-white hover:text-[#141413] border-2 border-[#141413] transition-colors"
             >
-              Purchase Gift Card
+              Inquire About Package
             </a>
             <a
               href="#contact"

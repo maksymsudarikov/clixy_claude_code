@@ -5,8 +5,8 @@ import { TeamList } from './TeamList';
 import { TalentList } from './TalentList';
 import { ShootAvatar } from './ShootAvatar';
 import { NavigationBar } from './NavigationBar';
-import { copyShootLink } from '../utils/whatsappShare';
 import { useNotification } from '../contexts/NotificationContext';
+import { createShareLink } from '../services/shareLinkService';
 
 interface ShootDetailsProps {
   shoot: Shoot;
@@ -34,10 +34,15 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
 
   // Handle copy link
   const handleCopyLink = async () => {
-    const success = await copyShootLink(shoot);
-    if (success) {
+    try {
+      if (isAdmin) {
+        const { shareUrl } = await createShareLink(shoot.id);
+        await navigator.clipboard.writeText(shareUrl);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+      }
       addNotification('success', 'Link copied to clipboard!');
-    } else {
+    } catch {
       addNotification('error', 'Failed to copy link');
     }
   };

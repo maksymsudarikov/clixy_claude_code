@@ -2,9 +2,17 @@
 // Handles email sending via Resend API (server-side to avoid CORS)
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.8";
 
 const RESEND_API_URL = 'https://api.resend.com/emails';
 const FROM_EMAIL = 'Studio Olga <onboarding@resend.dev>'; // Using Resend's test domain for now
+
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
+const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') || '';
+const ADMIN_ALLOWLIST = (Deno.env.get('ADMIN_EMAIL_ALLOWLIST') || '')
+  .split(',')
+  .map((email) => email.trim().toLowerCase())
+  .filter(Boolean);
 
 interface NotificationPayload {
   type: 'photo_selection_ready' | 'photos_delivered' | 'video_review_ready' | 'shoot_reminder_24h';
@@ -21,19 +29,100 @@ interface NotificationPayload {
   videoUrl?: string;
 }
 
+const escapeHtml = (value: string | undefined): string => {
+  if (!value) return '';
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+};
+
+const isAllowedAdminEmail = (email: string | undefined): boolean => {
+  if (!email) return false;
+  if (ADMIN_ALLOWLIST.length === 0) return false;
+  return ADMIN_ALLOWLIST.includes(email.toLowerCase());
+};
+
+const resolveOrigin = (req: Request): string => {
+  const requestOrigin = req.headers.get('origin') || '';
+  const allowedOrigins = (Deno.env.get('ALLOWED_ORIGINS') || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  if (!requestOrigin) return allowedOrigins[0] || 'null';
+  if (allowedOrigins.length === 0) return requestOrigin;
+  return allowedOrigins.includes(requestOrigin) ? requestOrigin : 'null';
+};
+
+const corsHeadersFor = (req: Request) => ({
+  'Access-Control-Allow-Origin': resolveOrigin(req),
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Vary': 'Origin',
+});
+
+async function authenticateAdmin(req: Request): Promise<{ ok: true } | { ok: false; status: number; error: string }> {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    return { ok: false, status: 500, error: 'Supabase auth config is missing in function environment' };
+  }
+
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader) {
+    return { ok: false, status: 401, error: 'Authorization header required' };
+  }
+
+  const authClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    global: { headers: { Authorization: authHeader } },
+  });
+
+  const { data, error } = await authClient.auth.getUser();
+  if (error || !data.user) {
+    return { ok: false, status: 401, error: 'Invalid auth session' };
+  }
+
+  if (!isAllowedAdminEmail(data.user.email)) {
+    return { ok: false, status: 403, error: 'User is not allowed to send notifications' };
+  }
+
+  return { ok: true };
+}
+
 serve(async (req) => {
-  // CORS headers for browser requests
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  };
+  const corsHeaders = corsHeadersFor(req);
 
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
+  if (req.method !== 'POST') {
+    return new Response(
+      JSON.stringify({ success: false, error: 'Method not allowed' }),
+      {
+        status: 405,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
+    );
+  }
+
   try {
+    const authResult = await authenticateAdmin(req);
+    if (!authResult.ok) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: authResult.error
+        }),
+        {
+          status: authResult.status,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
     // Get Resend API key from environment
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
     if (!resendApiKey) {
@@ -41,7 +130,20 @@ serve(async (req) => {
     }
 
     // Parse request body
-    const payload: NotificationPayload = await req.json();
+    const rawPayload: NotificationPayload = await req.json();
+    const payload: NotificationPayload = {
+      ...rawPayload,
+      shootTitle: escapeHtml(rawPayload.shootTitle),
+      client: escapeHtml(rawPayload.client),
+      clientEmail: rawPayload.clientEmail?.trim(),
+      date: escapeHtml(rawPayload.date),
+      startTime: escapeHtml(rawPayload.startTime),
+      locationName: escapeHtml(rawPayload.locationName),
+      photoSelectionUrl: escapeHtml(rawPayload.photoSelectionUrl),
+      selectedPhotosUrl: escapeHtml(rawPayload.selectedPhotosUrl),
+      finalPhotosUrl: escapeHtml(rawPayload.finalPhotosUrl),
+      videoUrl: escapeHtml(rawPayload.videoUrl),
+    };
 
     // Validate client email
     if (!payload.clientEmail) {
@@ -61,10 +163,7 @@ serve(async (req) => {
     const emailContent = generateEmailContent(payload);
 
     // Call Resend API
-    console.log('[EdgeFunction] Sending email via Resend...', {
-      to: payload.clientEmail,
-      type: payload.type
-    });
+    console.log('[EdgeFunction] Sending email via Resend...', { type: payload.type });
 
     const resendResponse = await fetch(RESEND_API_URL, {
       method: 'POST',
@@ -86,10 +185,7 @@ serve(async (req) => {
       throw new Error(`Resend API error: ${JSON.stringify(resendData)}`);
     }
 
-    console.log('[EdgeFunction] ✅ Email sent successfully!', {
-      id: resendData.id,
-      to: payload.clientEmail
-    });
+    console.log('[EdgeFunction] ✅ Email sent successfully!', { id: resendData.id });
 
     // Return success
     return new Response(
@@ -104,7 +200,7 @@ serve(async (req) => {
       }
     );
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('[EdgeFunction] ❌ Error sending email:', error);
 
     return new Response(

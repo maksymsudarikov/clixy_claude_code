@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props {
   children: ReactNode;
@@ -11,37 +11,31 @@ interface State {
 }
 
 export class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
-    hasError: false,
-    error: null,
-    errorInfo: null
-  };
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      hasError: false,
+      error: null,
+      errorInfo: null
+    };
+  }
 
-  public static getDerivedStateFromError(error: Error): Partial<State> {
+  public static getDerivedStateFromError(_error: Error): Partial<State> {
     return { hasError: true };
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
-
+  public componentDidCatch(_error: Error, errorInfo: ErrorInfo) {
     this.setState({
-      error,
+      error: _error,
       errorInfo
     });
-
-    // TODO: Send to Sentry when configured
-    // if (window.Sentry) {
-    //   window.Sentry.captureException(error, {
-    //     contexts: { react: { componentStack: errorInfo.componentStack } }
-    //   });
-    // }
   }
 
-  handleReload = () => {
+  private handleReload = () => {
     window.location.reload();
   };
 
-  handleGoHome = () => {
+  private handleGoHome = () => {
     window.location.href = '/#/';
   };
 

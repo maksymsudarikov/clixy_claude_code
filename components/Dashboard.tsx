@@ -37,7 +37,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ shoots }) => {
         {/* Grid of Projects */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16">
           {shoots.map((shoot) => (
-            <Link to={`/shoot/${shoot.id}?token=${shoot.accessToken}`} key={shoot.id} className="group block">
+            <Link to={`/shoot/${shoot.id}`} key={shoot.id} className="group block">
               <div className="relative aspect-[4/3] overflow-hidden border-2 border-[#141413] mb-4 transition-all duration-300 group-hover:shadow-[8px_8px_0px_0px_rgba(20,20,19,1)]">
                 <ShootAvatar title={shoot.title} client={shoot.client} />
               </div>
