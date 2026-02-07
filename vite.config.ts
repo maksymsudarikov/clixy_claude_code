@@ -1,8 +1,9 @@
 import path from 'path';
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
-export default defineConfig(() => {
+export default defineConfig(({ mode }) => {
+    const env = loadEnv(mode, '.', '');
     return {
       base: '/',
       server: {
@@ -10,8 +11,12 @@ export default defineConfig(() => {
         host: '0.0.0.0',
       },
       plugins: [react()],
+      define: {
+        'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
+      },
       // Vite automatically exposes env vars prefixed with VITE_
-      // Never inject non-VITE secrets into client bundles.
+      // No need to manually define them here
       resolve: {
         alias: {
           '@': path.resolve(__dirname, '.'),

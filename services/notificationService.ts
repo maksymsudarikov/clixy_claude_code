@@ -33,7 +33,19 @@ export async function detectStatusChange(
   oldShoot: Shoot,
   newShoot: Shoot
 ): Promise<Array<{ type: string; success: boolean; error?: string }>> {
-  console.log('[NotificationService] Checking status changes', { shootId: newShoot.id });
+  console.log('[NotificationService] Checking for status changes...', {
+    shootId: newShoot.id,
+    oldStatus: {
+      photo: oldShoot.photoStatus,
+      video: oldShoot.videoStatus,
+      overall: oldShoot.status
+    },
+    newStatus: {
+      photo: newShoot.photoStatus,
+      video: newShoot.videoStatus,
+      overall: newShoot.status
+    }
+  });
 
   const results: Array<{ type: string; success: boolean; error?: string }> = [];
 
@@ -54,8 +66,8 @@ export async function detectStatusChange(
   }
 
   // 2. Final Photos Delivered - Edited photos ready for download
-  if (oldShoot.photoStatus !== 'delivered' &&
-      newShoot.photoStatus === 'delivered' &&
+  if (oldShoot.photoStatus !== 'completed' &&
+      newShoot.photoStatus === 'completed' &&
       newShoot.finalPhotosUrl) {
 
     const result = await queueNotification({
@@ -100,16 +112,22 @@ export async function detectStatusChange(
  * Phase 4: Returns success/failure status for UI feedback
  */
 async function queueNotification(payload: NotificationPayload): Promise<{ success: boolean; error?: string }> {
-  console.log('[NotificationService] Triggered', {
+  console.log('🔔 [NOTIFICATION TRIGGERED]', {
     type: payload.type,
-    shootId: payload.shootId
+    shoot: payload.shootTitle,
+    client: payload.client,
+    clientEmail: payload.clientEmail,
+    details: payload
   });
 
   // Phase 4: Send email with retry logic and get result
   const result = await sendEmail(payload);
 
   if (result.success) {
-    console.log('[NotificationService] Email sent', { emailId: result.emailId });
+    console.log('[NotificationService] ✅ Email sent successfully!', {
+      emailId: result.emailId,
+      to: payload.clientEmail
+    });
   } else {
     console.error('[NotificationService] ❌ Email sending failed after all retries:', result.error);
 
@@ -121,7 +139,7 @@ async function queueNotification(payload: NotificationPayload): Promise<{ succes
       'shoot_reminder_24h': '⏰ Shoot reminder'
     };
 
-    console.error(`Failed to send notification: ${notificationTypeNames[payload.type]}`);
+    console.error(`Failed to send: ${notificationTypeNames[payload.type]} to ${payload.clientEmail}`);
   }
 
   return result;

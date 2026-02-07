@@ -6,6 +6,6 @@ interface AssistantProps {
 }
 
 // Component is disabled/removed. Returns null to render nothing.
-export const Assistant: React.FC<AssistantProps> = ({ shoot: _shoot }) => {
+export const Assistant: React.FC<AssistantProps> = ({ shoot }) => {
   return null;
 };

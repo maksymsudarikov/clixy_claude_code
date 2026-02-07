@@ -15,6 +15,7 @@ import { saveDraft, loadDraft, clearDraft, hasDraft, getDraftMetadata, getTimeSi
 import { generateSecureToken } from '../utils/tokenUtils';
 import { AIAssistantModal } from './ai/AIAssistantModal';
 import { FEATURES } from '../config/features';
+import { FeatureFlagTest } from './FeatureFlagTest';
 
 export const ShootForm: React.FC = () => {
   const navigate = useNavigate();
@@ -303,21 +304,34 @@ export const ShootForm: React.FC = () => {
           </div>
         </div>
 
+        {/* DEBUGGING: Test if changes reach browser */}
+        <div style={{
+          background: 'red',
+          color: 'white',
+          padding: '20px',
+          textAlign: 'center',
+          fontSize: '24px',
+          fontWeight: 'bold',
+          marginBottom: '20px'
+        }}>
+          🚨 TEST: If you see this, changes ARE reaching your browser! 🚨
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-16">
           {/* SECTION 1: BASICS */}
           <section>
             <h3 className={sectionHeaderClasses}>01. The Basics</h3>
 
-            {FEATURES.aiAssistant && (
-              <button
-                type="button"
-                onClick={() => setShowAIModal(true)}
-                className="mb-6 w-full py-4 bg-[#141413] text-white text-sm font-bold uppercase tracking-[0.2em] hover:bg-white hover:text-[#141413] border-2 border-[#141413] transition-colors flex items-center justify-center gap-3"
-              >
-                <span className="text-xl">🎤</span>
-                <span>Create with AI Assistant</span>
-              </button>
-            )}
+            {/* AI Assistant Button - TEMPORARY: Always visible for testing */}
+            <button
+              type="button"
+              onClick={() => setShowAIModal(true)}
+              className="mb-6 w-full py-4 bg-[#141413] text-white text-sm font-bold uppercase tracking-[0.2em] hover:bg-white hover:text-[#141413] border-2 border-[#141413] transition-colors flex items-center justify-center gap-3"
+            >
+              <span className="text-xl">🎤</span>
+              <span>Create with AI Assistant</span>
+              <span className="text-xs opacity-75">(Beta - Testing)</span>
+            </button>
 
             <div className={cardClasses}>
               <div className="mb-8">
@@ -760,6 +774,8 @@ export const ShootForm: React.FC = () => {
           />
         )}
 
+        {/* Debug: Feature Flag Test - REMOVE AFTER TESTING */}
+        <FeatureFlagTest />
       </div>
     </div>
   );

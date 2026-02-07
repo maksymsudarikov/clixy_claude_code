@@ -146,6 +146,14 @@ export const Landing: React.FC = () => {
             >
               Portfolio
             </a>
+            {FEATURES.giftCards && (
+              <a
+                href="/#/gift-card"
+                className="text-[10px] uppercase font-bold tracking-widest hover:opacity-60 transition-opacity"
+              >
+                Gift Cards
+              </a>
+            )}
           </div>
 
           {/* Copyright */}
