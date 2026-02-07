@@ -19,11 +19,5 @@
         { "key": "Cache-Control", "value": "no-cache" }
       ]
     }
-  ],
-  "crons": [
-    {
-      "path": "/api/keep-alive",
-      "schedule": "0 8 * * *"
-    }
   ]
 }

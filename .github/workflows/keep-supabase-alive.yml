@@ -29,22 +29,13 @@ jobs:
         run: node scripts/keepAlive.js
 
       - name: Ping Vercel deployment
-        env:
-          VERCEL_URL: ${{ secrets.VERCEL_URL }}
         run: |
-          if [ -z "$VERCEL_URL" ]; then
-            echo "⚠️  VERCEL_URL secret not set, skipping Vercel ping"
-            exit 0
-          fi
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$VERCEL_URL/api/keep-alive" || true)
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://clixy-claude-code.vercel.app" || true)
+          echo "Vercel HTTP $STATUS: $(date -u)"
           if [ "$STATUS" = "200" ]; then
-            echo "✅ Vercel is active (HTTP $STATUS): $(date -u)"
+            echo "✅ Vercel is active"
           else
-            # Even a non-200 means the project is awake - Vercel wakes it on any request
-            echo "⚠️  Vercel responded with HTTP $STATUS, but project should be awake: $(date -u)"
-            # Also ping the main page as fallback
-            MAIN_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$VERCEL_URL" || true)
-            echo "   Main page: HTTP $MAIN_STATUS"
+            echo "⚠️  Vercel responded with HTTP $STATUS (any response keeps it alive)"
           fi
 
       - name: Summary
