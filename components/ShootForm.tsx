@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link, useParams } from 'react-router-dom';
-import { Shoot, AIGeneratedData } from '../types';
+import { Shoot } from '../types';
 import { createShoot, updateShoot, fetchShootById } from '../services/shootService';
 import { useNotification } from '../contexts/NotificationContext';
 import { validateShootForm, sanitizeUrl } from '../utils/validation';
@@ -13,9 +13,6 @@ import { MoodboardBuilder } from './form/MoodboardBuilder';
 import { NavigationBar } from './NavigationBar';
 import { saveDraft, loadDraft, clearDraft, hasDraft, getDraftMetadata, getTimeSinceSave } from '../utils/autosave';
 import { generateSecureToken } from '../utils/tokenUtils';
-import { AIAssistantModal } from './ai/AIAssistantModal';
-import { FEATURES } from '../config/features';
-import { FeatureFlagTest } from './FeatureFlagTest';
 
 export const ShootForm: React.FC = () => {
   const navigate = useNavigate();
@@ -26,9 +23,6 @@ export const ShootForm: React.FC = () => {
   const [lastSaved, setLastSaved] = useState<string | null>(null);
   const [showDraftPrompt, setShowDraftPrompt] = useState(false);
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // AI Assistant state
-  const [showAIModal, setShowAIModal] = useState(false);
 
   const draftKey = id || 'new-shoot';
 
@@ -164,23 +158,6 @@ export const ShootForm: React.FC = () => {
     addNotification('info', 'Draft discarded');
   };
 
-  /**
-   * Handle AI-generated data and merge into form
-   * CRITICAL: This uses spread operator to MERGE, not replace
-   * Preserves existing data (id, accessToken) while adding AI data
-   */
-  const handleAIGenerate = (aiData: AIGeneratedData) => {
-    console.log('[ShootForm] Merging AI data into form:', aiData);
-
-    setFormData(prev => ({
-      ...prev,          // Keep all existing data (id, accessToken, etc.)
-      ...aiData,        // Merge AI-generated fields on top
-    }));
-
-    addNotification('success', 'AI suggestions applied! Review and edit as needed.');
-    console.log('[ShootForm] Form updated with AI data. Autosave will trigger in 30s.');
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -304,34 +281,10 @@ export const ShootForm: React.FC = () => {
           </div>
         </div>
 
-        {/* DEBUGGING: Test if changes reach browser */}
-        <div style={{
-          background: 'red',
-          color: 'white',
-          padding: '20px',
-          textAlign: 'center',
-          fontSize: '24px',
-          fontWeight: 'bold',
-          marginBottom: '20px'
-        }}>
-          🚨 TEST: If you see this, changes ARE reaching your browser! 🚨
-        </div>
-
         <form onSubmit={handleSubmit} className="space-y-16">
           {/* SECTION 1: BASICS */}
           <section>
             <h3 className={sectionHeaderClasses}>01. The Basics</h3>
-
-            {/* AI Assistant Button - TEMPORARY: Always visible for testing */}
-            <button
-              type="button"
-              onClick={() => setShowAIModal(true)}
-              className="mb-6 w-full py-4 bg-[#141413] text-white text-sm font-bold uppercase tracking-[0.2em] hover:bg-white hover:text-[#141413] border-2 border-[#141413] transition-colors flex items-center justify-center gap-3"
-            >
-              <span className="text-xl">🎤</span>
-              <span>Create with AI Assistant</span>
-              <span className="text-xs opacity-75">(Beta - Testing)</span>
-            </button>
 
             <div className={cardClasses}>
               <div className="mb-8">
@@ -764,18 +717,6 @@ export const ShootForm: React.FC = () => {
           </div>
         </form>
 
-        {/* AI Assistant Modal - Feature Flag Controlled */}
-        {FEATURES.aiAssistant && (
-          <AIAssistantModal
-            isOpen={showAIModal}
-            onClose={() => setShowAIModal(false)}
-            onGenerate={handleAIGenerate}
-            existingData={formData}
-          />
-        )}
-
-        {/* Debug: Feature Flag Test - REMOVE AFTER TESTING */}
-        <FeatureFlagTest />
       </div>
     </div>
   );

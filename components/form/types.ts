@@ -6,7 +6,6 @@ import { Shoot } from '../../types';
 export interface StepProps {
   formData: Shoot;
   updateFormData: (updates: Partial<Shoot>) => void;
-  onAIGenerate?: (aiData: Partial<Shoot>) => void;
 }
 
 export interface WizardStep {

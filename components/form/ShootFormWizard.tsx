@@ -4,7 +4,6 @@
  * Manages the 3-step wizard flow while preserving:
  * - Single formData state (critical for autosave)
  * - Draft restoration
- * - AI assistant integration
  * - Form validation
  *
  * @security All input sanitization handled by step components
@@ -12,7 +11,7 @@
  */
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Shoot, AIGeneratedData } from '../../types';
+import { Shoot } from '../../types';
 import { Step1QuickInfo, isStep1Complete } from './Step1QuickInfo';
 import { Step2Details, isStep2Complete } from './Step2Details';
 import { Step3MediaDelivery, isStep3Complete } from './Step3MediaDelivery';
@@ -198,16 +197,6 @@ export const ShootFormWizard: React.FC = () => {
     });
   }, [debugLog]);
 
-  // Handle AI-generated data - MERGE, not replace
-  const handleAIGenerate = useCallback((aiData: AIGeneratedData) => {
-    setFormData(prev => ({
-      ...prev, // Preserve existing data (especially id, accessToken)
-      ...aiData, // Merge AI suggestions
-    }));
-    addNotification('success', 'AI suggestions applied!');
-    debugLog('AI data merged');
-  }, [addNotification, debugLog]);
-
   // Step navigation
   const goToStep = useCallback((step: number) => {
     if (step >= 1 && step <= STEPS.length) {
@@ -311,7 +300,6 @@ export const ShootFormWizard: React.FC = () => {
     const stepProps = {
       formData,
       updateFormData,
-      onAIGenerate: handleAIGenerate,
     };
 
     switch (currentStep) {

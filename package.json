@@ -19,7 +19,6 @@
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
-    "@google/genai": "^1.30.0",
     "@supabase/supabase-js": "^2.39.0",
     "@types/crypto-js": "^4.2.2",
     "bcryptjs": "^3.0.3",

@@ -9,8 +9,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { StepProps } from './types';
 import { inputClasses, labelClasses, sectionHeaderClasses } from '../../utils/designSystem';
-import { FEATURES } from '../../config/features';
-import { AIAssistantModal } from '../ai/AIAssistantModal';
 
 // Security: Basic XSS prevention - strip dangerous characters
 const sanitizeTextInput = (value: string): string => {
@@ -34,8 +32,7 @@ const MAX_CLIENT_LENGTH = 200;
 const MAX_DESCRIPTION_LENGTH = 5000;
 const MAX_EMAIL_LENGTH = 254;
 
-export const Step1QuickInfo: React.FC<StepProps> = ({ formData, updateFormData, onAIGenerate }) => {
-  const [showAIModal, setShowAIModal] = React.useState(false);
+export const Step1QuickInfo: React.FC<StepProps> = ({ formData, updateFormData }) => {
   const [emailError, setEmailError] = React.useState<string | null>(null);
 
   // Memoize validation state to avoid unnecessary re-renders
@@ -191,36 +188,6 @@ export const Step1QuickInfo: React.FC<StepProps> = ({ formData, updateFormData, 
           required
         />
       </div>
-
-      {/* AI Assistant Button */}
-      {FEATURES.aiAssistant && onAIGenerate && (
-        <div className="pt-4 border-t border-[#F0F0EB]">
-          <button
-            type="button"
-            onClick={() => setShowAIModal(true)}
-            className="w-full px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs font-bold uppercase tracking-wider hover:from-purple-700 hover:to-blue-700 transition-all flex items-center justify-center gap-2"
-          >
-            <span className="text-lg">✨</span>
-            AI Assistant - Fill Form from Text
-          </button>
-          <p className="text-[10px] text-[#9E9E98] mt-2 text-center uppercase tracking-wider">
-            Paste an email or brief and let AI extract the details
-          </p>
-        </div>
-      )}
-
-      {/* AI Modal */}
-      {showAIModal && onAIGenerate && (
-        <AIAssistantModal
-          isOpen={showAIModal}
-          onClose={() => setShowAIModal(false)}
-          onGenerate={(aiData) => {
-            onAIGenerate(aiData);
-            setShowAIModal(false);
-          }}
-          existingData={formData}
-        />
-      )}
 
       {/* Progress indicator */}
       <div className="pt-6 text-center">

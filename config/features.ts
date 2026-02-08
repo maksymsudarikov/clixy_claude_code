@@ -15,9 +15,6 @@ export interface FeatureFlags {
   // Notification system
   notifications: boolean; // Email notifications for status changes
 
-  // AI Assistant (Phase 1: Text/Voice/Image → Auto-fill)
-  aiAssistant: boolean; // AI-powered project creation
-
   // Form wizard (multi-step form)
   formWizard: boolean; // Use multi-step wizard instead of single-page form
 
@@ -32,7 +29,6 @@ const featuresByTenant: Record<string, FeatureFlags> = {
     packageCatalog: true,
     tallyForms: true,
     notifications: true,     // Phase 3: ENABLED - Email notifications active
-    aiAssistant: false,      // DISABLED: Caused issues, pending investigation
     formWizard: true,        // Use multi-step wizard form
     analytics: false,
     multiPhotographer: false,
@@ -42,7 +38,6 @@ const featuresByTenant: Record<string, FeatureFlags> = {
     packageCatalog: false,   // Hide for generic demo
     tallyForms: false,       // Hide for generic demo (show generic contact)
     notifications: false,    // Phase 2: Console logging only
-    aiAssistant: false,      // Hide AI for generic demo
     formWizard: true,        // Enable wizard for generic too
     analytics: false,
     multiPhotographer: false,

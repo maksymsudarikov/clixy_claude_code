@@ -124,9 +124,9 @@ export const PackageCard: React.FC<PackageCardProps> = ({
           </a>
         )}
 
-        {/* Book Now - Secondary CTA */}
+        {/* Contact to Book */}
         <a
-          href="/#/gift-card"
+          href="mailto:art@olgaprudka.com"
           className="
             block w-full text-center
             bg-white text-[#141413]
