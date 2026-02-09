@@ -2,6 +2,7 @@
  * Shared types for ShootForm wizard steps
  */
 import { Shoot } from '../../types';
+import type { ComponentType } from 'react';
 
 export interface StepProps {
   formData: Shoot;
@@ -13,6 +14,6 @@ export interface WizardStep {
   id: number;
   title: string;
   description: string;
-  component: React.ComponentType<StepProps>;
+  component: ComponentType<StepProps>;
   isComplete: (formData: Shoot) => boolean;
 }

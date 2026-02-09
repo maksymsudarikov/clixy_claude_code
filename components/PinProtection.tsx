@@ -17,11 +17,6 @@ interface PinProtectionProps {
 // Get PIN hash from environment variable
 const ADMIN_PIN_HASH = import.meta.env.VITE_ADMIN_PIN_HASH;
 
-// Fallback hash for development (PIN: 9634)
-// IMPORTANT: Set VITE_ADMIN_PIN_HASH in your .env file for production!
-// Legacy MD5 hash - will be deprecated
-const DEFAULT_PIN_HASH = 'ebe922af8d4560c73368a88eeac07d16';
-
 export const PinProtection: React.FC<PinProtectionProps> = ({ children }) => {
   const [isVerified, setIsVerified] = useState(false);
   const [pin, setPin] = useState('');
@@ -81,16 +76,19 @@ export const PinProtection: React.FC<PinProtectionProps> = ({ children }) => {
       return;
     }
 
-    // Use environment PIN hash or fallback
-    const pinHash = ADMIN_PIN_HASH || DEFAULT_PIN_HASH;
+    const pinHash = ADMIN_PIN_HASH;
 
     if (!pinHash) {
-      setError('Security configuration error. Please contact administrator.');
+      setError('Admin PIN is not configured. Set VITE_ADMIN_PIN_HASH.');
+      return;
+    }
+
+    if (!pinHash.startsWith('$2')) {
+      setError('Invalid PIN hash format. Use bcrypt hash from scripts/hashPin.cjs.');
       return;
     }
 
     try {
-      // Verify PIN (supports both MD5 legacy and bcrypt)
       const isValid = await verifyPinWithMigration(pin, pinHash);
 
       if (isValid) {

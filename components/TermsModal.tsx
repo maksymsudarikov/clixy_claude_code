@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface TermsModalProps {
   onAccept: () => void;
@@ -7,6 +7,11 @@ interface TermsModalProps {
 
 export const TermsModal: React.FC<TermsModalProps> = ({ onAccept, shootTitle }) => {
   const [isAccepting, setIsAccepting] = useState(false);
+  const acceptButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    acceptButtonRef.current?.focus();
+  }, []);
 
   const handleAccept = async () => {
     setIsAccepting(true);
@@ -15,14 +20,23 @@ export const TermsModal: React.FC<TermsModalProps> = ({ onAccept, shootTitle }) 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md px-4 py-8">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md px-4 py-8"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="terms-modal-title"
+      aria-describedby="terms-modal-description"
+    >
       <div className="bg-white max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-[#141413]/10 rounded-sm">
         {/* Header */}
         <div className="px-8 py-10 border-b border-[#141413]/10">
-          <h2 className="text-3xl md:text-4xl font-light tracking-tight text-[#141413] mb-3">
+          <h2
+            id="terms-modal-title"
+            className="text-3xl md:text-4xl font-light tracking-tight text-[#141413] mb-3"
+          >
             Terms & Conditions
           </h2>
-          <p className="text-sm text-[#9E9E98] font-medium tracking-wide">
+          <p id="terms-modal-description" className="text-sm text-[#9E9E98] font-medium tracking-wide">
             {shootTitle}
           </p>
         </div>
@@ -93,6 +107,7 @@ export const TermsModal: React.FC<TermsModalProps> = ({ onAccept, shootTitle }) 
         {/* Footer Actions */}
         <div className="px-8 py-6 border-t border-[#141413]/10 bg-[#F9F9F7]">
           <button
+            ref={acceptButtonRef}
             onClick={handleAccept}
             disabled={isAccepting}
             className="w-full px-8 py-4 bg-[#141413] text-white text-sm font-semibold tracking-wide hover:bg-[#2A2A28] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-sm"

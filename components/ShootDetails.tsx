@@ -74,10 +74,14 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
 
       {/* Tab Navigation - Minimalist Border */}
       <div className="sticky top-0 z-30 bg-[#D8D9CF]/95 backdrop-blur-sm border-b border-[#141413]">
-        <div className="max-w-5xl mx-auto flex">
+        <div className="max-w-5xl mx-auto flex" role="tablist" aria-label="Shoot sections">
           {['details', 'style', ...(showTeamFields ? ['team'] : [])].map((tab) => (
             <button
               key={tab}
+              id={`tab-${tab}`}
+              role="tab"
+              aria-selected={activeTab === tab}
+              aria-controls={`panel-${tab}`}
               onClick={() => setActiveTab(tab as any)}
               className={`flex-1 py-4 sm:py-5 text-[10px] sm:text-xs font-bold uppercase tracking-[0.1em] sm:tracking-[0.2em] transition-all min-h-[44px] touch-manipulation
                 ${activeTab === tab
@@ -95,7 +99,12 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
         
         {/* DETAILS TAB */}
         {activeTab === 'details' && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          <div
+            id="panel-details"
+            role="tabpanel"
+            aria-labelledby="tab-details"
+            className="grid grid-cols-1 lg:grid-cols-12 gap-12"
+          >
             
             {/* Left Column: Info */}
             <div className="lg:col-span-7 space-y-12">
@@ -144,7 +153,7 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
                         <p className="font-bold uppercase text-sm">{shoot.locationName}</p>
                         <p className="text-sm text-gray-600 mt-1 font-serif italic">{shoot.locationAddress}</p>
                         {shoot.locationMapUrl && (
-                          <a href={shoot.locationMapUrl} target="_blank" rel="noreferrer" className="mt-3 inline-block text-[10px] font-bold uppercase tracking-widest border-b border-[#141413] pb-0.5 hover:text-[#9E9E98] hover:border-[#9E9E98]">
+                          <a href={shoot.locationMapUrl} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-[10px] font-bold uppercase tracking-widest border-b border-[#141413] pb-0.5 hover:text-[#9E9E98] hover:border-[#9E9E98]">
                             View Map
                           </a>
                         )}
@@ -167,13 +176,13 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
                     </button>
 
                     {shoot.callSheetUrl && (
-                      <a href={shoot.callSheetUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between w-full p-3 sm:p-4 min-h-[44px] bg-transparent border border-[#9E9E98] hover:bg-white hover:text-[#141413] hover:border-white transition-all group touch-manipulation">
+                      <a href={shoot.callSheetUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between w-full p-3 sm:p-4 min-h-[44px] bg-transparent border border-[#9E9E98] hover:bg-white hover:text-[#141413] hover:border-white transition-all group touch-manipulation">
                         <span className="text-xs sm:text-sm font-bold uppercase tracking-wider">Call Sheet</span>
                         <IconDownload />
                       </a>
                     )}
                     {shoot.moodboardUrl && (
-                      <a href={shoot.moodboardUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between w-full p-3 sm:p-4 min-h-[44px] bg-transparent border border-[#9E9E98] hover:bg-white hover:text-[#141413] hover:border-white transition-all group touch-manipulation">
+                      <a href={shoot.moodboardUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between w-full p-3 sm:p-4 min-h-[44px] bg-transparent border border-[#9E9E98] hover:bg-white hover:text-[#141413] hover:border-white transition-all group touch-manipulation">
                         <span className="text-xs sm:text-sm font-bold uppercase tracking-wider">Moodboard</span>
                         <IconExternal />
                       </a>
@@ -181,7 +190,7 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
 
                     {/* PHOTO WORKFLOW STATUS - Only for photo shoots and hybrid */}
                     {isPhotoShoot && shoot.photoStatus === 'selection_ready' && shoot.photoSelectionUrl && (
-                      <a href={shoot.photoSelectionUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between w-full p-3 sm:p-4 min-h-[44px] bg-[#D8D9CF] text-[#141413] border border-[#D8D9CF] hover:bg-white transition-colors touch-manipulation">
+                      <a href={shoot.photoSelectionUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between w-full p-3 sm:p-4 min-h-[44px] bg-[#D8D9CF] text-[#141413] border border-[#D8D9CF] hover:bg-white transition-colors touch-manipulation">
                         <span className="text-xs sm:text-sm font-bold uppercase tracking-wider">Select Photos</span>
                         <IconExternal />
                       </a>
@@ -189,7 +198,7 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
 
                     {/* SELECTED PHOTOS - Show after client selected */}
                     {isPhotoShoot && shoot.selectedPhotosUrl && (
-                      <a href={shoot.selectedPhotosUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between w-full p-3 sm:p-4 min-h-[44px] bg-white text-[#141413] border-2 border-[#141413] hover:bg-[#D8D9CF] transition-colors touch-manipulation">
+                      <a href={shoot.selectedPhotosUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between w-full p-3 sm:p-4 min-h-[44px] bg-white text-[#141413] border-2 border-[#141413] hover:bg-[#D8D9CF] transition-colors touch-manipulation">
                         <div className="flex-1 min-w-0">
                           <span className="text-xs sm:text-sm font-bold uppercase tracking-wider block truncate">🎯 Review Selected</span>
                           <span className="text-[10px] sm:text-xs text-[#9E9E98] mt-1 block truncate">Photos for editing</span>
@@ -205,7 +214,7 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
                     )}
 
                     {isPhotoShoot && shoot.photoStatus === 'delivered' && shoot.finalPhotosUrl && (
-                      <a href={shoot.finalPhotosUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between w-full p-4 bg-[#D8D9CF] text-[#141413] border border-[#D8D9CF] hover:bg-white transition-colors">
+                      <a href={shoot.finalPhotosUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between w-full p-4 bg-[#D8D9CF] text-[#141413] border border-[#D8D9CF] hover:bg-white transition-colors">
                         <span className="text-sm font-bold uppercase tracking-wider">Download Final Photos</span>
                         <IconDownload />
                       </a>
@@ -218,7 +227,7 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
                           <span className="text-sm font-bold uppercase tracking-wider">Video Draft</span>
                           <span className="text-xs text-[#9E9E98] uppercase">In Progress</span>
                         </div>
-                        <a href={shoot.videoUrl} target="_blank" rel="noreferrer" className="text-xs underline hover:text-[#D8D9CF]">
+                        <a href={shoot.videoUrl} target="_blank" rel="noopener noreferrer" className="text-xs underline hover:text-[#D8D9CF]">
                           View Draft
                         </a>
                       </div>
@@ -231,14 +240,14 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
                     )}
 
                     {isVideoProject && shoot.videoStatus === 'review' && shoot.videoUrl && (
-                      <a href={shoot.videoUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between w-full p-4 bg-[#D8D9CF] text-[#141413] border border-[#D8D9CF] hover:bg-white transition-colors">
+                      <a href={shoot.videoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between w-full p-4 bg-[#D8D9CF] text-[#141413] border border-[#D8D9CF] hover:bg-white transition-colors">
                         <span className="text-sm font-bold uppercase tracking-wider">Review Video</span>
                         <IconExternal />
                       </a>
                     )}
 
                     {isVideoProject && shoot.videoStatus === 'final' && shoot.videoUrl && (
-                      <a href={shoot.videoUrl} target="_blank" rel="noreferrer" className="flex items-center justify-between w-full p-4 bg-[#D8D9CF] text-[#141413] border border-[#D8D9CF] hover:bg-white transition-colors">
+                      <a href={shoot.videoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between w-full p-4 bg-[#D8D9CF] text-[#141413] border border-[#D8D9CF] hover:bg-white transition-colors">
                         <span className="text-sm font-bold uppercase tracking-wider">Download Final Video</span>
                         <IconDownload />
                       </a>
@@ -298,7 +307,7 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
 
         {/* STYLE TAB */}
         {activeTab === 'style' && (
-          <div className="space-y-12">
+          <div id="panel-style" role="tabpanel" aria-labelledby="tab-style" className="space-y-12">
              {shoot.moodboardImages && shoot.moodboardImages.length > 0 && (
                  <div>
                      <h3 className="text-sm font-bold uppercase tracking-widest mb-6 border-b border-[#141413] pb-2">Visual Direction</h3>
@@ -322,7 +331,7 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
                  <div className="bg-white p-8 border border-[#141413]">
                     <h3 className="text-xl font-bold uppercase tracking-tight mb-4">Styling</h3>
                     {shoot.stylingUrl ? (
-                        <a href={shoot.stylingUrl} target="_blank" rel="noreferrer" className="inline-flex items-center px-6 py-3 bg-[#141413] text-white border border-[#141413] text-xs font-bold uppercase tracking-widest hover:bg-white hover:text-[#141413] transition-colors">
+                        <a href={shoot.stylingUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center px-6 py-3 bg-[#141413] text-white border border-[#141413] text-xs font-bold uppercase tracking-widest hover:bg-white hover:text-[#141413] transition-colors">
                             View Guide <span className="ml-2">→</span>
                         </a>
                     ) : (
@@ -339,7 +348,7 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
 
         {/* TEAM TAB - Only for photo shoots and hybrid */}
         {activeTab === 'team' && showTeamFields && (
-          <div className="space-y-16">
+          <div id="panel-team" role="tabpanel" aria-labelledby="tab-team" className="space-y-16">
             {/* Crew Section */}
             <section>
               <h3 className="text-sm font-bold uppercase tracking-widest mb-6 border-b border-[#141413] pb-2">Crew</h3>

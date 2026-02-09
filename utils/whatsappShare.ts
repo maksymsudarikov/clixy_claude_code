@@ -44,7 +44,7 @@ Powered by Clixy`;
     : `https://web.whatsapp.com/send?text=${encodedMessage}`;
 
   // Open in new window
-  window.open(whatsappUrl, '_blank');
+  window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
 };
 
 /**
@@ -91,7 +91,7 @@ Powered by Clixy`;
   const whatsappUrl = `https://wa.me/${cleanNumber}?text=${encodedMessage}`;
 
   // Open in new window
-  window.open(whatsappUrl, '_blank');
+  window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
 };
 
 /**

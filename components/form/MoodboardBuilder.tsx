@@ -47,10 +47,10 @@ export const MoodboardBuilder: React.FC<MoodboardBuilderProps> = ({ images, onCh
               <button
                 type="button"
                 onClick={() => removeImage(idx)}
-                className="absolute inset-0 bg-[#141413]/80 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center font-bold"
+                className="absolute top-2 right-2 bg-[#141413]/90 text-white opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center justify-center font-bold rounded p-1.5 min-h-[40px] min-w-[40px] touch-manipulation"
                 aria-label={`Remove image ${idx + 1}`}
               >
-                <IconClose className="w-6 h-6" />
+                <IconClose className="w-5 h-5" />
               </button>
             </div>
           ))}

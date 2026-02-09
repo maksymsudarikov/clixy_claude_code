@@ -11,12 +11,8 @@ export default defineConfig(({ mode }) => {
         host: '0.0.0.0',
       },
       plugins: [react()],
-      define: {
-        'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
-      },
-      // Vite automatically exposes env vars prefixed with VITE_
-      // No need to manually define them here
+      // Use only VITE_* env vars in client code.
+      // Avoid exposing non-prefixed secrets via build-time defines.
       resolve: {
         alias: {
           '@': path.resolve(__dirname, '.'),

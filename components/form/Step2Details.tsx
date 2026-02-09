@@ -350,20 +350,19 @@ export const Step2Details: React.FC<StepProps> = ({ formData, updateFormData }) 
             />
             <div>
               <label htmlFor="videoStatus" className={labelClasses}>Video Status</label>
-              <select
-                id="videoStatus"
-                name="videoStatus"
-                value={formData.videoStatus || 'pending'}
+                <select
+                  id="videoStatus"
+                  name="videoStatus"
+                  value={formData.videoStatus || 'pending'}
                 onChange={handleChange}
                 className={`${inputClasses} cursor-pointer`}
-              >
-                <option value="pending">Pending</option>
-                <option value="in_progress">In Progress</option>
-                <option value="in_review">In Review</option>
-                <option value="revision_requested">Revision Requested</option>
-                <option value="approved">Approved</option>
-                <option value="delivered">Delivered</option>
-              </select>
+                >
+                  <option value="pending">Pending</option>
+                  <option value="draft">Draft</option>
+                  <option value="editing">Editing</option>
+                  <option value="review">In Review</option>
+                  <option value="final">Final</option>
+                </select>
             </div>
             <div>
               <label htmlFor="revisionNotes" className={labelClasses}>Revision Notes</label>

@@ -14,7 +14,8 @@ import { NotificationProvider } from './contexts/NotificationContext';
 import { NotificationContainer } from './components/NotificationContainer';
 import { TermsModal } from './components/TermsModal';
 import { Shoot } from './types';
-import { fetchShootById, updateShoot } from './services/shootService';
+import { acceptShootTerms, fetchShootByIdWithToken } from './services/shootService';
+import { isValidTokenFormat } from './utils/tokenUtils';
 
 import { FEATURES } from './config/features';
 
@@ -32,39 +33,27 @@ const ShootRoute = () => {
       if (!id) return;
       setLoading(true);
       try {
-        const data = await fetchShootById(id);
-        if (data) {
-          const urlToken = searchParams.get('token');
-          const storageKey = `shoot_token_${id}`;
-          const savedToken = localStorage.getItem(storageKey);
+        const storageKey = `shoot_token_${id}`;
+        const urlToken = searchParams.get('token');
+        const savedToken = sessionStorage.getItem(storageKey);
+        const candidateToken = (urlToken && isValidTokenFormat(urlToken)) ? urlToken : savedToken;
 
-          // Check if URL has valid token
-          if (urlToken && urlToken === data.accessToken) {
-            // Save token to localStorage for future access
-            localStorage.setItem(storageKey, urlToken);
-            setShoot(data);
-            setAccessDenied(false);
-            // Check if client needs to accept terms
-            if (!data.clientAcceptedTerms) {
-              setShowTermsModal(true);
-            }
-          }
-          // Check if saved token is valid
-          else if (savedToken && savedToken === data.accessToken) {
-            setShoot(data);
-            setAccessDenied(false);
-            // Check if client needs to accept terms
-            if (!data.clientAcceptedTerms) {
-              setShowTermsModal(true);
-            }
-          }
-          // No valid token found
-          else {
-            setAccessDenied(true);
-          }
-        } else {
-          setError('Shoot not found');
+        if (!candidateToken || !isValidTokenFormat(candidateToken)) {
+          setAccessDenied(true);
+          return;
         }
+
+        const data = await fetchShootByIdWithToken(id, candidateToken);
+
+        if (!data) {
+          setAccessDenied(true);
+          return;
+        }
+
+        sessionStorage.setItem(storageKey, candidateToken);
+        setShoot(data);
+        setAccessDenied(false);
+        setShowTermsModal(!data.clientAcceptedTerms);
       } catch (err) {
         setError('Failed to load shoot details');
       } finally {
@@ -76,17 +65,16 @@ const ShootRoute = () => {
 
   const handleAcceptTerms = async () => {
     if (!shoot || !id) return;
+    const token = searchParams.get('token') || sessionStorage.getItem(`shoot_token_${id}`);
+    if (!token || !isValidTokenFormat(token)) return;
 
     try {
-      // Update shoot with terms acceptance
-      const updatedShoot: Shoot = {
+      await acceptShootTerms(id, token);
+      setShoot({
         ...shoot,
         clientAcceptedTerms: true,
-        termsAcceptedAt: new Date().toISOString()
-      };
-
-      await updateShoot(id, updatedShoot);
-      setShoot(updatedShoot);
+        termsAcceptedAt: new Date().toISOString(),
+      });
       setShowTermsModal(false);
     } catch (err) {
       console.error('Failed to save terms acceptance:', err);
@@ -154,6 +142,11 @@ const ShootRoute = () => {
   );
 };
 
+const LegacyAdminEditRedirect = () => {
+  const { id } = useParams<{ id: string }>();
+  return <Navigate to={id ? `/studio/edit/${id}` : '/studio'} replace />;
+};
+
 const App: React.FC = () => {
   return (
     <ErrorBoundary>
@@ -183,7 +176,7 @@ const App: React.FC = () => {
             <Route path="/dashboard" element={<Navigate to="/studio" replace />} />
             <Route path="/admin" element={<Navigate to="/studio" replace />} />
             <Route path="/admin/create" element={<Navigate to="/studio/create" replace />} />
-            <Route path="/admin/edit/:id" element={<Navigate to="/studio/edit/:id" replace />} />
+            <Route path="/admin/edit/:id" element={<LegacyAdminEditRedirect />} />
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

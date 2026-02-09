@@ -15,7 +15,6 @@ import { saveDraft, loadDraft, clearDraft, hasDraft, getDraftMetadata, getTimeSi
 import { generateSecureToken } from '../utils/tokenUtils';
 import { AIAssistantModal } from './ai/AIAssistantModal';
 import { FEATURES } from '../config/features';
-import { FeatureFlagTest } from './FeatureFlagTest';
 
 export const ShootForm: React.FC = () => {
   const navigate = useNavigate();
@@ -120,11 +119,11 @@ export const ShootForm: React.FC = () => {
         });
       } else {
         addNotification('error', 'Shoot not found');
-        navigate('/admin');
+        navigate('/studio');
       }
     } catch (err) {
       addNotification('error', 'Failed to load shoot');
-      navigate('/admin');
+      navigate('/studio');
     } finally {
       setInitialLoading(false);
     }
@@ -226,7 +225,7 @@ export const ShootForm: React.FC = () => {
       // Clear draft on successful save
       clearDraft(draftKey);
 
-      navigate('/admin');
+      navigate('/studio');
     } catch (err) {
       console.error('Error in handleSubmit:', err);
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -304,34 +303,21 @@ export const ShootForm: React.FC = () => {
           </div>
         </div>
 
-        {/* DEBUGGING: Test if changes reach browser */}
-        <div style={{
-          background: 'red',
-          color: 'white',
-          padding: '20px',
-          textAlign: 'center',
-          fontSize: '24px',
-          fontWeight: 'bold',
-          marginBottom: '20px'
-        }}>
-          🚨 TEST: If you see this, changes ARE reaching your browser! 🚨
-        </div>
-
         <form onSubmit={handleSubmit} className="space-y-16">
           {/* SECTION 1: BASICS */}
           <section>
             <h3 className={sectionHeaderClasses}>01. The Basics</h3>
 
-            {/* AI Assistant Button - TEMPORARY: Always visible for testing */}
-            <button
-              type="button"
-              onClick={() => setShowAIModal(true)}
-              className="mb-6 w-full py-4 bg-[#141413] text-white text-sm font-bold uppercase tracking-[0.2em] hover:bg-white hover:text-[#141413] border-2 border-[#141413] transition-colors flex items-center justify-center gap-3"
-            >
-              <span className="text-xl">🎤</span>
-              <span>Create with AI Assistant</span>
-              <span className="text-xs opacity-75">(Beta - Testing)</span>
-            </button>
+            {FEATURES.aiAssistant && (
+              <button
+                type="button"
+                onClick={() => setShowAIModal(true)}
+                className="mb-6 w-full py-4 bg-[#141413] text-white text-sm font-bold uppercase tracking-[0.2em] hover:bg-white hover:text-[#141413] border-2 border-[#141413] transition-colors flex items-center justify-center gap-3"
+              >
+                <span className="text-xl">✨</span>
+                <span>Create with AI Assistant</span>
+              </button>
+            )}
 
             <div className={cardClasses}>
               <div className="mb-8">
@@ -603,8 +589,8 @@ export const ShootForm: React.FC = () => {
                         className="w-full bg-[#D8D9CF] text-[#141413] border-b border-[#9E9E98] py-3 focus:border-[#141413] outline-none transition-colors font-medium uppercase text-sm"
                       >
                         <option value="selection_ready">Selection Ready - Client can select photos</option>
-                        <option value="editing_in_progress">Editing in Progress - Photos being edited</option>
-                        <option value="completed">Completed - Final photos ready</option>
+                        <option value="editing">Editing in Progress - Photos being edited</option>
+                        <option value="delivered">Delivered - Final photos ready</option>
                       </select>
                       <p className="text-[10px] text-[#9E9E98] mt-2 uppercase tracking-wider">
                         Controls what client sees on shoot page
@@ -774,8 +760,6 @@ export const ShootForm: React.FC = () => {
           />
         )}
 
-        {/* Debug: Feature Flag Test - REMOVE AFTER TESTING */}
-        <FeatureFlagTest />
       </div>
     </div>
   );

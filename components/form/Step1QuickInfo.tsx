@@ -13,12 +13,12 @@ import { FEATURES } from '../../config/features';
 import { AIAssistantModal } from '../ai/AIAssistantModal';
 
 // Security: Basic XSS prevention - strip dangerous characters
+// Note: Don't trim here - it prevents users from typing spaces
 const sanitizeTextInput = (value: string): string => {
   return value
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove script tags
     .replace(/javascript:/gi, '') // Remove javascript: protocol
-    .replace(/on\w+=/gi, '') // Remove event handlers
-    .trim();
+    .replace(/on\w+=/gi, ''); // Remove event handlers
 };
 
 // Security: Validate email format

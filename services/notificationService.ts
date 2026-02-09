@@ -66,8 +66,8 @@ export async function detectStatusChange(
   }
 
   // 2. Final Photos Delivered - Edited photos ready for download
-  if (oldShoot.photoStatus !== 'completed' &&
-      newShoot.photoStatus === 'completed' &&
+  if (oldShoot.photoStatus !== 'delivered' &&
+      newShoot.photoStatus === 'delivered' &&
       newShoot.finalPhotosUrl) {
 
     const result = await queueNotification({

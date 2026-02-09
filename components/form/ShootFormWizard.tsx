@@ -117,12 +117,12 @@ export const ShootFormWizard: React.FC = () => {
           debugLog('Shoot loaded successfully');
         } else {
           addNotification('error', 'Shoot not found');
-          navigate('/admin');
+          navigate('/studio');
         }
       } catch (err) {
         console.error('Failed to load shoot:', err);
         addNotification('error', 'Failed to load shoot data');
-        navigate('/admin');
+        navigate('/studio');
       } finally {
         setLoading(false);
       }
@@ -285,7 +285,7 @@ export const ShootFormWizard: React.FC = () => {
       debugLog('Draft cleared after save');
 
       // Navigate to admin dashboard
-      navigate('/admin');
+      navigate('/studio');
     } catch (err) {
       console.error('Failed to save shoot:', err);
       addNotification('error', 'Failed to save. Please try again.');
@@ -299,7 +299,7 @@ export const ShootFormWizard: React.FC = () => {
     try {
       saveDraft(draftKey, formData);
       addNotification('success', 'Draft saved!');
-      navigate('/admin');
+      navigate('/studio');
     } catch (err) {
       console.error('Failed to save draft:', err);
       addNotification('error', 'Failed to save draft');

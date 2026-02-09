@@ -11,9 +11,11 @@
     "build:olga": "vite build --mode olga",
     "build:generic": "vite build --mode generic",
     "preview": "vite preview",
+    "typecheck": "node node_modules/typescript/lib/tsc.js -p tsconfig.json --noEmit",
     "predeploy": "npm run build:olga && touch dist/.nojekyll",
     "deploy": "gh-pages -d dist",
     "test": "vitest",
+    "test:unit": "vitest --run",
     "test:ui": "vitest --ui",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage"

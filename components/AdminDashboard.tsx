@@ -134,7 +134,7 @@ export const AdminDashboard: React.FC = () => {
 
   // Keyboard shortcut handlers
   const handleKeyboardNew = useCallback(() => {
-    navigate('/admin/create');
+    navigate('/studio/create');
   }, [navigate]);
 
   const handleKeyboardSearch = useCallback(() => {
@@ -217,7 +217,7 @@ export const AdminDashboard: React.FC = () => {
   const upcomingShoots = filteredShoots.filter(s => new Date(s.date + 'T00:00:00') >= today);
   const pastShoots = filteredShoots.filter(s => new Date(s.date + 'T00:00:00') < today).reverse();
 
-  const ShootRow = ({ shoot, isSelected }: { shoot: Shoot; isSelected: boolean }) => {
+  const ShootRow: React.FC<{ shoot: Shoot; isSelected: boolean }> = ({ shoot, isSelected }) => {
     const isToday = new Date(shoot.date + 'T00:00:00').toDateString() === new Date().toDateString();
 
     return (

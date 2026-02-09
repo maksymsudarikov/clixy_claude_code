@@ -5,6 +5,8 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const RESEND_API_URL = 'https://api.resend.com/emails';
 const FROM_EMAIL = 'Studio Olga <onboarding@resend.dev>'; // Using Resend's test domain for now
+const MAX_TEXT_LEN = 300;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 interface NotificationPayload {
   type: 'photo_selection_ready' | 'photos_delivered' | 'video_review_ready' | 'shoot_reminder_24h';
@@ -21,12 +23,77 @@ interface NotificationPayload {
   videoUrl?: string;
 }
 
-serve(async (req) => {
-  // CORS headers for browser requests
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
+const escapeHtml = (input: string): string =>
+  input
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+
+const normalizeText = (value: unknown, maxLen: number = MAX_TEXT_LEN): string =>
+  typeof value === 'string' ? value.trim().slice(0, maxLen) : '';
+
+const normalizeHttpsUrl = (value: unknown): string | undefined => {
+  if (typeof value !== 'string') return undefined;
+  const candidate = value.trim();
+  if (!candidate) return undefined;
+  try {
+    const parsed = new URL(candidate);
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return undefined;
+    return parsed.toString();
+  } catch {
+    return undefined;
+  }
+};
+
+const getCorsHeaders = (origin: string | null): Record<string, string> => {
+  const configured = Deno.env.get('ALLOWED_ORIGINS') || '';
+  const allowedOrigins = configured.split(',').map((v) => v.trim()).filter(Boolean);
+  const allowOrigin = allowedOrigins.length === 0
+    ? '*'
+    : (origin && allowedOrigins.includes(origin) ? origin : allowedOrigins[0]);
+
+  return {
+    'Access-Control-Allow-Origin': allowOrigin,
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Vary': 'Origin',
   };
+};
+
+const sanitizePayload = (raw: NotificationPayload): NotificationPayload | null => {
+  const clientEmail = normalizeText(raw.clientEmail || '', 254).toLowerCase();
+  if (!clientEmail || !EMAIL_REGEX.test(clientEmail)) return null;
+
+  const type = raw.type;
+  if (!['photo_selection_ready', 'photos_delivered', 'video_review_ready', 'shoot_reminder_24h'].includes(type)) {
+    return null;
+  }
+
+  return {
+    type,
+    shootId: normalizeText(raw.shootId, 120),
+    shootTitle: escapeHtml(normalizeText(raw.shootTitle, 160)),
+    client: escapeHtml(normalizeText(raw.client, 160)),
+    clientEmail,
+    date: escapeHtml(normalizeText(raw.date, 40)),
+    startTime: escapeHtml(normalizeText(raw.startTime, 20)),
+    locationName: escapeHtml(normalizeText(raw.locationName, 200)),
+    photoSelectionUrl: normalizeHttpsUrl(raw.photoSelectionUrl),
+    selectedPhotosUrl: normalizeHttpsUrl(raw.selectedPhotosUrl),
+    finalPhotosUrl: normalizeHttpsUrl(raw.finalPhotosUrl),
+    videoUrl: normalizeHttpsUrl(raw.videoUrl),
+  };
+};
+
+serve(async (req) => {
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
+
+  if (req.method !== 'POST' && req.method !== 'OPTIONS') {
+    return new Response('Method not allowed', { status: 405, headers: corsHeaders });
+  }
 
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -40,14 +107,15 @@ serve(async (req) => {
       throw new Error('RESEND_API_KEY not configured in Edge Function secrets');
     }
 
-    // Parse request body
-    const payload: NotificationPayload = await req.json();
+    // Parse and validate request body
+    const rawPayload: NotificationPayload = await req.json();
+    const payload = sanitizePayload(rawPayload);
 
     // Validate client email
-    if (!payload.clientEmail) {
+    if (!payload) {
       return new Response(
         JSON.stringify({
-          error: 'Client email not provided',
+          error: 'Invalid payload',
           success: false
         }),
         {
