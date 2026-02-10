@@ -38,14 +38,12 @@ const sanitizeUrl = (url: string): string => {
 // Constants
 const MAX_URL_LENGTH = 2048;
 
-// Photo workflow statuses with user-friendly labels
+// Photo workflow statuses - must match database constraint
+// Database allows: 'selection_ready', 'editing_in_progress', 'completed'
 const PHOTO_STATUSES = [
-  { value: 'pending', label: 'Pending' },
   { value: 'selection_ready', label: 'Selection Ready' },
-  { value: 'selection_in_progress', label: 'Client Selecting' },
-  { value: 'selected', label: 'Selection Complete' },
-  { value: 'editing', label: 'Editing' },
-  { value: 'delivered', label: 'Delivered' },
+  { value: 'editing_in_progress', label: 'Editing in Progress' },
+  { value: 'completed', label: 'Completed' },
 ] as const;
 
 export const Step3MediaDelivery: React.FC<StepProps> = ({ formData, updateFormData }) => {
@@ -165,7 +163,7 @@ export const Step3MediaDelivery: React.FC<StepProps> = ({ formData, updateFormDa
               <select
                 id="photoStatus"
                 name="photoStatus"
-                value={formData.photoStatus || 'pending'}
+                value={formData.photoStatus || 'selection_ready'}
                 onChange={handleChange}
                 className={`${inputClasses} cursor-pointer`}
               >
@@ -177,12 +175,12 @@ export const Step3MediaDelivery: React.FC<StepProps> = ({ formData, updateFormDa
               </select>
               <div className="mt-3 flex items-center gap-2">
                 <div className={`h-2 w-2 rounded-full ${
-                  formData.photoStatus === 'delivered' ? 'bg-green-500' :
-                  formData.photoStatus === 'pending' ? 'bg-gray-400' :
-                  'bg-yellow-500'
+                  formData.photoStatus === 'completed' ? 'bg-green-500' :
+                  formData.photoStatus === 'editing_in_progress' ? 'bg-yellow-500' :
+                  'bg-blue-500'
                 }`} />
                 <span className="text-[10px] text-[#9E9E98] uppercase tracking-wider">
-                  {PHOTO_STATUSES.find(s => s.value === formData.photoStatus)?.label || 'Pending'}
+                  {PHOTO_STATUSES.find(s => s.value === formData.photoStatus)?.label || 'Selection Ready'}
                 </span>
               </div>
             </div>

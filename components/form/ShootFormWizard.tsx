@@ -60,11 +60,11 @@ const getInitialFormData = (): Shoot => ({
   photoSelectionUrl: '',
   selectedPhotosUrl: '',
   finalPhotosUrl: '',
-  photoStatus: 'pending',
+  photoStatus: 'selection_ready', // Must match database constraint
   videoUrl: '',
-  videoStatus: 'pending',
+  videoStatus: 'draft', // Must match database constraint
   revisionNotes: '',
-  status: 'pending',
+  status: 'pending', // ShootStatus: 'pending' | 'in_progress' | 'completed' | 'delivered'
   timeline: [],
   team: [],
   talent: [],

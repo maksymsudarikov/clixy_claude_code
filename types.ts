@@ -62,11 +62,11 @@ export interface Shoot {
   photoSelectionUrl?: string; // URL for client to select photos (Adobe/GDrive/WeTransfer)
   selectedPhotosUrl?: string; // URL for photos client already selected (for re-review)
   finalPhotosUrl?: string; // URL for final edited photos (same folder, updated)
-  photoStatus?: 'pending' | 'selection_ready' | 'selection_in_progress' | 'selected' | 'editing' | 'delivered'; // Photo workflow status
+  photoStatus?: 'selection_ready' | 'editing_in_progress' | 'completed'; // Must match database constraint // Photo workflow status
 
   // Video-specific fields
   videoUrl?: string; // URL for video deliverables (Google Drive, WeTransfer, etc.)
-  videoStatus?: 'pending' | 'draft' | 'editing' | 'review' | 'final'; // Video workflow status
+  videoStatus?: 'draft' | 'editing' | 'review' | 'final'; // Must match database constraint
   revisionNotes?: string; // Client revision notes for video
 
   stylingUrl?: string; // Changed from notes to URL
