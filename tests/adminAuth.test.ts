@@ -1,11 +1,21 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
-// Pure helper we'll extract from AdminAuth
-function getAdminAuthState(session: unknown): 'loading' | 'authenticated' | 'unauthenticated' {
-  if (session === undefined) return 'loading';
-  if (session === null) return 'unauthenticated';
-  return 'authenticated';
-}
+vi.mock('../services/supabase', () => ({
+  supabase: {
+    auth: {
+      getSession: vi.fn().mockResolvedValue({ data: { session: null } }),
+      onAuthStateChange: vi.fn().mockReturnValue({ data: { subscription: { unsubscribe: vi.fn() } } }),
+      signOut: vi.fn().mockResolvedValue({ error: null }),
+      signInWithOtp: vi.fn().mockResolvedValue({ error: null }),
+    },
+  },
+}));
+
+vi.mock('../config/features', () => ({
+  FEATURES: { giftCards: false },
+}));
+
+import { getAdminAuthState } from '../components/AdminAuth';
 
 describe('getAdminAuthState', () => {
   it('returns loading when session is undefined', () => {
@@ -15,6 +25,6 @@ describe('getAdminAuthState', () => {
     expect(getAdminAuthState(null)).toBe('unauthenticated');
   });
   it('returns authenticated when session object exists', () => {
-    expect(getAdminAuthState({ user: { email: 'a@b.com' } })).toBe('authenticated');
+    expect(getAdminAuthState({ user: { email: 'a@b.com' } } as any)).toBe('authenticated');
   });
 });

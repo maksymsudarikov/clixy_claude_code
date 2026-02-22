@@ -3,6 +3,11 @@ import { supabase } from '../services/supabase';
 import { Session } from '@supabase/supabase-js';
 import { FEATURES } from '../config/features';
 
+const ALLOWED_ADMIN_EMAILS = (import.meta.env.VITE_ADMIN_EMAILS ?? '')
+  .split(',')
+  .map((e: string) => e.trim().toLowerCase())
+  .filter(Boolean);
+
 type AuthState = 'loading' | 'authenticated' | 'unauthenticated';
 
 export function getAdminAuthState(session: Session | null | undefined): AuthState {
@@ -23,25 +28,39 @@ export const AdminAuth: React.FC<AdminAuthProps> = ({ children }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
+
     supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
+      if (!cancelled) setSession(data.session);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setSession(null);
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Logout failed:', error.message);
+    }
+    // onAuthStateChange handles setSession(null) automatically
   };
 
   const handleSendLink = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
+
+    if (ALLOWED_ADMIN_EMAILS.length > 0 && !ALLOWED_ADMIN_EMAILS.includes(email.toLowerCase())) {
+      setError('This email is not authorized for admin access.');
+      return;
+    }
+
     setLoading(true);
     setError('');
     const { error } = await supabase.auth.signInWithOtp({ email });
