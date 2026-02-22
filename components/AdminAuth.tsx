@@ -63,7 +63,12 @@ export const AdminAuth: React.FC<AdminAuthProps> = ({ children }) => {
 
     setLoading(true);
     setError('');
-    const { error } = await supabase.auth.signInWithOtp({ email });
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: 'https://www.clixyspace.com',
+      },
+    });
     if (error) {
       setError(error.message);
     } else {
