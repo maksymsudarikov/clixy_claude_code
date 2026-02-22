@@ -30,6 +30,22 @@ export const AdminAuth: React.FC<AdminAuthProps> = ({ children }) => {
   useEffect(() => {
     let cancelled = false;
 
+    // Handle PKCE code exchange when redirected back from magic link
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    if (code) {
+      supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
+        if (!cancelled) {
+          if (error) console.error('Code exchange failed:', error.message);
+          else if (data.session) {
+            setSession(data.session);
+            // Clean up the URL
+            window.history.replaceState({}, '', window.location.pathname + window.location.hash);
+          }
+        }
+      });
+    }
+
     supabase.auth.getSession().then(({ data }) => {
       if (!cancelled) setSession(data.session);
     });
