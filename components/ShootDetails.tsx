@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Shoot } from '../types';
 import { TeamList } from './TeamList';
@@ -44,6 +44,11 @@ export function getDefaultPhase(phases: Phase[]): Phase {
 export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
   const visiblePhases = getVisiblePhases(shoot);
   const [activePhase, setActivePhase] = useState<Phase>(getDefaultPhase(visiblePhases));
+  useEffect(() => {
+    if (!visiblePhases.includes(activePhase)) {
+      setActivePhase(getDefaultPhase(visiblePhases));
+    }
+  }, [shoot.status, shoot.photoStatus, shoot.videoStatus]);
   const { addNotification } = useNotification();
   const [searchParams] = useSearchParams();
 
@@ -54,7 +59,7 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
   const isPhotoShoot = shoot.projectType === 'photo_shoot' || shoot.projectType === 'hybrid' || !shoot.projectType;
   const isVideoProject = shoot.projectType === 'video_project' || shoot.projectType === 'hybrid';
   const showLocationFields = isPhotoShoot;
-  const showTeamFields = isPhotoShoot;
+  const showTeamFields = isPhotoShoot || isVideoProject;
 
   // Handle copy link
   const handleCopyLink = async () => {
@@ -102,8 +107,10 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
           {visiblePhases.map((phase) => (
             <button
               key={phase}
+              id={`tab-${phase}`}
               role="tab"
               aria-selected={activePhase === phase}
+              aria-controls={`panel-${phase}`}
               onClick={() => setActivePhase(phase)}
               className={`flex-1 py-4 sm:py-5 text-[10px] sm:text-xs font-bold uppercase tracking-[0.1em] sm:tracking-[0.2em] transition-all min-h-[44px] touch-manipulation
                 ${activePhase === phase
@@ -121,7 +128,7 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
 
         {/* PRE-PRODUCTION */}
         {activePhase === 'pre-production' && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          <div role="tabpanel" id="panel-pre-production" aria-labelledby="tab-pre-production" className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             {/* Left column */}
             <div className="lg:col-span-7 space-y-12">
               <section>
@@ -240,7 +247,7 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
 
         {/* PRODUCTION */}
         {activePhase === 'production' && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          <div role="tabpanel" id="panel-production" aria-labelledby="tab-production" className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             <div className="lg:col-span-7 space-y-12">
               {shoot.timeline && shoot.timeline.length > 0 && (
                 <section>
@@ -291,7 +298,7 @@ export const ShootDetails: React.FC<ShootDetailsProps> = ({ shoot }) => {
 
         {/* POST-PRODUCTION */}
         {activePhase === 'post-production' && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div role="tabpanel" id="panel-post-production" aria-labelledby="tab-post-production" className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="bg-[#141413] text-white p-6 sm:p-8 border border-[#141413]">
               <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-[#9E9E98] mb-6">Deliverables</h3>
               <div className="space-y-3">
