@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
-      base: './', // Важно для GitHub Pages
+      base: '/', // Absolute paths for Vercel (was './' for GitHub Pages)
       server: {
         port: 3000,
         host: '0.0.0.0',
