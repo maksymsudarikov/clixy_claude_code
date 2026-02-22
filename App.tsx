@@ -8,7 +8,7 @@ import { ShootFormWizard } from './components/form/ShootFormWizard';
 import { GiftCardPurchase } from './components/giftcard/GiftCardPurchase';
 import { GiftCardSuccess } from './components/giftcard/GiftCardSuccess';
 import { Landing } from './components/Landing';
-import { PinProtection } from './components/PinProtection';
+import { AdminAuth } from './components/AdminAuth';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { NotificationContainer } from './components/NotificationContainer';
@@ -168,9 +168,9 @@ const App: React.FC = () => {
             <Route path="/shoot/:id" element={<ShootRoute />} />
 
             {/* Protected routes - PIN required */}
-            <Route path="/studio" element={<PinProtection><AdminDashboard /></PinProtection>} />
-            <Route path="/studio/create" element={<PinProtection>{FEATURES.formWizard ? <ShootFormWizard /> : <ShootForm />}</PinProtection>} />
-            <Route path="/studio/edit/:id" element={<PinProtection>{FEATURES.formWizard ? <ShootFormWizard /> : <ShootForm />}</PinProtection>} />
+            <Route path="/studio" element={<AdminAuth><AdminDashboard /></AdminAuth>} />
+            <Route path="/studio/create" element={<AdminAuth>{FEATURES.formWizard ? <ShootFormWizard /> : <ShootForm />}</AdminAuth>} />
+            <Route path="/studio/edit/:id" element={<AdminAuth>{FEATURES.formWizard ? <ShootFormWizard /> : <ShootForm />}</AdminAuth>} />
 
             {/* Legacy redirects */}
             <Route path="/dashboard" element={<Navigate to="/studio" replace />} />
